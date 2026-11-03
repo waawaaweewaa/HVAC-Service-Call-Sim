@@ -26,7 +26,7 @@
   --f-body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
   --f-mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
   /* real-world wire insulation colors: identical in both themes */
-  --w-blk:#151515;--w-red:#c0392b;--w-yel:#e2b100;--w-blu:#2f6fb5;--w-wht:#f1f1f1;--w-grn:#2e8b57;--w-brn:#7a4b25;--w-pur:#7b54a8;--lead-red:#e03b2b;--lead-blk:#111111;
+  --w-blk:#151515;--w-red:#c0392b;--w-yel:#e2b100;--w-blu:#2f6fb5;--w-wht:#f1f1f1;--w-grn:#2e8b57;--w-brn:#7a4b25;--w-pur:#7b54a8;--lead-red:#e03b2b;--lead-blk:#111111;--warmair:#e0883a;--tepid:#8fb3cf;
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
   --bg:#11161b;--panel:#1a2128;--panel2:#212a32;--ink:#e4eaef;--muted:#93a0ab;--line:#2d3842;--sline:#9aa6b0;
@@ -159,7 +159,9 @@ table.hist th,table.hist td{text-align:left;padding:6px;border-bottom:1px solid 
 .leader{stroke:var(--ink);stroke-width:.8;fill:none}
 .lcdbig{font:600 42px var(--f-mono);fill:var(--lcd-ink)}
 .lcdsm{font:600 12px var(--f-mono);fill:var(--lcd-ink)}
-.air{fill:none;stroke:var(--cold);stroke-width:2;stroke-dasharray:5 5;stroke-linecap:round;animation:flow .9s linear infinite}
+.air{fill:none;stroke:var(--cold);stroke-width:2;stroke-dasharray:5 5;stroke-linecap:round}
+.air.hot{stroke:var(--hot)}.air.weak{opacity:.45}
+.duct-flow{fill:none;stroke:var(--cold);stroke-width:3;stroke-dasharray:6 4;opacity:.6}.duct-flow.warm{stroke:var(--muted)}
 .air.warm{stroke:var(--muted)}
 @keyframes flow{to{stroke-dashoffset:-20}}
 .spin{animation:spin .45s linear infinite;transform-origin:0 0}
@@ -191,6 +193,13 @@ table.hist th,table.hist td{text-align:left;padding:6px;border-bottom:1px solid 
 .cuhead{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:8px 0}
 .leadchip{display:inline-flex;align-items:center;gap:6px;font:600 13px var(--f-mono);padding:4px 8px;border-radius:999px;border:1px solid var(--line);background:var(--panel2)}
 .leadchip i{width:10px;height:10px;border-radius:50%;display:inline-block}
+.scenebox{position:relative}
+.egg{position:absolute;top:8px;left:8px;width:34px;height:34px;border-radius:50%;border:1px solid var(--line);background:var(--panel);color:var(--muted);opacity:.5;cursor:pointer;display:grid;place-items:center;padding:0}
+.egg:hover,.egg:focus-visible,.egg[aria-pressed="true"]{opacity:1;color:var(--cold);border-color:var(--cold)}
+.qbar{display:flex;flex-wrap:wrap;gap:6px;align-items:center;padding:10px 12px;border-top:1px solid var(--line);background:var(--panel2)}
+.qbar .btn{min-height:40px}
+.qbar .ql{font:700 11px var(--f-display);letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-right:2px}
+.qmsg{flex-basis:100%;font-size:13px;color:var(--muted)}.qmsg.bad{color:var(--hot)}
 #world{transform-origin:0 0}
 @media (prefers-reduced-motion:reduce){.spin,.spin-s,.air,.buzz{animation:none}#world{transition:none!important}}
 </style>
@@ -208,7 +217,8 @@ table.hist th,table.hist td{text-align:left;padding:6px;border-bottom:1px solid 
   <div class="grid">
     <section class="card scenewrap" aria-label="Job site">
       <div class="crumb"><button class="btn sm" id="bBack" type="button" hidden>← House</button><span class="where" id="where"></span><span class="spacer"></span><span class="meta" id="sceneHint"></span></div>
-      <div id="scene"></div>
+      <div class="scenebox"><div id="scene"></div><button class="egg" id="bFlow" type="button" aria-label="Airflow view" aria-pressed="false" title="Airflow view" hidden><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 8h11a3 3 0 1 0-3-3M3 12h15a3 3 0 1 1-3 3M3 16h8"/></svg></button></div>
+      <div class="qbar" id="qbar" hidden></div>
       <div class="complist" id="complist"></div>
       <nav class="zones" id="zones" aria-label="Go to"></nav>
     </section>
@@ -498,9 +508,15 @@ Field tip — confirming refrigerant: (1) this data plate; (2) A2L units such as
 /* ---------- scene art (system-specific) ---------- */
 const HIT=(x,y,w,h)=>`<rect class="hit" x="${x}" y="${y}" width="${w}" height="${h}" rx="5"/>`;
 function CMP(id,sel,inner,box){const c=SYS().comps[id];return `<g class="cmp${sel===id?' sel':''}" data-comp="${id}" tabindex="0" role="button" aria-label="${c.n}">${inner}${HIT(...box)}</g>`}
+const RM=typeof matchMedia!=='undefined'&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+/* SMIL animations: WebKit starts these reliably on SVG injected via innerHTML */
+const FLOW=(p,cls,dur)=>`<path d="${p}" class="${cls}">${RM?'':`<animate attributeName="stroke-dashoffset" from="0" to="-20" dur="${fx(dur,2)}s" repeatCount="indefinite"/>`}</path>`;
+const SPINA=dur=>RM?'':`<animateTransform attributeName="transform" type="rotate" from="0" to="360" dur="${dur}s" repeatCount="indefinite"/>`;
+const PULSE=(x,y)=>`<g pointer-events="none"><circle cx="${x}" cy="${y}" r="8" class="k-acc st"/><circle cx="${x}" cy="${y}" r="8" fill="none" style="stroke:var(--accent);stroke-width:3">${RM?'':'<animate attributeName="r" values="8;20;8" dur="1.8s" repeatCount="indefinite"/><animate attributeName="opacity" values="1;0;1" dur="1.8s" repeatCount="indefinite"/>'}</circle></g>`;
+const AIRF=(s,d)=>d.blower!=='run'?0:d.ref.iced||s.indoor.filter==='clogged'?.35:s.indoor.filter==='dirty'?.75:1;
 const BLADES='<path d="M0 0 L36 -9 L36 9Z M0 0 L-36 9 L-36 -9Z M0 0 L-9 -36 L9 -36Z M0 0 L9 36 L-9 36Z" class="k-dark"/>';
-SYSTEMS['split-ac'].overview=function(s,d){
-  const air=d.blower==='run',cold=air&&d.comp==='run'&&d.dT>8;
+SYSTEMS['split-ac'].overview=function(s,d,flow){
+  const air=d.blower==='run',cold=air&&d.comp==='run'&&d.dT>8,af=AIRF(s,d);
   const fins=Array.from({length:10},(_,i)=>`<line x1="${38+i*8}" y1="372" x2="${38+i*8}" y2="426" class="fin"/>`).join('');
   return `<svg viewBox="0 0 800 500" role="img" aria-label="House cutaway showing the HVAC system"><g id="world">
 <rect width="800" height="500" class="k-sky"/><rect y="430" width="800" height="70" class="k-grass"/>
@@ -522,14 +538,15 @@ ${s.indoor.drainClogged?'<rect x="236" y="342" width="20" height="5" class="k-wa
 <rect x="262" y="250" width="28" height="46" rx="2" class="k-metal2 st"/><line x1="268" y1="258" x2="284" y2="258" class="leader"/><line x1="268" y1="266" x2="284" y2="266" class="leader"/><line x1="268" y1="274" x2="284" y2="274" class="leader"/>
 <rect x="512" y="292" width="22" height="28" rx="4" class="k-panel st"/><rect x="516" y="297" width="14" height="9" class="${d.statOn?'k-lcd':'k-dark'}"/>
 <rect x="451" y="208" width="38" height="7" class="k-metal st"/>
-${air?`<path d="M458 220 q4 10 0 20 q-4 10 0 20" class="air${cold?'':' warm'}"/><path d="M470 220 q4 10 0 20 q-4 10 0 20" class="air${cold?'':' warm'}"/><path d="M482 220 q4 10 0 20 q-4 10 0 20" class="air${cold?'':' warm'}"/>`:''}
+${air&&!flow?FLOW('M210 300 V182 H470 V206','duct-flow'+(cold?'':' warm'),1.4/af)+[458,470,482].map(x=>FLOW(`M${x} 220 q4 10 0 20 q-4 10 0 20`,'air'+(cold?'':' warm')+(af<.5?' weak':''),.9/af)).join('')+FLOW('M398 404 H378','air warm',1.2/af):''}
 <rect x="330" y="384" width="44" height="32" class="k-metal st"/><line x1="334" y1="392" x2="370" y2="392" class="leader"/><line x1="334" y1="400" x2="370" y2="400" class="leader"/><line x1="334" y1="408" x2="370" y2="408" class="leader"/>
 <rect x="560" y="248" width="48" height="66" class="k-sky st"/><line x1="584" y1="248" x2="584" y2="314" class="leader"/>
 <path d="M402 428 v-26 q0-8 8-8 h100 q8 0 8 8 v26z" class="k-roof"/>
 <rect x="22" y="428" width="108" height="8" class="k-metal2"/>
 <rect x="32" y="366" width="88" height="62" class="k-metal st"/>${fins}
 <ellipse cx="76" cy="366" rx="44" ry="7" class="k-dark"/>
-<g transform="translate(76 366) scale(1 .16)"><g class="${d.fan==='run'?'spin':''}">${BLADES}</g></g>
+<g transform="translate(76 366) scale(1 .16)"><g>${BLADES}${d.fan==='run'?SPINA(.45):''}</g></g>
+${d.fan==='run'&&!flow?[62,76,90].map(x=>FLOW(`M${x} 356 q-6 -12 0 -24 q6 -12 0 -24`,'air '+(d.comp==='run'?'hot':'warm'),1.1)).join(''):''}
 <rect x="124" y="318" width="14" height="30" rx="2" class="k-metal2 st"/>
 <path d="M120 404 H160 V322 H182" class="ls-s"/><path d="M120 413 H167 V332 H182" class="ls-l"/>
 ${d.ref.iced?'<path d="M120 404 H160 V322 H182" class="frostline"/>':''}
@@ -543,6 +560,7 @@ ${d.ref.iced?'<path d="M120 404 H160 V322 H182" class="frostline"/>':''}
 <text x="52" y="306" class="lbl">Disconnect</text><path d="M104 306 L124 322" class="leader"/>
 <text x="352" y="378" class="lbl" text-anchor="middle">Return</text>
 <text x="148" y="478" class="lbl">Refrigerant lines</text><path d="M168 468 L162 416" class="leader"/>
+${flow?SYSTEMS['split-ac'].flowView(s,d):''}
 <g class="hot" data-zone="tstat" tabindex="0" role="button" aria-label="Thermostat"><rect x="500" y="280" width="46" height="52" rx="6"/></g>
 <g class="hot" data-zone="indoor" tabindex="0" role="button" aria-label="Furnace and indoor coil"><rect x="164" y="290" width="98" height="140" rx="6"/></g>
 <g class="hot" data-zone="panel" tabindex="0" role="button" aria-label="Breaker panel"><rect x="258" y="246" width="36" height="54" rx="6"/></g>
@@ -557,7 +575,7 @@ SYSTEMS['split-ac'].scene=function(z,s,d,sel){
     let g=`<rect width="600" height="400" class="k-wall2"/>`;
     if(!s.stat.faceOff){
       const lcd=d.statOn?`<rect x="228" y="100" width="144" height="86" rx="6" class="k-lcd"/><text x="300" y="158" class="lcdbig" text-anchor="middle">${s.env.room}°</text><text x="238" y="118" class="lcdsm">COOL</text><text x="362" y="118" class="lcdsm" text-anchor="end">SET ${s.stat.set}°</text>${d.statCall?'<text x="238" y="178" class="lcdsm">COOL ON</text>':''}${s.stat.icon?'<text x="362" y="178" class="lcdsm" text-anchor="end">FILTER</text>':''}`:`<rect x="228" y="100" width="144" height="86" rx="6" class="k-dark"/>`;
-      g+=CMP('tstat',sel,`<rect x="198" y="70" width="204" height="250" rx="24" class="k-panel st"/>${lcd}<circle cx="262" cy="252" r="17" class="k-metal st"/><circle cx="338" cy="252" r="17" class="k-metal st"/><text x="262" y="257" class="lbl2" text-anchor="middle">−</text><text x="338" y="257" class="lbl2" text-anchor="middle">+</text>`,[192,64,216,262]);
+      g+=CMP('tstat',sel,`<rect x="198" y="70" width="204" height="250" rx="24" class="k-panel st"/>${lcd}<circle cx="262" cy="252" r="17" class="k-metal st"/><circle cx="338" cy="252" r="17" class="k-metal st"/><text x="262" y="257" class="lbl2" text-anchor="middle">−</text><text x="338" y="257" class="lbl2" text-anchor="middle">+</text>`,[192,64,216,262]);g+=PULSE(386,84);
     }else{
       const ws=[['R','var(--hot)',true],['C','var(--cold)',s.stat.cWire],['Y','var(--accent)',true],['G','var(--ok)',true],['W','var(--metal)',true]];
       const term=ws.map((w,i)=>`<circle cx="${240+i*30}" cy="180" r="9" class="k-metal2 st"/><text x="${240+i*30}" y="208" class="lbl2" text-anchor="middle">${w[0]}</text>${w[2]?`<path d="M${240+i*30} 180 V${300+i*4} H${300}" class="wire" style="stroke:${w[1]}"/>`:''}`).join('');
@@ -578,15 +596,16 @@ SYSTEMS['split-ac'].scene=function(z,s,d,sel){
     let cab=`<rect x="150" y="120" width="300" height="272" class="k-metal st"/><rect x="164" y="132" width="272" height="94" rx="3" class="k-metal2 st" opacity=".55"/><text x="300" y="184" class="lbl" text-anchor="middle">Burner compartment</text>`;
     if(I.doorOn){
       cab+=`<rect x="164" y="236" width="272" height="148" rx="3" class="k-metal st"/>${Array.from({length:6},(_,i)=>`<line x1="190" y1="${252+i*10}" x2="260" y2="${252+i*10}" class="leader"/>`).join('')}<circle cx="380" cy="262" r="9" style="fill:${led}" class="st"/><text x="380" y="288" class="lbl" text-anchor="middle">LED</text><text x="300" y="370" class="lbl" text-anchor="middle">Blower door</text>`;
-      g+=CMP('cab',sel,cab,[144,114,312,284]);
+      g+=CMP('cab',sel,cab,[144,114,312,284]);g+=PULSE(424,372);
     }else{
       g+=CMP('cab',sel,cab+`<rect x="160" y="232" width="280" height="156" class="k-dark"/><rect x="160" y="370" width="16" height="12" class="${I.doorHeld?'k-acc':'k-metal2'}"/><text x="168" y="364" class="tiny" text-anchor="middle" style="fill:#fff">DS</text>`,[144,114,312,118]);
       g+=CMP('board',sel,`<rect x="176" y="242" width="118" height="58" rx="3" class="k-pcb st"/><circle cx="186" cy="252" r="4" style="fill:${led}"/>${['R','C','Y','G','W'].map((t,i)=>`<rect x="${190+i*20}" y="282" width="14" height="12" class="k-metal"/><text x="${197+i*20}" y="278" class="tiny" text-anchor="middle" style="fill:#fff">${t}</text>`).join('')}${I.jumper?'<path d="M197 288 q20 -16 40 0 q10 -10 20 0" fill="none" style="stroke:var(--hot);stroke-width:2"/>':''}`,[172,238,96,66]);
       g+=CMP('fuse',sel,`<rect x="270" y="248" width="20" height="10" rx="1" style="fill:${I.fuseOK||!I.fuseVisible?'#e3c56a':'#7a6a40'}" class="st"/>`,[264,242,32,22]);
       g+=CMP('xfmr',sel,`<rect x="306" y="244" width="44" height="40" rx="2" class="k-metal2 st"/><rect x="314" y="252" width="28" height="24" class="k-copper" opacity=".7"/>`,[300,238,56,52]);
-      g+=CMP('blower',sel,`<circle cx="292" cy="342" r="40" class="k-metal2 st"/><g transform="translate(292 342)"><g class="${d.blower==='run'?'spin':''}">${Array.from({length:12},(_,i)=>`<line x1="0" y1="-14" x2="0" y2="-34" transform="rotate(${i*30})" style="stroke:var(--dark);stroke-width:3"/>`).join('')}</g></g><circle cx="292" cy="342" r="12" class="k-metal st"/>`,[248,298,88,88]);
+      g+=CMP('blower',sel,`<circle cx="292" cy="342" r="40" class="k-metal2 st"/><g transform="translate(292 342)"><g>${Array.from({length:12},(_,i)=>`<line x1="0" y1="-14" x2="0" y2="-34" transform="rotate(${i*30})" style="stroke:var(--dark);stroke-width:3"/>`).join('')}${d.blower==='run'?SPINA(.6):''}</g></g><circle cx="292" cy="342" r="12" class="k-metal st"/>`,[248,298,88,88]);
       g+=CMP('bcap',sel,`<rect x="370" y="306" width="30" height="58" rx="8" class="k-metal st"/><text x="385" y="340" class="tiny" text-anchor="middle">${I.bCapRated}µF</text>${I.bulge?'<path d="M372 308 q13 -10 26 0" class="k-metal st"/>':''}`,[364,296,42,74]);
     }
+    if(d.blower==='run'){const af=AIRF(s,d),c=d.comp==='run'&&d.dT>8?'air':'air warm';g+=FLOW('M120 396 V252','air warm'+(af<.5?' weak':''),1.2/af)+[270,300,330].map(x=>FLOW(`M${x} 26 V2`,c+(af<.5?' weak':''),.9/af)).join('')}
     return svg(g,'Furnace and indoor coil close-up');
   }
   if(z==='panel'){
@@ -606,10 +625,10 @@ SYSTEMS['split-ac'].scene=function(z,s,d,sel){
     g+=CMP('amb',sel,`<circle cx="62" cy="54" r="22" class="k-acc"/>${Array.from({length:8},(_,i)=>`<line x1="62" y1="22" x2="62" y2="14" transform="rotate(${i*45} 62 54)" style="stroke:var(--accent);stroke-width:3"/>`).join('')}<text x="62" y="102" class="lbl" text-anchor="middle">${s.env.amb}°F out</text>`,[30,8,64,104]);
     g+=`<rect x="118" y="350" width="344" height="14" class="k-metal2 st"/>`;
     g+=CMP('ccoil',sel,`<rect x="140" y="112" width="300" height="240" class="k-metal st"/>${fins}${O.coil==='dirty'?'<rect x="144" y="128" width="292" height="222" class="k-dirt" opacity=".75"/>':O.coil==='dusty'?'<rect x="144" y="128" width="292" height="222" class="k-dirt" opacity=".3"/>':''}${O.bentFins?'<path d="M150 300 l20 8 l-12 10 l18 6 l-6 14" fill="none" style="stroke:var(--sline);stroke-width:2"/>':''}`,[140,128,150,224]);
-    g+=CMP('fan',sel,`<rect x="134" y="98" width="312" height="16" rx="3" class="k-dark"/><ellipse cx="290" cy="98" rx="140" ry="18" class="k-metal2 st"/><g transform="translate(290 98) scale(3.4 .42)"><g class="${run?'spin':d.fan==='hum'?'buzz':''}">${BLADES}</g></g><circle cx="290" cy="98" r="4" class="k-dark"/>${O.ants?Array.from({length:9},(_,i)=>`<circle cx="${200+i*15}" cy="${92+(i%3)*4}" r="1.6" class="k-dark"/>`).join(''):''}`,[146,76,288,40]);
+    g+=CMP('fan',sel,`<rect x="134" y="98" width="312" height="16" rx="3" class="k-dark"/><ellipse cx="290" cy="98" rx="140" ry="18" class="k-metal2 st"/><g transform="translate(290 98) scale(3.4 .42)"><g class="${d.fan==='hum'?'buzz':''}">${BLADES}${run?SPINA(.45):''}</g></g><circle cx="290" cy="98" r="4" class="k-dark"/>${O.ants?Array.from({length:9},(_,i)=>`<circle cx="${200+i*15}" cy="${92+(i%3)*4}" r="1.6" class="k-dark"/>`).join(''):''}`,[146,76,288,40]);
     g+=CMP('plate',sel,`<rect x="160" y="290" width="92" height="48" rx="2" class="k-panel st"/><line x1="168" y1="302" x2="244" y2="302" class="leader"/><line x1="168" y1="312" x2="236" y2="312" class="leader"/><line x1="168" y1="322" x2="240" y2="322" class="leader"/>${s.ref.type==='R-454B'?'<rect x="226" y="326" width="20" height="9" class="k-hot"/>':''}<text x="206" y="284" class="lbl" text-anchor="middle">Data plate</text>`,[154,272,104,72]);
     if(O.panelOn){
-      g+=CMP('cpanel',sel,`<rect x="300" y="140" width="140" height="190" rx="3" class="k-metal st"/><circle cx="310" cy="150" r="3" class="k-metal2"/><circle cx="430" cy="150" r="3" class="k-metal2"/><circle cx="310" cy="320" r="3" class="k-metal2"/><circle cx="430" cy="320" r="3" class="k-metal2"/><text x="370" y="240" class="lbl" text-anchor="middle">Service panel</text>`,[296,136,148,198]);
+      g+=CMP('cpanel',sel,`<rect x="300" y="140" width="140" height="190" rx="3" class="k-metal st"/><circle cx="310" cy="150" r="3" class="k-metal2"/><circle cx="430" cy="150" r="3" class="k-metal2"/><circle cx="310" cy="320" r="3" class="k-metal2"/><circle cx="430" cy="320" r="3" class="k-metal2"/><text x="370" y="240" class="lbl" text-anchor="middle">Service panel</text>`,[296,136,148,198]);g+=PULSE(430,322);
     }else{
       g+=CMP('cpanel',sel,`<rect x="300" y="140" width="140" height="190" class="k-dark"/><rect x="454" y="40" width="40" height="52" rx="2" class="k-metal st" opacity=".9"/><text x="474" y="34" class="tiny" text-anchor="middle">PANEL</text>`,[448,30,52,66]);
       g+=CMP('contactor',sel,`<rect x="310" y="150" width="54" height="66" rx="3" class="k-metal2 st"/><rect x="326" y="${d.pulled?170:160}" width="22" height="20" class="k-acc st"${d.pulled&&O.pitted?' style="animation:buzz .08s linear infinite"':''}/><text x="337" y="210" class="tiny" text-anchor="middle" style="fill:#fff">L1 L2</text>${O.pitted||O.pittedCosmetic?'<circle cx="318" cy="200" r="3" class="k-dark"/>':''}`,[306,146,62,74]);
@@ -620,12 +639,13 @@ SYSTEMS['split-ac'].scene=function(z,s,d,sel){
     g+=CMP('disc',sel,`<rect x="518" y="120" width="62" height="80" rx="3" class="k-metal2 st"/>${s.power.discIn?'<rect x="530" y="138" width="38" height="44" rx="2" class="k-dark"/>':'<rect x="530" y="138" width="38" height="44" rx="2" class="k-panel st"/><rect x="532" y="250" width="34" height="40" rx="2" class="k-dark"/><text x="549" y="306" class="tiny" text-anchor="middle">pulled</text>'}<text x="549" y="114" class="lbl" text-anchor="middle">Disconnect</text><path d="M518 190 H450 V160" fill="none" style="stroke:var(--metal2);stroke-width:5"/>`,[512,98,74,110]);
     g+=CMP('lvwire',sel,`<path d="M500 236 C480 236 470 250 440 250" class="wire" style="stroke:var(--panel);stroke-width:3"/>${O.yShort?'<circle cx="442" cy="250" r="3" class="k-copper"/>':''}<text x="470" y="270" class="tiny" text-anchor="middle">T-stat wire</text>`,[436,226,66,50]);
     g+=CMP('ports',sel,`<rect x="440" y="300" width="22" height="16" class="k-copper"/><rect x="440" y="322" width="18" height="12" class="k-copper"/><path d="M462 308 H500" class="ls-s"/><path d="M458 328 H500" class="ls-l"/>${d.ref.iced?'<path d="M462 308 H500" class="frostline"/>':''}<text x="476" y="350" class="tiny" text-anchor="middle">valves</text>`,[436,292,66,64]);
+    if(run)g+=[230,290,350].map(x=>FLOW(`M${x} 74 q-10 -16 0 -32 q10 -16 0 -32`,'air '+(d.comp==='run'?'hot':'warm'),1.1)).join('');
     return svg(g,'Condenser close-up');
   }
   if(z==='air'){
     const air=d.blower==='run',cold=air&&d.comp==='run'&&d.dT>8,weak=d.ref.iced;
     let g=`<rect width="600" height="400" class="k-wall2"/><rect width="600" height="54" class="k-wall st"/>`;
-    g+=CMP('sup',sel,`<rect x="210" y="46" width="180" height="24" rx="2" class="k-metal st"/>${Array.from({length:8},(_,i)=>`<line x1="${224+i*20}" y1="50" x2="${224+i*20}" y2="66" class="leader"/>`).join('')}${air?[240,280,320,360].map(x=>`<path d="M${x} 76 q8 ${weak?10:20} 0 ${weak?20:40} q-8 20 0 ${weak?20:40}" class="air${cold?'':' warm'}"${weak?' style="opacity:.45"':''}/>`).join(''):''}<text x="300" y="${air?180:100}" class="lbl" text-anchor="middle">Supply register</text>`,[204,40,192,150]);
+    g+=CMP('sup',sel,`<rect x="210" y="46" width="180" height="24" rx="2" class="k-metal st"/>${Array.from({length:8},(_,i)=>`<line x1="${224+i*20}" y1="50" x2="${224+i*20}" y2="66" class="leader"/>`).join('')}${air?[240,280,320,360].map(x=>FLOW(`M${x} 76 q8 ${weak?10:20} 0 ${weak?20:40} q-8 20 0 ${weak?20:40}`,'air'+(cold?'':' warm')+(weak?' weak':''),.9/AIRF(s,d))).join('')+[262,300,338].map(x=>FLOW(`M${x} 206 V244`,'air warm'+(weak?' weak':''),1/AIRF(s,d))).join(''):''}<text x="300" y="${air?180:100}" class="lbl" text-anchor="middle">Supply register</text>`,[204,40,192,150]);
     g+=CMP('ret',sel,`<rect x="210" y="250" width="180" height="110" rx="2" class="k-metal st"/>${Array.from({length:9},(_,i)=>`<line x1="218" y1="${262+i*11}" x2="382" y2="${262+i*11}" class="leader"/>`).join('')}<text x="300" y="382" class="lbl" text-anchor="middle">Return grille</text>`,[204,244,192,146]);
     if(s.env.stain)g+=CMP('stain',sel,`<ellipse cx="470" cy="28" rx="44" ry="16" style="fill:#9a7650;opacity:.55"/>`,[420,6,100,46]);
     return svg(g,'Supply register and return grille');
@@ -643,6 +663,30 @@ SYSTEMS['split-ac'].scene=function(z,s,d,sel){
    (magnitude, phase, circuit 'hv' | 'lv' | 'gnd'), or {f:id} for a floating conductor.
    map[] ties terminal pairs to the preset test points so grading still credits them.
    ===================================================================== */
+SYSTEMS['split-ac'].quick={tstat:['statFace','statCool','statBatt'],indoor:['door','doorHold','furnSw'],cond:['cpanel','disc'],panel:['acBkr','furnBkr'],air:[]};
+/* Easter egg: particle view of the air paths, driven by the same physics as everything else */
+SYSTEMS['split-ac'].flowView=function(s,d){
+  const af=AIRF(s,d),cool=d.comp==='run'&&d.dT>8,weak=d.comp==='run'&&!cool;
+  const P=(id,path,n,dur,col)=>{if(RM)return `<path d="${path}" fill="none" style="stroke:${col};stroke-width:3;stroke-dasharray:4 6;opacity:.9"/>`;
+    let o=`<path id="${id}" d="${path}" fill="none" stroke="none"/>`;for(let i=0;i<n;i++)o+=`<circle r="3.8" style="fill:${col}"><animateMotion dur="${fx(dur,2)}s" begin="-${fx(dur*i/n,2)}s" repeatCount="indefinite"><mpath href="#${id}"/></animateMotion></circle>`;return o};
+  let g='<rect width="800" height="500" style="fill:var(--bg);opacity:.4" pointer-events="none"/><g pointer-events="none">';
+  if(af>0){
+    g+=P('fvR','M352 400 C320 432 240 434 212 424 V344',Math.round(7*af)+2,3.2/af,'var(--warmair)');
+    g+=P('fvS','M210 342 V182 H470 V214',Math.round(12*af)+3,4.2/af,cool?'var(--cold)':weak?'var(--tepid)':'var(--warmair)');
+    g+=P('fvM','M470 218 C470 300 430 360 374 398',Math.round(6*af)+2,3/af,cool?'var(--tepid)':'var(--warmair)');
+  }
+  if(d.fan==='run'){
+    g+=P('fvI1','M2 408 H34',4,1.2,'var(--warmair)')+P('fvI2','M138 392 H120',3,1,'var(--warmair)');
+    g+=P('fvX','M76 362 C68 330 86 300 76 270 C68 240 84 214 76 186',9,2.4,d.comp==='run'?'var(--hot)':'var(--warmair)');
+  }
+  return g+'</g>';
+};
+SYSTEMS['split-ac'].flowStatus=function(s,d){
+  const cool=d.comp==='run'&&d.dT>8;
+  return[d.blower==='off'?'Blower off: no indoor airflow':d.blower==='hum'?'Blower stalled: no indoor airflow':d.ref.iced?'Airflow choked by ice':s.indoor.filter==='clogged'?'Clogged filter: weak airflow':s.indoor.filter==='dirty'?'Airflow slightly reduced':'Indoor airflow normal',
+    d.comp==='run'?(cool?'Coil is cooling the air':'Coil running, weak cooling'):'Not cooling: compressor off',
+    d.fan==='run'?(d.comp==='run'?'Condenser rejecting heat outside':'Condenser fan running, no heat to reject'):d.fan==='hum'?'Condenser fan stalled':'Condenser fan off'];
+};
 const PH=(m,ph=0,c='hv')=>({m,ph,c});const FL=id=>({f:id});
 const rad=x=>x*Math.PI/180;
 const padd=(b,m,ph)=>{if(b.f)return b;const x=b.m*Math.cos(rad(b.ph))+m*Math.cos(rad(ph)),y=b.m*Math.sin(rad(b.ph))+m*Math.sin(rad(ph));return PH(Math.hypot(x,y),Math.atan2(y,x)*180/Math.PI,b.c)};
@@ -1031,7 +1075,7 @@ const KEY='hvac-sim-v1';
 let store={history:[],mode:'auto',tierIdx:0,since:0,callNo:1};
 try{const raw=localStorage.getItem(KEY);if(raw)store={...store,...JSON.parse(raw)}}catch(e){}
 const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(store))}catch(e){}};
-const UI={mode:'V',zone:'house',comp:null,tab:'dispatch',last:null,msg:null,bad:false,cu:null,leads:[],place:null};
+const UI={mode:'V',zone:'house',comp:null,tab:'dispatch',last:null,msg:null,bad:false,cu:null,leads:[],place:null,flow:false};
 const QS=[['when','When did this start?'],['recent','Any recent work, changes, or storms?'],['noise','Any unusual noises or smells?'],['water','Seen water anywhere?'],['tried','Have you tried or reset anything?']];
 
 function tierNow(){return store.mode==='auto'?store.tierIdx:Math.max(0,TIERS.findIndex(t=>t.id===store.mode))}
@@ -1116,15 +1160,29 @@ function renderScene(){
   if(UI.cu){const cu=S.closeups[UI.cu];
     $('#scene').innerHTML=renderCloseup();$('#where').textContent=`${zn} › ${cu.n}`;
     $('#bBack').hidden=false;$('#bBack').textContent='← '+zn;$('#sceneHint').textContent='Tap terminals to place your leads';
-    $('#complist').innerHTML='';$('#complist').hidden=true;return}
+    $('#complist').innerHTML='';$('#complist').hidden=true;$('#bFlow').hidden=true;renderQbar();return}
   $('#bBack').textContent='← House';
-  $('#scene').innerHTML=z==='house'?S.overview(G.st,d):S.scene(z,G.st,d,UI.comp);
+  $('#scene').innerHTML=z==='house'?S.overview(G.st,d,UI.flow):S.scene(z,G.st,d,UI.comp);
+  const bf=$('#bFlow');bf.hidden=z!=='house';bf.setAttribute('aria-pressed',String(UI.flow));
   $('#where').textContent=zn;
   $('#bBack').hidden=z==='house';
   $('#sceneHint').textContent=z==='house'?'Tap equipment to walk over':'Tap a part to inspect it';
   const list=z==='house'?[]:Object.entries(S.comps).filter(([id,c])=>c.z===z&&c.vis(G.st));
   $('#complist').innerHTML=list.map(([id,c])=>`<button type="button" data-comp="${id}" aria-pressed="${UI.comp===id}">${c.n}</button>`).join('');
   $('#complist').hidden=!list.length;
+  renderQbar();
+}
+function renderQbar(){
+  const S=SYS(),s=G.st,d=S.derive(s),el=$('#qbar'),btns=[];
+  const add=a=>{const A=S.actions[a];if(A&&A.show(s,d)&&!btns.some(b=>b[0]===a))btns.push([a,A.l(s,d)])};
+  if(UI.cu)S.closeups[UI.cu].comps.forEach(id=>(S.comps[id].acts||[]).forEach(add));else(S.quick[UI.zone]||[]).forEach(add);
+  const cuId=!UI.cu&&UI.comp&&S.cuOf[UI.comp]&&S.comps[UI.comp].vis(s)?S.cuOf[UI.comp]:null;
+  const msg=UI.msg?UI.msg.split('\n')[0]:'';
+  if(UI.zone==='house'&&UI.flow&&S.flowStatus){const sw=(c,t)=>`<span class="leadchip"><i style="background:${c}"></i>${t}</span>`;
+    el.hidden=false;el.innerHTML=`<span class="ql">Airflow view</span>${sw('var(--warmair)','Room / return')}${sw('var(--cold)','Cooled supply')}${sw('var(--hot)','Condenser heat')}<div class="qmsg">${S.flowStatus(s,d).map(esc).join(' · ')}. Faster dots = more airflow.</div>`;return}
+  if(!btns.length&&!cuId&&!msg){el.hidden=true;el.innerHTML='';return}
+  el.hidden=false;
+  el.innerHTML=`${btns.length||cuId?'<span class="ql">Quick</span>':''}${cuId?`<button class="btn primary sm" type="button" data-cu="${cuId}">Open close-up</button>`:''}${btns.slice(0,5).map(([a,l])=>`<button class="btn sm" type="button" data-act="${a}">${esc(l)}</button>`).join('')}${msg?`<div class="qmsg${UI.bad?' bad':''}">${esc(msg)}</div>`:''}`;
 }
 function renderMeter(){
   $('#modes').innerHTML=MODES.map(m=>`<button class="mode" type="button" data-mode="${m.k}" aria-pressed="${UI.mode===m.k}" title="${m.n}">${m.s}</button>`).join('');
@@ -1365,6 +1423,7 @@ document.addEventListener('keydown',e=>{
 $('#bBack').onclick=()=>{if(UI.cu){UI.cu=null;UI.leads=[];UI.place=null;UI.msg=null;renderAll();return}UI.zone='house';UI.comp=null;UI.msg=null;renderAll()};
 $('#bNew').onclick=()=>newCall();
 $('#bStats').onclick=openStats;
+$('#bFlow').onclick=()=>{UI.flow=!UI.flow;if(UI.flow)addLog('Airflow view on.');renderScene()};
 $('#bCall').onclick=openCall;
 newCall();
 </script>
