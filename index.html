@@ -1,0 +1,1374 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f2b705">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="HVAC Sim">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png" type="image/png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<style>[hidden]{display:none!important}:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}</style>
+<title>HVAC Service Call Sim</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: field-service tablet. Scene viewport on the left, yellow meter + work order rail on the right; stacks on phones. */
+:root{
+  --bg:#e8ecef;--panel:#ffffff;--panel2:#f3f5f7;--ink:#16202a;--muted:#5a6773;--line:#cfd6dc;--sline:#56616b;
+  --accent:#f2b705;--accent-ink:#1d1704;--copper:#b5652a;--cold:#2a78b5;--hot:#c4432b;--ok:#2c8a55;--warn:#a87300;
+  --sky:#dce8f0;--grass:#a9c48f;--wall:#efe4cd;--wall2:#e2d3b3;--roof:#6d5245;--attic:#eadcbb;--metal:#d3d9de;--metal2:#a3aeb7;--dark:#2a3239;
+  --duct:#bcd7ea;--pcb:#3f7a52;--lcd:#c3d4a8;--lcd-ink:#1b2416;--frost:#ffffff;--water:#5aa3d6;--dirt:#8a6a45;--filter:#f4f1e6;
+  --f-display:"Barlow Condensed","Arial Narrow",Arial,sans-serif;
+  --f-body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+  /* real-world wire insulation colors: identical in both themes */
+  --w-blk:#151515;--w-red:#c0392b;--w-yel:#e2b100;--w-blu:#2f6fb5;--w-wht:#f1f1f1;--w-grn:#2e8b57;--w-brn:#7a4b25;--w-pur:#7b54a8;--lead-red:#e03b2b;--lead-blk:#111111;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#11161b;--panel:#1a2128;--panel2:#212a32;--ink:#e4eaef;--muted:#93a0ab;--line:#2d3842;--sline:#9aa6b0;
+  --accent:#f2b705;--accent-ink:#1d1704;--copper:#d0844a;--cold:#5aa6dd;--hot:#e2654d;--ok:#4fbf80;--warn:#e0a52a;
+  --sky:#1d2a35;--grass:#2f4127;--wall:#3a3428;--wall2:#2f2a20;--roof:#4a362d;--attic:#3b3325;--metal:#6f7a83;--metal2:#4f5a63;--dark:#0d1114;
+  --duct:#3d5c72;--pcb:#2f5e3e;--lcd:#9fb685;--lcd-ink:#121a0e;--frost:#e8f4ff;--water:#3d86bd;--dirt:#7a5c3a;--filter:#cfc9b6;color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#11161b;--panel:#1a2128;--panel2:#212a32;--ink:#e4eaef;--muted:#93a0ab;--line:#2d3842;--sline:#9aa6b0;
+  --accent:#f2b705;--accent-ink:#1d1704;--copper:#d0844a;--cold:#5aa6dd;--hot:#e2654d;--ok:#4fbf80;--warn:#e0a52a;
+  --sky:#1d2a35;--grass:#2f4127;--wall:#3a3428;--wall2:#2f2a20;--roof:#4a362d;--attic:#3b3325;--metal:#6f7a83;--metal2:#4f5a63;--dark:#0d1114;
+  --duct:#3d5c72;--pcb:#2f5e3e;--lcd:#9fb685;--lcd-ink:#121a0e;--frost:#e8f4ff;--water:#3d86bd;--dirt:#7a5c3a;--filter:#cfc9b6;color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font:15px/1.5 var(--f-body);margin:0}
+button{font:inherit;color:inherit}
+.wrap{max-width:1320px;margin:0 auto;padding-block:12px 40px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+header.top{display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;padding-block:6px 14px}
+.brand{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;min-width:0}
+.brand h1{font:700 28px/1 var(--f-display);letter-spacing:.04em;text-transform:uppercase;margin:0;text-wrap:balance}
+.brand h1 b{background:var(--accent);color:var(--accent-ink);padding:0 6px;border-radius:3px}
+.meta{font:500 12px var(--f-mono);color:var(--muted)}
+.chip{display:inline-flex;align-items:center;gap:6px;font:600 12px/1 var(--f-display);letter-spacing:.08em;text-transform:uppercase;padding:5px 8px;border-radius:4px;border:1px solid var(--line);background:var(--panel)}
+.chip.tier{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 18%,var(--panel))}
+.spacer{flex:1}
+.btn{cursor:pointer;border:1px solid var(--line);background:var(--panel);border-radius:6px;padding:8px 12px;font-weight:600;font-size:14px;line-height:1.2}
+.btn:hover{border-color:var(--sline)}
+.btn:focus-visible,.cmp:focus-visible,.hot:focus-visible,.mode:focus-visible,.zc:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.primary:hover{filter:brightness(1.05)}
+.btn.sm{padding:6px 10px;font-size:13px}
+.btn.danger{border-color:var(--hot);color:var(--hot)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.grid{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(330px,1fr);gap:16px;align-items:start}
+@media (max-width:920px){.grid{grid-template-columns:minmax(0,1fr)}}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;min-width:0}
+.scenewrap{overflow:hidden}
+.crumb{display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.crumb .where{font:600 16px var(--f-display);letter-spacing:.06em;text-transform:uppercase}
+#scene svg{display:block;width:100%;height:auto;max-width:100%;touch-action:manipulation}
+.zones{display:flex;gap:6px;flex-wrap:wrap;padding:10px 12px;border-top:1px solid var(--line)}
+.zc{cursor:pointer;border:1px solid var(--line);background:var(--panel2);border-radius:999px;padding:5px 11px;font:600 13px var(--f-display);letter-spacing:.05em;text-transform:uppercase}
+.zc[aria-current="true"]{background:var(--ink);color:var(--panel);border-color:var(--ink)}
+.complist{display:flex;gap:6px;flex-wrap:wrap;padding:0 12px 12px}
+.complist button{cursor:pointer;border:1px dashed var(--sline);background:transparent;border-radius:6px;padding:4px 9px;font-size:13px}
+.complist button[aria-pressed="true"]{border-style:solid;border-color:var(--accent);background:color-mix(in srgb,var(--accent) 16%,transparent)}
+.rail{display:flex;flex-direction:column;gap:14px;min-width:0}
+/* the meter: the one loud object on the page */
+.meter{background:var(--accent);border-radius:16px;padding:12px;color:var(--accent-ink);box-shadow:inset 0 0 0 3px rgba(0,0,0,.18)}
+.meter .lcdbox{background:var(--lcd);color:var(--lcd-ink);border-radius:8px;padding:10px 12px;box-shadow:inset 0 2px 6px rgba(0,0,0,.35);min-height:96px;display:flex;flex-direction:column;justify-content:center}
+.meter .read{font:600 34px/1.05 var(--f-mono);font-variant-numeric:tabular-nums;word-break:break-word}
+.meter .read small{font-size:16px;margin-left:6px}
+.meter .read.multi{font-size:19px}
+.meter .pt{font:500 12px var(--f-mono);opacity:.85;margin-top:4px}
+.meter .mnote{font-size:13px;margin-top:8px;line-height:1.4}
+.modes{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px;margin-top:10px}
+.mode{cursor:pointer;border:0;border-radius:999px;background:var(--dark);color:#e9eef2;font:600 13px var(--f-mono);padding:8px 0}
+.mode[aria-pressed="true"]{background:#fff;color:#111;box-shadow:0 0 0 2px var(--dark)}
+.mlabel{display:flex;justify-content:space-between;font:700 12px var(--f-display);letter-spacing:.12em;text-transform:uppercase;margin-bottom:8px}
+.sect{padding:14px}
+.sect h2{font:700 18px var(--f-display);letter-spacing:.05em;text-transform:uppercase;margin:0 0 6px}
+.obs{background:var(--panel2);border-left:3px solid var(--sline);padding:8px 10px;border-radius:4px;font-size:14px;margin:6px 0 10px;white-space:pre-line}
+.lab{font:700 11px var(--f-display);letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:10px 0 6px}
+.btnrow{display:flex;flex-wrap:wrap;gap:6px}
+.probe{cursor:pointer;display:flex;align-items:center;gap:8px;width:100%;text-align:left;border:1px solid var(--line);background:var(--panel);border-radius:6px;padding:8px 10px;font-size:14px;margin-bottom:6px}
+.probe:hover{border-color:var(--accent)}
+.probe .dot{width:10px;height:10px;border-radius:50%;background:var(--hot);flex:none;box-shadow:12px 0 0 var(--dark)}
+.probe .dot+span{margin-left:12px}
+.event{border-radius:6px;padding:8px 10px;margin-top:10px;font-size:14px;background:color-mix(in srgb,var(--accent) 20%,var(--panel));border:1px solid var(--accent)}
+.event.bad{background:color-mix(in srgb,var(--hot) 14%,var(--panel));border-color:var(--hot)}
+.tabs{display:flex;border-bottom:1px solid var(--line);overflow-x:auto}
+.tab{cursor:pointer;flex:1;border:0;background:transparent;padding:10px 8px;font:700 14px var(--f-display);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);border-bottom:3px solid transparent;white-space:nowrap}
+.tab[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent)}
+.wo{display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 12px;font-size:14px}
+.wo dt{font:600 12px var(--f-display);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);padding-top:2px}
+.wo dd{margin:0}
+.quote{font-size:15px;border-left:3px solid var(--accent);padding:4px 0 4px 12px;margin:8px 0 12px;font-style:italic}
+.qa{margin:8px 0 0;font-size:14px}
+.qa b{display:block}
+.log{list-style:none;margin:0;padding:0;font:13px/1.45 var(--f-mono);max-height:340px;overflow:auto}
+.log li{padding:5px 0;border-bottom:1px dashed var(--line)}
+.log li.bad{color:var(--hot)}
+.log .n{color:var(--muted);margin-right:6px}
+.field{display:flex;flex-direction:column;gap:4px;font-size:13px;min-width:0}
+.field input,.field select{font:15px var(--f-mono);padding:7px 8px;border-radius:6px;border:1px solid var(--line);background:var(--panel2);color:var(--ink);min-width:0;width:100%}
+.frow{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.callbar{padding:12px 14px;border-top:1px solid var(--line);display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.callbar .btn.primary{flex:1;font:700 18px var(--f-display);letter-spacing:.08em;text-transform:uppercase;padding:12px}
+.muted{color:var(--muted)}
+.small{font-size:13px}
+/* overlay */
+.ov{position:fixed;inset:0;background:rgba(10,14,18,.55);display:flex;align-items:flex-start;justify-content:center;z-index:30;overflow:auto;padding-top:max(24px,env(safe-area-inset-top,0px));padding-bottom:max(24px,env(safe-area-inset-bottom,0px));padding-left:max(12px,env(safe-area-inset-left,0px));padding-right:max(12px,env(safe-area-inset-right,0px))}
+.dlg{background:var(--panel);border-radius:12px;border:1px solid var(--line);width:min(760px,100%);padding:18px;box-shadow:0 20px 50px rgba(0,0,0,.35)}
+.dlg h2{font:700 26px/1.1 var(--f-display);letter-spacing:.04em;text-transform:uppercase;margin:0 0 4px;text-wrap:balance}
+.dlg h3{font:700 16px var(--f-display);letter-spacing:.08em;text-transform:uppercase;margin:18px 0 6px}
+.opts{display:flex;flex-direction:column;gap:6px;margin:8px 0}
+.opts label{display:flex;gap:8px;align-items:flex-start;border:1px solid var(--line);border-radius:6px;padding:8px 10px;cursor:pointer;font-size:14px}
+.opts label:has(input:checked){border-color:var(--accent);background:color-mix(in srgb,var(--accent) 14%,var(--panel))}
+.scores{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:12px}
+@media (max-width:560px){.scores{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.score{border:1px solid var(--line);border-radius:8px;padding:10px;background:var(--panel2)}
+.score .v{font:700 40px/1 var(--f-display);font-variant-numeric:tabular-nums}
+.score .v small{font-size:16px;color:var(--muted)}
+.score .k{font:600 11px var(--f-display);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.score.rank .v{font-size:26px;line-height:1.5}
+.chain{display:flex;flex-wrap:wrap;gap:4px;align-items:center;font:600 12px var(--f-display);letter-spacing:.05em;text-transform:uppercase}
+.chain span{padding:4px 7px;border-radius:4px;background:var(--panel2);border:1px solid var(--line)}
+.chain span.hit{background:var(--hot);color:#fff;border-color:var(--hot)}
+.chain i{color:var(--muted);font-style:normal}
+ul.chk{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:6px;font-size:14px}
+ul.chk li{display:grid;grid-template-columns:22px minmax(0,1fr);gap:6px}
+.y{color:var(--ok);font-weight:700}.n{color:var(--hot);font-weight:700}
+ol.exp{margin:0;padding-left:22px;font-size:14px;display:flex;flex-direction:column;gap:4px}
+table.hist{width:100%;border-collapse:collapse;font-size:13px}
+table.hist th,table.hist td{text-align:left;padding:6px;border-bottom:1px solid var(--line);font-variant-numeric:tabular-nums}
+.tablewrap{overflow-x:auto}
+/* svg */
+.st{stroke:var(--sline);stroke-width:1.2}
+.k-sky{fill:var(--sky)}.k-grass{fill:var(--grass)}.k-wall{fill:var(--wall)}.k-wall2{fill:var(--wall2)}.k-roof{fill:var(--roof)}.k-attic{fill:var(--attic)}
+.k-metal{fill:var(--metal)}.k-metal2{fill:var(--metal2)}.k-dark{fill:var(--dark)}.k-panel{fill:var(--panel)}.k-lcd{fill:var(--lcd)}.k-pcb{fill:var(--pcb)}
+.k-duct{fill:var(--duct)}.k-water{fill:var(--water)}.k-acc{fill:var(--accent)}.k-hot{fill:var(--hot)}.k-copper{fill:var(--copper)}.k-dirt{fill:var(--dirt)}.k-frost{fill:var(--frost)}
+.f-clean{fill:var(--filter)}.f-dirty{fill:#b9a27c}.f-clogged{fill:#6b5a46}
+.pipe{fill:none;stroke:var(--metal2);stroke-width:4;stroke-linecap:round}
+.ls-s{fill:none;stroke:var(--dark);stroke-width:6;stroke-linecap:round;stroke-linejoin:round}
+.ls-l{fill:none;stroke:var(--copper);stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
+.frostline{fill:none;stroke:var(--frost);stroke-width:3;stroke-dasharray:2 3;stroke-linecap:round}
+.wire{fill:none;stroke-width:2.4;stroke-linecap:round}
+.fin{stroke:var(--metal2);stroke-width:1}
+.lbl{font:600 10.5px var(--f-display);letter-spacing:.1em;fill:var(--ink);text-transform:uppercase}
+.lbl2{font:600 13px var(--f-display);letter-spacing:.1em;fill:var(--ink);text-transform:uppercase}
+.tiny{font:500 9px var(--f-mono);fill:var(--ink)}
+.leader{stroke:var(--ink);stroke-width:.8;fill:none}
+.lcdbig{font:600 42px var(--f-mono);fill:var(--lcd-ink)}
+.lcdsm{font:600 12px var(--f-mono);fill:var(--lcd-ink)}
+.air{fill:none;stroke:var(--cold);stroke-width:2;stroke-dasharray:5 5;stroke-linecap:round;animation:flow .9s linear infinite}
+.air.warm{stroke:var(--muted)}
+@keyframes flow{to{stroke-dashoffset:-20}}
+.spin{animation:spin .45s linear infinite;transform-origin:0 0}
+.spin-s{animation:spin 1.1s linear infinite;transform-origin:0 0}
+@keyframes spin{to{transform:rotate(360deg)}}
+.buzz{animation:buzz .08s linear infinite}
+@keyframes buzz{50%{transform:translateY(.8px)}}
+.hot{cursor:pointer}
+.hot rect{fill:transparent;stroke:var(--sline);stroke-width:1;stroke-dasharray:3 4;opacity:.55}
+.hot:hover rect,.hot:focus rect{stroke:var(--accent);stroke-width:2.5;stroke-dasharray:6 3;opacity:1}
+.cmp{cursor:pointer;outline:none}
+.cmp .hit{fill:transparent;stroke:transparent;stroke-width:2.2}
+.cmp:hover .hit,.cmp:focus .hit{stroke:var(--accent);stroke-dasharray:6 3}
+.cmp.sel .hit{stroke:var(--accent);stroke-dasharray:none;stroke-width:3}
+.wr{fill:none;stroke-linecap:round;stroke-linejoin:round}
+.tsm{font:600 12px var(--f-display);letter-spacing:.06em;fill:var(--ink);text-transform:uppercase;paint-order:stroke;stroke:var(--panel);stroke-width:3px}
+.tsm.inv{fill:#eef2f4;stroke:none}
+.tlab{font:700 14px var(--f-display);letter-spacing:.05em;fill:var(--ink);paint-order:stroke;stroke:var(--panel);stroke-width:4px}
+.term{cursor:pointer;outline:none}
+.term .thit{fill:transparent;stroke:transparent;stroke-width:2.5}
+.term:hover .thit,.term:focus .thit{fill:color-mix(in srgb,var(--accent) 30%,transparent);stroke:var(--accent)}
+.screw{fill:var(--metal);stroke:var(--sline);stroke-width:1.5}
+.slot{stroke:var(--sline);stroke-width:2.5}
+.ldline{fill:none;stroke:var(--accent);stroke-width:3;stroke-dasharray:8 6}
+.lead-r{fill:none;stroke:var(--lead-red);stroke-width:5}
+.lead-b{fill:none;stroke:var(--lead-blk);stroke-width:5}
+.lead-halo{fill:none;stroke:#ffffff;stroke-width:9;opacity:.8}
+.ltag{font:700 11px var(--f-mono);fill:#fff}
+.cuhead{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:8px 0}
+.leadchip{display:inline-flex;align-items:center;gap:6px;font:600 13px var(--f-mono);padding:4px 8px;border-radius:999px;border:1px solid var(--line);background:var(--panel2)}
+.leadchip i{width:10px;height:10px;border-radius:50%;display:inline-block}
+#world{transform-origin:0 0}
+@media (prefers-reduced-motion:reduce){.spin,.spin-s,.air,.buzz{animation:none}#world{transition:none!important}}
+</style>
+
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="brand"><h1><b>HVAC</b> Service Call Sim</h1><span class="meta" id="hmeta"></span></div>
+    <span class="chip tier" id="htier"></span>
+    <span class="spacer"></span>
+    <button class="btn sm" id="bStats" type="button">Record &amp; settings</button>
+    <button class="btn sm" id="bNew" type="button">New call</button>
+  </header>
+  <div class="grid">
+    <section class="card scenewrap" aria-label="Job site">
+      <div class="crumb"><button class="btn sm" id="bBack" type="button" hidden>← House</button><span class="where" id="where"></span><span class="spacer"></span><span class="meta" id="sceneHint"></span></div>
+      <div id="scene"></div>
+      <div class="complist" id="complist"></div>
+      <nav class="zones" id="zones" aria-label="Go to"></nav>
+    </section>
+    <aside class="rail">
+      <div class="meter" aria-live="polite">
+        <div class="mlabel"><span>Meter</span><span id="mmode"></span></div>
+        <div class="lcdbox"><div class="read" id="mread">— — —</div><div class="pt" id="mpt">Select a function, then tap a test point</div></div>
+        <div class="mnote" id="mnote" hidden></div>
+        <div class="modes" id="modes"></div>
+      </div>
+      <section class="card sect" id="cardComp" aria-live="polite"></section>
+      <section class="card">
+        <div class="tabs" role="tablist" id="tabs"></div>
+        <div class="sect" id="tabBody"></div>
+        <div class="callbar"><button class="btn primary" id="bCall" type="button">Call it</button></div>
+      </section>
+    </aside>
+  </div>
+</div>
+<div id="ov"></div>
+
+<script id="engine">
+'use strict';
+/* =====================================================================
+   HVAC SERVICE CALL SIM — ENGINE v1
+   Extension points for v2 (heat pump, rooftop unit, building controls):
+     SYSTEMS[id]  base(), derive(), settle(), zones, comps, points, actions, scenes
+     FAULTS / LATENT / HERRINGS  tag each with sys:[...] to scope it to a system
+     REFRIG       add refrigerants with a PT table + glide
+   Generation, grading and the UI only reach the active system through SYS().
+   ===================================================================== */
+function hashStr(s){let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return h>>>0}
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function makeRng(seed){const r=mulberry32(seed);const o={f:r,
+  range:(a,b)=>a+(b-a)*r(),int:(a,b)=>Math.floor(a+(b-a+1)*r()),pick:a=>a[Math.floor(r()*a.length)],chance:p=>r()<p,
+  shuffle:a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(r()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a},
+  weighted:(items,ws)=>{const t=ws.reduce((x,y)=>x+y,0);let x=r()*t;for(let i=0;i<items.length;i++){x-=ws[i];if(x<=0)return items[i]}return items[items.length-1]}};return o}
+const clamp=(x,a,b)=>Math.max(a,Math.min(b,x));
+const fx=(n,d=1)=>Number(n).toFixed(d);
+let G=null;
+const SYS=()=>SYSTEMS[G.st.sys];
+const noise=(key,amp)=>{const r=mulberry32(hashStr(G.seed+':'+key))();return (r-.5)*2*amp};
+const rv=(key,val,u,amp=.3,dec=1)=>({t:val===0?'0.0':fx(val+noise(key,amp),dec),u});
+
+/* ---------- refrigerants (training PT values, °F / psig) ---------- */
+const REFRIG={
+  'R-410A':{cls:'A1',glide:0,pt:[[0,48],[10,62],[20,78],[30,97],[40,118],[50,143],[60,170],[70,201],[80,236],[90,274],[100,317],[110,365],[120,418],[130,476],[140,538],[150,605]]},
+  'R-454B':{cls:'A2L',glide:1.5,pt:[[0,45.3],[10,58.6],[20,74],[30,91.7],[40,111.9],[50,135],[60,161],[70,190.4],[80,223.3],[90,260],[100,300.8],[110,346],[120,395.9],[130,450.9],[140,512],[150,578]]}
+};
+function lerpTab(tab,x,i,j){let a=tab[0],b=tab[1];for(let k=1;k<tab.length;k++){a=tab[k-1];b=tab[k];if(x<=b[i])break}return a[j]+(x-a[i])*(b[j]-a[j])/(b[i]-a[i])}
+const tempToP=(ref,t,kind)=>lerpTab(REFRIG[ref].pt,kind==='bubble'?t+REFRIG[ref].glide:t,0,1);
+const pToTemp=(ref,p,kind)=>{const t=lerpTab(REFRIG[ref].pt,p,1,0);return kind==='bubble'?t-REFRIG[ref].glide:t};
+
+const MODES=[{k:'V',n:'V AC',s:'V~'},{k:'R',n:'Ohms',s:'Ω'},{k:'C',n:'Capacitance',s:'µF'},{k:'A',n:'Amps (clamp)',s:'A'},{k:'T',n:'Temperature',s:'°F'},{k:'P',n:'Pressure (gauges)',s:'PSI'}];
+const MODE_N=Object.fromEntries(MODES.map(m=>[m.k,m.n]));
+const TIERS=[{id:'apprentice',n:'Apprentice'},{id:'junior',n:'Junior Tech'},{id:'service',n:'Service Tech'},{id:'senior',n:'Senior Tech'}];
+const BRANDS=['Northline','Arctura','Keystone Air','Halvorsen','Coldfront'];
+const CHAIN=['Breaker / disconnect','Door switch','Transformer','Board fuse','Thermostat','Float switch','Contactor coil','Contactor contacts','Run capacitor','Compressor / fan','Blower motor','Airflow / filter','Condenser coil','Refrigerant charge','Y wiring'];
+
+/* =====================================================================
+   SYSTEM: residential split AC on a gas furnace air handler
+   ===================================================================== */
+const SYSTEMS={};
+SYSTEMS['split-ac']={
+  name:'Split AC + gas furnace',
+  zones:[{id:'house',n:'House'},{id:'tstat',n:'Thermostat'},{id:'indoor',n:'Furnace & coil'},{id:'panel',n:'Breaker panel'},{id:'cond',n:'Condenser'},{id:'air',n:'Registers'}],
+  zoomAt:{tstat:[523,306],indoor:[214,356],panel:[276,273],cond:[80,378],air:[468,262]},
+  base(R){
+    const ref=R.chance(.5)?'R-410A':'R-454B';
+    const tons=R.pick([2,2.5,3,3.5]);
+    const rla=+({2:9.2,2.5:11.4,3:13.6,3.5:15.8}[tons]+R.range(-.4,.4)).toFixed(1);
+    const hermRated=R.pick({2:[30,35],2.5:[35,40],3:[40,45],3.5:[45,50]}[tons]);
+    const fanRated=R.pick([5,7.5]),bRated=R.pick([5,7.5,10]);
+    const t=x=>x*(1+R.range(-.03,.03));
+    const age=ref==='R-454B'?R.int(0,1):R.int(4,17);
+    const fanFLA=+R.range(.9,1.4).toFixed(1);
+    return{sys:'split-ac',
+      env:{amb:R.int(83,95),room:R.int(77,81),stain:false},
+      power:{furnBkr:true,furnSw:true,condBkr:'on',discIn:true},
+      stat:{mode:'cool',set:R.int(68,72),cWire:R.chance(.65),batt:true,faceOff:false,icon:false},
+      indoor:{doorOn:true,doorHeld:false,xfmrOK:true,xfmrSmell:false,fuseOK:true,fuseVisible:false,bCapRated:bRated,bCapUF:t(bRated),bulge:false,
+        filter:'clean',drainClogged:false,drainSlow:false,jumper:false,discharged:false,blowerFLA:+R.range(3.4,5.6).toFixed(1)},
+      outdoor:{panelOn:true,coilOK:true,pitted:false,pittedCosmetic:false,hermRated,fanRated,hermUF:t(hermRated),fanUF:t(fanRated),bulge:false,
+        coil:'clean',discharged:false,compHot:false,rla,lra:Math.round(rla*5.1),fanFLA,tons,yShort:false,ants:false,bentFins:false,rattle:false,
+        mocp:Math.max(15,Math.ceil((rla*2.25+fanFLA)/5)*5)},
+      ref:{type:ref,charge:'ok',targetSC:R.pick([9,10,11,12]),factory:+(tons*2.4+R.range(.6,1.4)).toFixed(1)},
+      equip:{brand:R.pick(BRANDS),year:2026-age,age,serial:(R.int(1e5,9e5)).toString(36).toUpperCase()}};
+  },
+  /* physics: every reading in the game comes from this one function */
+  derive(s){
+    const P=s.power,I=s.indoor,O=s.outdoor,T=s.stat,E=s.env,d={};
+    d.lineIn=P.furnBkr&&P.furnSw?120:0;
+    d.boardPwr=d.lineIn>0&&(I.doorOn||I.doorHeld);
+    d.sec=d.boardPwr&&I.xfmrOK?24.6:0;
+    d.R=I.fuseOK?d.sec:0;
+    d.statOn=T.cWire?d.R>0:T.batt;
+    d.statCall=d.statOn&&T.mode==='cool'&&E.room>T.set;
+    d.callY=d.R>0&&(d.statCall||I.jumper);
+    d.floatOpen=I.drainClogged;
+    d.yOut=d.callY&&!d.floatOpen&&!O.yShort?d.R:0;
+    d.lineOut=P.condBkr==='on'?241:0;
+    d.discLoad=P.discIn?d.lineOut:0;
+    d.coilV=d.yOut?d.yOut-.3:0;
+    d.pulled=d.coilV>18&&O.coilOK;
+    d.T=d.pulled&&!O.pitted?d.discLoad:0;
+    d.comp=!d.T?'off':(O.hermUF/O.hermRated<.8?'hum':'run');
+    d.fan=!d.T?'off':(O.fanUF/O.fanRated<.6?'hum':'run');
+    d.blowerV=d.callY&&d.boardPwr?120:0;
+    d.blower=!d.blowerV?'off':(I.bCapUF/I.bCapRated<.6?'hum':'run');
+    const amb=E.amb,room=E.room,rf=s.ref.type;let sS,SH,sC,SC,dT,ampF=.78,iced=false;
+    if(d.comp==='run'){
+      sS=42;SH=11;sC=amb+20;SC=s.ref.targetSC;dT=19;
+      if(d.blower!=='run'){sS=24;SH=1;iced=true;dT=0;ampF*=.82}
+      else if(I.filter==='clogged'){sS=28;SH=2;iced=true;dT=10;ampF*=.88}
+      else if(I.filter==='dirty'){sS-=4;SH-=3;dT+=2}
+      if(s.ref.charge==='low'){sS-=9;SH=26;sC-=7;SC=2;dT=Math.min(dT,11);ampF*=.84}
+      if(s.ref.charge==='over'){sS+=2;SH=5;sC+=13;SC=21;dT-=2;ampF*=1.15}
+      if(d.fan!=='run'){sC+=34;SC+=4;ampF*=1.42;dT-=5}
+      else if(O.coil==='dirty'){sC+=17;SC+=3;ampF*=1.22;dT-=3}
+      else if(O.coil==='dusty'){sC+=5;ampF*=1.05}
+      d.ref={run:true,sS,SH,sC,SC,suctP:tempToP(rf,sS,'dew'),liqP:tempToP(rf,sC,'bubble'),suctT:sS+SH,liqT:sC-SC,iced};
+    }else{
+      const eq=(amb+room)/2;dT=d.blower==='run'?1:0;
+      d.ref={run:false,sS:eq,SH:0,sC:eq,SC:0,suctP:tempToP(rf,eq,'dew'),liqP:tempToP(rf,eq,'dew'),suctT:amb-1,liqT:amb,iced:false};
+    }
+    d.dT=dT;
+    d.amps={comp:d.comp==='run'?O.rla*ampF:0,fan:d.fan==='run'?O.fanFLA*.88:d.fan==='hum'?O.fanFLA*1.9:0,blower:d.blower==='run'?I.blowerFLA*.85:d.blower==='hum'?I.blowerFLA*1.75:0};
+    d.supplyT=d.blower==='run'?room-dT:null;
+    d.restored=d.statCall&&d.comp==='run'&&d.fan==='run'&&d.blower==='run'&&!d.ref.iced&&s.ref.charge==='ok'&&O.coil!=='dirty';
+    return d;
+  },
+  /* state that changes on its own after an action */
+  settle(s,ev){
+    let d=this.derive(s);
+    if(s.outdoor.yShort&&d.callY&&!d.floatOpen&&s.indoor.fuseOK){
+      s.indoor.fuseOK=false;ev.push('Pop. The instant the call for cooling reaches the condenser, the board goes dead. The fuse is open again.');d=this.derive(s);
+    }
+    if(d.discLoad>0)s.outdoor.discharged=false;
+    if(d.boardPwr)s.indoor.discharged=false;
+    if(s.outdoor.hermUF/s.outdoor.hermRated>=.8)s.outdoor.compHot=false;else if(d.comp==='hum')s.outdoor.compHot=true;
+    return d;
+  },
+  live(kind,s,d){if(kind==='out')return d.discLoad>0;if(kind==='in')return d.boardPwr;if(kind==='lv')return d.coilV>0||d.discLoad>0;return false},
+  plate(s){
+    const O=s.outdoor,r=s.ref,e=s.equip;
+    return `${e.brand.toUpperCase()} · MODEL ${e.brand.slice(0,2).toUpperCase()}${O.tons*12}C-${e.year%100} · SERIAL ${e.year}${e.serial}
+REFRIGERANT: ${r.type} · FACTORY CHARGE ${r.factory} lb (15 ft line set)${r.type==='R-454B'?'\n⚠ A2L — MILDLY FLAMMABLE REFRIGERANT':''}
+208/230 V 1 PH 60 Hz · MCA ${fx(O.rla*1.25+O.fanFLA)} A · MOCP ${O.mocp} A
+COMPRESSOR RLA ${O.rla} · LRA ${O.lra} · FAN MOTOR FLA ${O.fanFLA}
+METERING: TXV — CHARGE TO ${r.targetSC}°F SUBCOOLING
+MANUFACTURED ${e.year}
+
+Field tip — confirming refrigerant: (1) this data plate; (2) A2L units such as R-454B carry flammability warning labels; (3) age — R-454B shows up on equipment built from 2025 on, R-410A on most older systems; (4) the installer's line-set or service tag. Never guess the refrigerant from pressures alone.`;
+  },
+  comps:{
+    tstat:{z:'tstat',n:'Thermostat',vis:s=>!s.stat.faceOff,
+      ins:(s,d)=>d.statOn?`Display: ${s.env.room}°F room · COOL · SET ${s.stat.set}°F${d.statCall?' · "COOL ON" lit':''}${s.stat.icon?'\nA "CHANGE FILTER" reminder icon is showing.':''}`:'Display is completely blank. Buttons do nothing.',
+      acts:['statFace','statCool','statBatt']},
+    tstat_t:{z:'tstat',n:'Thermostat terminals',vis:s=>s.stat.faceOff,
+      ins:s=>s.stat.cWire?'Sub-base wiring: R, C, Y, G, W landed. C wire present, so the thermostat runs on 24 V from the furnace.':'Sub-base wiring: R, Y, G, W. No C wire. Battery compartment holds 2× AA.',
+      pts:['t_rc','t_ry','t_yc'],acts:['statFace','statBatt']},
+    cab:{z:'indoor',n:'Furnace cabinet / blower door',vis:()=>true,
+      ins:(s,d)=>{const I=s.indoor;let t=I.doorOn?'Blower door installed. A door safety switch behind it is closed only while the door is on.':'Blower door removed. The door switch is open, so the board and blower are de-energized'+(I.doorHeld?' — but you have it taped closed: board is LIVE.':'.');
+        t+='\nStatus LED (sight glass): '+(d.R>0?'slow green flash (normal).':'off.');return t},
+      pts:['f_line'],acts:['door','doorHold']},
+    sw:{z:'indoor',n:'Furnace service switch',vis:()=>true,ins:s=>`Wall toggle switch feeding the furnace: ${s.power.furnSw?'ON':'OFF'}.`,pts:['f_line'],acts:['furnSw']},
+    board:{z:'indoor',n:'Control board',vis:s=>!s.indoor.doorOn,
+      ins:(s,d)=>`Terminal strip R · C · Y · G · W. LED ${d.R>0?'flashing green':'dark'}.${s.indoor.jumper?'\nYour jumper is installed R → Y and G.':''}`,
+      pts:['f_rc','f_yc','f_gc'],acts:['jumper']},
+    fuse:{z:'indoor',n:'Board fuse (3 A)',vis:s=>!s.indoor.doorOn,
+      ins:s=>'3 A automotive blade fuse protecting the 24 V R circuit.'+(!s.indoor.fuseOK&&s.indoor.fuseVisible?' The element looks broken and the window is smoky.':' Hard to judge the element by eye from here.'),
+      pts:['f_fuse'],acts:['fuseRep']},
+    xfmr:{z:'indoor',n:'Transformer',vis:s=>!s.indoor.doorOn,
+      ins:s=>'120 V primary / 24 V secondary, 40 VA.'+(!s.indoor.xfmrOK&&s.indoor.xfmrSmell?' Faint burnt-varnish smell; label slightly browned.':''),
+      pts:['f_xp','f_xs'],acts:['xfmrRep']},
+    blower:{z:'indoor',n:'Blower motor',vis:s=>!s.indoor.doorOn,
+      ins:(s,d)=>(d.blower==='run'?'Blower running smoothly.':d.blower==='hum'?'Motor humming, wheel not turning. Motor housing is hot. (With power off the wheel spins freely by hand.)':'Blower not running.')+`\nNameplate: PSC motor, 120 V, FLA ${s.indoor.blowerFLA} A.`,
+      pts:['f_bm']},
+    bcap:{z:'indoor',n:'Blower run capacitor',vis:s=>!s.indoor.doorOn,
+      ins:s=>`Run capacitor ${s.indoor.bCapRated} µF ±6%, 370 V.`+(s.indoor.bulge?' Top is slightly domed.':''),
+      pts:['f_bcap'],acts:['bcapDis','bcapRep']},
+    filter:{z:'indoor',n:'Air filter',vis:()=>true,
+      ins:s=>({clean:'16×25×1 pleated filter. Clean, light shows through.',dirty:'16×25×1 pleated filter. Gray and loaded, but still passing air.',clogged:'16×25×1 pleated filter. Caked solid with dust and hair; bowed inward from suction. No light passes through.'})[s.indoor.filter],
+      acts:['filterRep']},
+    coil:{z:'indoor',n:'Evaporator coil',vis:()=>true,
+      ins:(s,d)=>d.ref.iced?'Coil access panel off: the evaporator is a block of ice. Suction line frosted on its way out of the cabinet.':(d.comp==='run'?'Coil cold and sweating normally. No ice.':'Coil at room temperature. No ice.')},
+    float:{z:'indoor',n:'Condensate pan & float switch',vis:()=>true,
+      ins:(s,d)=>(d.floatOpen?'Secondary pan full of water. Float switch is lifted (tripped). Primary drain backed up; slime in the trap.':s.indoor.drainSlow?'About an inch of standing water in the pan. Float not lifted yet. Primary drain is running slowly.':'Pan dry. Float switch down (closed).')+'\nThis float switch is wired in series with the Y wire to the condenser.',
+      pts:['f_float'],acts:['drainClr']},
+    brk_f:{z:'panel',n:'Furnace breaker (15 A)',vis:()=>true,ins:s=>`15 A single-pole, labeled FURNACE. Handle ${s.power.furnBkr?'ON':'OFF'}.`,pts:['p_furn'],acts:['furnBkr']},
+    brk_ac:{z:'panel',n:'AC breaker',vis:()=>true,ins:s=>`${s.outdoor.mocp} A two-pole, labeled A/C. `+({on:'Handle firmly ON.',off:'Handle OFF.',tripped:'Handle sitting in the middle position: tripped.'})[s.power.condBkr],pts:['p_ac'],acts:['acBkr']},
+    disc:{z:'cond',n:'Disconnect',vis:()=>true,ins:s=>s.power.discIn?'Pull-out disconnect installed (ON).':'Disconnect pulled (OFF). Condenser high voltage is dead past this point.',pts:['c_dline','c_dload'],acts:['disc']},
+    plate:{z:'cond',n:'Data plate',vis:()=>true,ins:s=>SYSTEMS['split-ac'].plate(s)},
+    cpanel:{z:'cond',n:'Service panel',vis:()=>true,ins:s=>s.outdoor.panelOn?'Service panel installed. Contactor, capacitor and compressor terminals are behind it.':'Service panel removed.',acts:['cpanel']},
+    contactor:{z:'cond',n:'Contactor',vis:s=>!s.outdoor.panelOn,
+      ins:(s,d)=>{const O=s.outdoor;let t='2-pole 30 A contactor, 24 V coil. '+(d.pulled?'Plunger pulled in.':'Plunger out (not pulled in).');
+        if(d.pulled&&O.pitted)t+=' Coil buzzing loudly.';
+        if(O.pitted)t+='\nContacts heavily pitted and burned on the L1 side.';else if(O.pittedCosmetic)t+='\nContacts show moderate pitting.';
+        if(O.ants)t+='\nNo ants inside the contactor.';return t},
+      pts:['c_coil','c_line','c_load','c_pole1','c_pole2'],acts:['contRep']},
+    cap:{z:'cond',n:'Dual run capacitor',vis:s=>!s.outdoor.panelOn,
+      ins:s=>`Dual run capacitor ${s.outdoor.hermRated}/${s.outdoor.fanRated} µF ±6%, 440 V. Terminals HERM · FAN · C.`+(s.outdoor.bulge?' Top is domed.':''),
+      pts:['c_herm','c_fan'],acts:['capDis','capRep']},
+    comp:{z:'cond',n:'Compressor',vis:s=>!s.outdoor.panelOn,
+      ins:(s,d)=>(d.comp==='run'?'Compressor running with a normal hum.':s.outdoor.compHot?'Compressor silent. Shell is very hot to the touch.':'Compressor off, shell warm from the sun.')+`\nNameplate RLA ${s.outdoor.rla} A · LRA ${s.outdoor.lra} A.`,
+      pts:['c_comp_a','c_wCR','c_wCS','c_wRS','c_comp_g']},
+    fan:{z:'cond',n:'Condenser fan motor',vis:()=>true,
+      ins:(s,d)=>(d.fan==='run'?'Fan spinning.':d.fan==='hum'?'Fan motor humming, blade not turning. Push a blade with a stick and it spins up.':'Fan not running.')+(s.outdoor.rattle?'\nTop grille rattles: one loose screw.':'')+(s.outdoor.ants?'\nAnts trailing across the top grille.':'')+`\nMotor FLA ${s.outdoor.fanFLA} A.`,
+      pts:['c_fan_a']},
+    ccoil:{z:'cond',n:'Condenser coil',vis:()=>true,
+      ins:s=>({clean:'Coil fins clean; you can see light through them.',dusty:'Light layer of dirt and lint on the coil face.',dirty:'Coil face matted with cottonwood fluff and dirt. No light through it.'})[s.outdoor.coil]+(s.outdoor.bentFins?'\nOne corner has bent fins (under 10% of the face). Cosmetic.':''),acts:['coilClean']},
+    ports:{z:'cond',n:'Service valves',vis:()=>true,
+      ins:(s,d)=>(d.ref.run?(d.ref.iced?'Suction line frosted all the way to the service valve.':'Suction line cool and sweating, liquid line warm.'):'Both lines near outdoor temperature.')+'\nPSI = gauge pressure · °F = pipe-clamp line temperature.',pts:['c_suct','c_liq']},
+    lvwire:{z:'cond',n:'Thermostat wire at condenser',vis:()=>true,
+      ins:s=>s.outdoor.yShort?'Low-voltage cable enters the cabinet with no grommet. The Y conductor\'s insulation is rubbed through on the sheet-metal edge; bare copper is showing.':'Low-voltage cable enters through a grommet. Insulation intact.',pts:['c_ywire'],acts:['wireRep']},
+    amb:{z:'cond',n:'Outdoor air',vis:()=>true,ins:s=>'Shaded outdoor air near the coil inlet.',pts:['c_amb']},
+    sup:{z:'air',n:'Supply register',vis:()=>true,
+      ins:(s,d)=>d.blower==='run'?(d.ref.iced?'Weak airflow at the register.':'Steady airflow at the register.'):'No airflow at the register.',pts:['r_sup']},
+    ret:{z:'air',n:'Return grille',vis:()=>true,ins:(s,d)=>d.blower==='run'?'Air pulling into the return grille.':'No air movement at the return.',pts:['r_ret']},
+    stain:{z:'air',n:'Ceiling stain',vis:s=>s.env.stain,ins:()=>'Old, dry brown water stain. When you ask, the customer remembers a roof leak that was repaired three years ago.'}
+  },
+  points:{
+    t_rc:{c:'tstat_t',l:'R ↔ C at thermostat',m:{V:(s,d)=>s.stat.cWire?rv('t_rc',d.R,'V AC'):{t:'---',u:'',n:'No C wire is landed here, so there is no C to measure against. Test at the board.'}}},
+    t_ry:{c:'tstat_t',l:'R ↔ Y at thermostat (across the Y switch)',m:{V:(s,d)=>!d.R?rv('t_ry',0,'V AC'):d.statCall?{t:'0.1',u:'V AC'}:(!d.floatOpen&&s.outdoor.coilOK?rv('t_ry',d.R,'V AC'):{t:'3.8',u:'V AC',n:'Unstable ghost reading. Y has no complete path back to C.'})}},
+    t_yc:{c:'tstat_t',l:'Y ↔ C at thermostat',m:{V:(s,d)=>!s.stat.cWire?{t:'---',u:'',n:'No C wire at this thermostat.'}:rv('t_yc',d.statCall?d.R:0,'V AC')}},
+    f_line:{c:'cab',l:'Line voltage at furnace junction box (L1 ↔ N)',m:{V:(s,d)=>rv('f_line',d.lineIn,'V AC',.8)}},
+    f_rc:{c:'board',l:'Board R ↔ C',m:{V:(s,d)=>rv('f_rc',d.R,'V AC')}},
+    f_yc:{c:'board',l:'Board Y ↔ C',m:{V:(s,d)=>rv('f_yc',d.callY?d.R:0,'V AC')}},
+    f_gc:{c:'board',l:'Board G ↔ C',m:{V:(s,d)=>rv('f_gc',d.callY?d.R:0,'V AC')}},
+    f_fuse:{c:'fuse',l:'Across the board fuse',dead:{R:'in'},m:{V:(s,d)=>rv('f_fuse',d.sec>0&&!s.indoor.fuseOK?d.sec:0,'V AC'),R:s=>s.indoor.fuseOK?{t:'0.1',u:'Ω'}:{t:'OL',u:'Ω',n:'Open.'}}},
+    f_xp:{c:'xfmr',l:'Transformer primary (120 V side)',dead:{R:'in'},m:{V:(s,d)=>rv('f_xp',d.boardPwr?120:0,'V AC',.8),R:s=>s.indoor.xfmrOK?rv('f_xpR',32.5,'Ω',.6):{t:'OL',u:'Ω'}}},
+    f_xs:{c:'xfmr',l:'Transformer secondary (24 V side)',dead:{R:'in'},m:{V:(s,d)=>rv('f_xs',d.sec,'V AC'),R:()=>rv('f_xsR',1.2,'Ω',.1)}},
+    f_bm:{c:'blower',l:'Blower motor leads (COOL tap ↔ N)',m:{V:(s,d)=>rv('f_bm',d.blowerV,'V AC',.8),A:(s,d)=>({...rv('f_bmA',d.amps.blower,'A',.08,2),n:d.blower==='hum'?'Humming at locked-rotor current; motor heating up.':''})}},
+    f_bcap:{c:'bcap',l:'Blower capacitor terminals',dead:{C:'in',R:'in'},cap:'indoor',m:{C:s=>({...rv('f_bcap',s.indoor.bCapUF,'µF',.05),n:`Rated ${s.indoor.bCapRated} µF ±6%.`})}},
+    f_float:{c:'float',l:'Across the float switch',dead:{R:'in'},m:{V:(s,d)=>rv('f_float',d.callY&&d.floatOpen?d.R:0,'V AC'),R:(s,d)=>d.floatOpen?{t:'OL',u:'Ω'}:{t:'0.2',u:'Ω'}}},
+    p_furn:{c:'brk_f',l:'Furnace breaker load ↔ neutral',m:{V:s=>rv('p_furn',s.power.furnBkr?120:0,'V AC',.8)}},
+    p_ac:{c:'brk_ac',l:'AC breaker load (L1 ↔ L2)',m:{V:s=>rv('p_ac',s.power.condBkr==='on'?241:0,'V AC',1.2)}},
+    c_dline:{c:'disc',l:'Disconnect line side (L1 ↔ L2)',m:{V:(s,d)=>rv('c_dline',d.lineOut,'V AC',1.2)}},
+    c_dload:{c:'disc',l:'Disconnect load side (L1 ↔ L2)',m:{V:(s,d)=>rv('c_dload',d.discLoad,'V AC',1.2)}},
+    c_coil:{c:'contactor',l:'Contactor coil terminals',dead:{R:'lv'},m:{V:(s,d)=>rv('c_coil',d.coilV,'V AC'),R:s=>s.outdoor.coilOK?rv('c_coilR',11.6,'Ω',.4):{t:'OL',u:'Ω',n:'Coil wire lifted. Open coil.'}}},
+    c_line:{c:'contactor',l:'Contactor line side (L1 ↔ L2)',m:{V:(s,d)=>rv('c_line',d.discLoad,'V AC',1.2)}},
+    c_load:{c:'contactor',l:'Contactor load side (T1 ↔ T2)',m:{V:(s,d)=>d.T?rv('c_load',d.T,'V AC',1.2):rv('c_load0',d.pulled&&s.outdoor.pitted?.4:0,'V AC',.1)}},
+    c_pole1:{c:'contactor',l:'Across the L1 pole (L1 → T1)',m:{V:(s,d)=>!d.discLoad?rv('p1',0,'V AC'):!d.pulled?{t:'---',u:'',n:'Contactor not pulled in, so the pole is open by design. This reading tells you nothing yet.'}:s.outdoor.pitted?rv('p1p',240.6,'V AC',.6):s.outdoor.pittedCosmetic?rv('p1c',1.8,'V AC',.3):{t:'0.3',u:'V AC'}}},
+    c_pole2:{c:'contactor',l:'Across the L2 pole (L2 → T2)',m:{V:(s,d)=>!d.discLoad?rv('p2',0,'V AC'):!d.pulled?{t:'---',u:'',n:'Contactor not pulled in, so the pole is open by design. This reading tells you nothing yet.'}:{t:'0.2',u:'V AC'}}},
+    c_herm:{c:'cap',l:'Capacitor HERM ↔ C',dead:{C:'out',R:'out'},cap:'outdoor',m:{C:s=>({...rv('c_herm',s.outdoor.hermUF,'µF',.15),n:`Rated ${s.outdoor.hermRated} µF ±6%.`})}},
+    c_fan:{c:'cap',l:'Capacitor FAN ↔ C',dead:{C:'out',R:'out'},cap:'outdoor',m:{C:s=>({...rv('c_fan',s.outdoor.fanUF,'µF',.04,2),n:`Rated ${s.outdoor.fanRated} µF ±6%.`})}},
+    c_comp_a:{c:'comp',l:'Compressor common wire',m:{A:(s,d)=>d.comp==='run'?rv('c_comp_a',d.amps.comp,'A',.15):d.comp==='hum'?{t:'0.0',u:'A',n:`Off on internal overload. Hold the clamp about 2 min: it tries to restart, spikes to ${fx(s.outdoor.lra*.9,0)} A for ~4 s while humming, then drops back to 0 A.`}:{t:'0.0',u:'A'}}},
+    c_wCR:{c:'comp',l:'Compressor winding C ↔ R',dead:{R:'out'},m:{R:s=>s.outdoor.compHot?{t:'OL',u:'Ω'}:rv('wcr',.7*3/s.outdoor.tons,'Ω',.03,2)}},
+    c_wCS:{c:'comp',l:'Compressor winding C ↔ S',dead:{R:'out'},m:{R:s=>s.outdoor.compHot?{t:'OL',u:'Ω'}:rv('wcs',2.4*3/s.outdoor.tons,'Ω',.05,2)}},
+    c_wRS:{c:'comp',l:'Compressor winding R ↔ S',dead:{R:'out'},m:{R:s=>rv('wrs',3.1*3/s.outdoor.tons,'Ω',.05,2)}},
+    c_comp_g:{c:'comp',l:'Compressor terminals to ground',dead:{R:'out'},m:{R:()=>({t:'OL',u:'Ω',n:'No path to ground (>20 MΩ). Windings are not grounded.'})}},
+    c_fan_a:{c:'fan',l:'Condenser fan motor lead',m:{A:(s,d)=>({...rv('c_fan_a',d.amps.fan,'A',.03,2),n:d.fan==='hum'?'Humming at locked-rotor current.':''})}},
+    c_ywire:{c:'lvwire',l:'Y wire ↔ cabinet ground (wire lifted)',dead:{R:'lv'},m:{R:s=>s.outdoor.yShort?{t:'0.4',u:'Ω',n:'Dead short to ground.'}:{t:'OL',u:'Ω'}}},
+    c_suct:{c:'ports',l:'Suction line (large, insulated)',m:{P:(s,d)=>rv('c_suct',d.ref.suctP,'psig',.8,0),T:(s,d)=>rv('c_suctT',d.ref.suctT,'°F',.4)}},
+    c_liq:{c:'ports',l:'Liquid line (small)',m:{P:(s,d)=>rv('c_liq',d.ref.liqP,'psig',1.5,0),T:(s,d)=>rv('c_liqT',d.ref.liqT,'°F',.4)}},
+    c_amb:{c:'amb',l:'Outdoor ambient',m:{T:s=>rv('c_amb',s.env.amb,'°F',.3)}},
+    r_sup:{c:'sup',l:'Supply air at register',m:{T:(s,d)=>d.supplyT==null?{...rv('r_sup',s.env.room,'°F',.3),n:'No airflow. You are reading room air.'}:rv('r_sup',d.supplyT,'°F',.3)}},
+    r_ret:{c:'ret',l:'Return air at grille',m:{T:s=>rv('r_ret',s.env.room,'°F',.3)}}
+  },
+  actions:{
+    statFace:{l:s=>s.stat.faceOff?'Reinstall faceplate':'Remove faceplate (stays wired)',show:()=>true,run:s=>{s.stat.faceOff=!s.stat.faceOff;return s.stat.faceOff?'Faceplate off. Terminals exposed.':'Faceplate back on.'}},
+    statCool:{l:()=>'Set COOL · 65°F',show:(s,d)=>d.statOn,run:s=>{s.stat.set=65;s.stat.mode='cool';return 'Setpoint 65°F. The thermostat should be calling for cooling now.'}},
+    statBatt:{l:()=>'Replace AA batteries',show:s=>!s.stat.cWire,need:['stat_batt'],cheap:true,run:s=>{s.stat.batt=true;return 'Fresh batteries in.'}},
+    door:{l:s=>s.indoor.doorOn?'Remove blower door':'Reinstall blower door',show:()=>true,run:s=>{s.indoor.doorOn=!s.indoor.doorOn;if(s.indoor.doorOn)s.indoor.doorHeld=false;return s.indoor.doorOn?'Door back on; door switch closed.':'Door off. The door switch opened: board and blower are de-energized.'}},
+    doorHold:{l:s=>s.indoor.doorHeld?'Release door switch':'Tape door switch closed',show:s=>!s.indoor.doorOn,run:s=>{s.indoor.doorHeld=!s.indoor.doorHeld;return s.indoor.doorHeld?'Door switch taped closed. Board is LIVE with the door off. Watch your hands.':'Door switch released. Board de-energized.'}},
+    furnSw:{l:s=>s.power.furnSw?'Turn service switch OFF':'Turn service switch ON',show:()=>true,run:s=>{s.power.furnSw=!s.power.furnSw;return `Furnace service switch ${s.power.furnSw?'ON':'OFF'}.`}},
+    jumper:{l:s=>s.indoor.jumper?'Remove jumper':'Jumper R → Y and G at board',show:s=>!s.indoor.doorOn,run:s=>{s.indoor.jumper=!s.indoor.jumper;return s.indoor.jumper?'Jumper in: the board now sees a cooling call no matter what the thermostat does.':'Jumper removed.'}},
+    fuseRep:{l:()=>'Replace 3 A fuse',show:()=>true,dead:'in',need:['fuse_swap','fuse_chafe'],run:s=>{s.indoor.fuseOK=true;return 'New 3 A fuse installed.'}},
+    xfmrRep:{l:()=>'Replace transformer',show:()=>true,dead:'in',need:['xfmr_open'],run:s=>{s.indoor.xfmrOK=true;s.indoor.xfmrSmell=false;return 'New 40 VA transformer installed and wired.'}},
+    bcapDis:{l:()=>'Discharge capacitor',show:()=>true,dead:'in',run:s=>{s.indoor.discharged=true;return 'Blower capacitor discharged through an insulated resistor tool.'}},
+    bcapRep:{l:()=>'Replace blower capacitor',show:()=>true,dead:'in',cap:'indoor',need:['blower_cap'],run:s=>{s.indoor.bCapUF=s.indoor.bCapRated;s.indoor.bulge=false;return `New ${s.indoor.bCapRated} µF capacitor installed. (If the coil was iced, you ran fan-only until it thawed.)`}},
+    filterRep:{l:()=>'Replace filter (thaw coil if iced)',show:()=>true,need:['filter_clog','l_filter'],cheap:true,run:s=>{s.indoor.filter='clean';return 'Clean filter in. If the coil was iced, you ran fan-only until it fully thawed.'}},
+    drainClr:{l:()=>'Clear drain, flush trap, reset float',show:()=>true,need:['float_clog','l_drain'],cheap:true,run:s=>{s.indoor.drainClogged=false;s.indoor.drainSlow=false;return 'Drain vacuumed and flushed; pan emptied; float back down.'}},
+    furnBkr:{l:s=>s.power.furnBkr?'Turn breaker OFF':'Turn breaker ON',show:()=>true,run:s=>{s.power.furnBkr=!s.power.furnBkr;return `Furnace breaker ${s.power.furnBkr?'ON':'OFF'}.`}},
+    acBkr:{l:s=>s.power.condBkr==='tripped'?'Reset breaker (OFF, then ON)':s.power.condBkr==='on'?'Turn breaker OFF':'Turn breaker ON',show:()=>true,
+      run:(s,g)=>{if(s.power.condBkr==='tripped'){if(!g.tests.has('c_comp_g@R'))g.resetNoCheck=true;s.power.condBkr='on';return 'Breaker reset. It holds.'}s.power.condBkr=s.power.condBkr==='on'?'off':'on';return `AC breaker ${s.power.condBkr.toUpperCase()}.`}},
+    disc:{l:s=>s.power.discIn?'Pull disconnect':'Reinstall disconnect',show:()=>true,run:s=>{s.power.discIn=!s.power.discIn;return s.power.discIn?'Disconnect reinstalled. Condenser is LIVE.':'Disconnect pulled. Verify it is dead with your meter before you touch anything.'}},
+    cpanel:{l:s=>s.outdoor.panelOn?'Remove service panel':'Reinstall service panel',show:()=>true,run:s=>{s.outdoor.panelOn=!s.outdoor.panelOn;return s.outdoor.panelOn?'Service panel back on.':'Service panel off. Contactor, capacitor and compressor terminals exposed.'}},
+    contRep:{l:()=>'Replace contactor',show:()=>true,dead:'out',need:['coil_open','contactor_pitted','l_contacts'],run:s=>{s.outdoor.coilOK=true;s.outdoor.pitted=false;s.outdoor.pittedCosmetic=false;return 'New 30 A contactor installed.'}},
+    capDis:{l:()=>'Discharge capacitor',show:()=>true,dead:'out',run:s=>{s.outdoor.discharged=true;return 'Capacitor discharged (HERM–C and FAN–C).'}},
+    capRep:{l:()=>'Replace dual capacitor',show:()=>true,dead:'out',cap:'outdoor',need:['cap_fan','cap_herm','l_fancap'],run:s=>{const O=s.outdoor;O.hermUF=O.hermRated;O.fanUF=O.fanRated;O.bulge=false;O.compHot=false;return `New ${O.hermRated}/${O.fanRated} µF capacitor installed. The compressor shell was cooled with a hose so its overload could reset.`}},
+    coilClean:{l:()=>'Clean condenser coil',show:()=>true,dead:'out',need:['coil_dirty','l_coildust'],run:s=>{s.outdoor.coil='clean';return 'Coil cleaned and rinsed from the inside out.'}},
+    wireRep:{l:()=>'Repair wire and add grommet',show:()=>true,need:['fuse_chafe'],run:s=>{s.outdoor.yShort=false;return 'Damaged section spliced, cable rerouted through a grommet.'}}
+  }
+};
+
+/* ---------- scene art (system-specific) ---------- */
+const HIT=(x,y,w,h)=>`<rect class="hit" x="${x}" y="${y}" width="${w}" height="${h}" rx="5"/>`;
+function CMP(id,sel,inner,box){const c=SYS().comps[id];return `<g class="cmp${sel===id?' sel':''}" data-comp="${id}" tabindex="0" role="button" aria-label="${c.n}">${inner}${HIT(...box)}</g>`}
+const BLADES='<path d="M0 0 L36 -9 L36 9Z M0 0 L-36 9 L-36 -9Z M0 0 L-9 -36 L9 -36Z M0 0 L9 36 L-9 36Z" class="k-dark"/>';
+SYSTEMS['split-ac'].overview=function(s,d){
+  const air=d.blower==='run',cold=air&&d.comp==='run'&&d.dT>8;
+  const fins=Array.from({length:10},(_,i)=>`<line x1="${38+i*8}" y1="372" x2="${38+i*8}" y2="426" class="fin"/>`).join('');
+  return `<svg viewBox="0 0 800 500" role="img" aria-label="House cutaway showing the HVAC system"><g id="world">
+<rect width="800" height="500" class="k-sky"/><rect y="430" width="800" height="70" class="k-grass"/>
+<rect x="140" y="210" width="500" height="220" class="k-wall st"/>
+<rect x="150" y="216" width="480" height="214" class="k-wall2"/>
+<rect x="296" y="216" width="8" height="214" class="k-wall"/>
+<polygon points="116,216 390,60 664,216" class="k-roof"/>
+<polygon points="168,206 390,88 612,206" class="k-attic"/>
+<rect x="140" y="204" width="500" height="12" class="k-wall st"/>
+<rect x="196" y="172" width="400" height="20" rx="3" class="k-duct st"/>
+<rect x="461" y="190" width="18" height="18" class="k-duct st"/>
+<rect x="191" y="188" width="38" height="114" class="k-metal st"/>
+<rect x="182" y="300" width="56" height="42" class="k-metal2 st"/>
+<rect x="178" y="340" width="64" height="90" class="k-metal st"/>
+<rect x="190" y="372" width="40" height="44" rx="2" class="k-metal2"/>
+<rect x="168" y="352" width="10" height="70" class="f-${s.indoor.filter} st"/>
+<path d="M238 330 H256 V428" class="pipe"/>
+${s.indoor.drainClogged?'<rect x="236" y="342" width="20" height="5" class="k-water"/>':''}
+<rect x="262" y="250" width="28" height="46" rx="2" class="k-metal2 st"/><line x1="268" y1="258" x2="284" y2="258" class="leader"/><line x1="268" y1="266" x2="284" y2="266" class="leader"/><line x1="268" y1="274" x2="284" y2="274" class="leader"/>
+<rect x="512" y="292" width="22" height="28" rx="4" class="k-panel st"/><rect x="516" y="297" width="14" height="9" class="${d.statOn?'k-lcd':'k-dark'}"/>
+<rect x="451" y="208" width="38" height="7" class="k-metal st"/>
+${air?`<path d="M458 220 q4 10 0 20 q-4 10 0 20" class="air${cold?'':' warm'}"/><path d="M470 220 q4 10 0 20 q-4 10 0 20" class="air${cold?'':' warm'}"/><path d="M482 220 q4 10 0 20 q-4 10 0 20" class="air${cold?'':' warm'}"/>`:''}
+<rect x="330" y="384" width="44" height="32" class="k-metal st"/><line x1="334" y1="392" x2="370" y2="392" class="leader"/><line x1="334" y1="400" x2="370" y2="400" class="leader"/><line x1="334" y1="408" x2="370" y2="408" class="leader"/>
+<rect x="560" y="248" width="48" height="66" class="k-sky st"/><line x1="584" y1="248" x2="584" y2="314" class="leader"/>
+<path d="M402 428 v-26 q0-8 8-8 h100 q8 0 8 8 v26z" class="k-roof"/>
+<rect x="22" y="428" width="108" height="8" class="k-metal2"/>
+<rect x="32" y="366" width="88" height="62" class="k-metal st"/>${fins}
+<ellipse cx="76" cy="366" rx="44" ry="7" class="k-dark"/>
+<g transform="translate(76 366) scale(1 .16)"><g class="${d.fan==='run'?'spin':''}">${BLADES}</g></g>
+<rect x="124" y="318" width="14" height="30" rx="2" class="k-metal2 st"/>
+<path d="M120 404 H160 V322 H182" class="ls-s"/><path d="M120 413 H167 V332 H182" class="ls-l"/>
+${d.ref.iced?'<path d="M120 404 H160 V322 H182" class="frostline"/>':''}
+<text x="560" y="350" class="lbl">Thermostat</text><path d="M558 346 L536 316" class="leader"/>
+<text x="440" y="250" class="lbl" text-anchor="end">Supply register</text><path d="M442 246 L456 222" class="leader"/>
+<text x="300" y="166" class="lbl">Supply air duct</text>
+<text x="246" y="318" class="lbl">Indoor coil</text>
+<text x="210" y="462" class="lbl" text-anchor="middle">Furnace</text><path d="M210 452 V430" class="leader"/>
+<text x="276" y="244" class="lbl" text-anchor="middle">Panel</text>
+<text x="76" y="462" class="lbl" text-anchor="middle">Condenser</text>
+<text x="52" y="306" class="lbl">Disconnect</text><path d="M104 306 L124 322" class="leader"/>
+<text x="352" y="378" class="lbl" text-anchor="middle">Return</text>
+<text x="148" y="478" class="lbl">Refrigerant lines</text><path d="M168 468 L162 416" class="leader"/>
+<g class="hot" data-zone="tstat" tabindex="0" role="button" aria-label="Thermostat"><rect x="500" y="280" width="46" height="52" rx="6"/></g>
+<g class="hot" data-zone="indoor" tabindex="0" role="button" aria-label="Furnace and indoor coil"><rect x="164" y="290" width="98" height="140" rx="6"/></g>
+<g class="hot" data-zone="panel" tabindex="0" role="button" aria-label="Breaker panel"><rect x="258" y="246" width="36" height="54" rx="6"/></g>
+<g class="hot" data-zone="cond" tabindex="0" role="button" aria-label="Condenser"><rect x="16" y="312" width="128" height="130" rx="8"/></g>
+<g class="hot" data-zone="air" tabindex="0" role="button" aria-label="Registers"><rect x="440" y="204" width="60" height="62" rx="6"/></g>
+<g class="hot" data-zone="air" tabindex="0" role="button" aria-label="Return grille"><rect x="322" y="380" width="60" height="42" rx="6"/></g>
+</g></svg>`;
+};
+SYSTEMS['split-ac'].scene=function(z,s,d,sel){
+  const I=s.indoor,O=s.outdoor,svg=(inner,label)=>`<svg viewBox="0 0 600 400" role="img" aria-label="${label}">${inner}</svg>`;
+  if(z==='tstat'){
+    let g=`<rect width="600" height="400" class="k-wall2"/>`;
+    if(!s.stat.faceOff){
+      const lcd=d.statOn?`<rect x="228" y="100" width="144" height="86" rx="6" class="k-lcd"/><text x="300" y="158" class="lcdbig" text-anchor="middle">${s.env.room}°</text><text x="238" y="118" class="lcdsm">COOL</text><text x="362" y="118" class="lcdsm" text-anchor="end">SET ${s.stat.set}°</text>${d.statCall?'<text x="238" y="178" class="lcdsm">COOL ON</text>':''}${s.stat.icon?'<text x="362" y="178" class="lcdsm" text-anchor="end">FILTER</text>':''}`:`<rect x="228" y="100" width="144" height="86" rx="6" class="k-dark"/>`;
+      g+=CMP('tstat',sel,`<rect x="198" y="70" width="204" height="250" rx="24" class="k-panel st"/>${lcd}<circle cx="262" cy="252" r="17" class="k-metal st"/><circle cx="338" cy="252" r="17" class="k-metal st"/><text x="262" y="257" class="lbl2" text-anchor="middle">−</text><text x="338" y="257" class="lbl2" text-anchor="middle">+</text>`,[192,64,216,262]);
+    }else{
+      const ws=[['R','var(--hot)',true],['C','var(--cold)',s.stat.cWire],['Y','var(--accent)',true],['G','var(--ok)',true],['W','var(--metal)',true]];
+      const term=ws.map((w,i)=>`<circle cx="${240+i*30}" cy="180" r="9" class="k-metal2 st"/><text x="${240+i*30}" y="208" class="lbl2" text-anchor="middle">${w[0]}</text>${w[2]?`<path d="M${240+i*30} 180 V${300+i*4} H${300}" class="wire" style="stroke:${w[1]}"/>`:''}`).join('');
+      g+=CMP('tstat_t',sel,`<rect x="210" y="90" width="180" height="210" rx="10" class="k-metal st"/><rect x="290" y="300" width="22" height="70" class="k-metal2"/>${term}${s.stat.cWire?'':'<rect x="236" y="110" width="128" height="34" rx="4" class="k-dark"/><text x="300" y="132" class="tiny" text-anchor="middle" style="fill:#fff">2× AA</text>'}`,[204,84,192,226]);
+      g+=CMP('tstat',sel,`<rect x="440" y="250" width="110" height="130" rx="14" class="k-panel st" opacity=".9"/><text x="495" y="320" class="lbl" text-anchor="middle">Faceplate</text>`,[434,244,122,142]);
+    }
+    g+=`<text x="40" y="380" class="lbl2">Living room · ${s.env.room}°F</text>`;
+    return svg(g,'Thermostat close-up');
+  }
+  if(z==='indoor'){
+    const led=d.R>0?'var(--ok)':'var(--dark)';
+    let g=`<rect width="600" height="400" class="k-wall2"/><rect y="392" width="600" height="8" class="k-metal2"/>`;
+    g+=CMP('coil',sel,`<rect x="150" y="28" width="300" height="92" class="k-metal2 st"/><path d="M180 108 L300 44 L420 108" fill="none" class="st" style="stroke-width:3"/><text x="300" y="104" class="lbl" text-anchor="middle">Evaporator coil</text>${d.ref.iced?'<path d="M184 104 L300 48 L416 104" fill="none" style="stroke:var(--frost);stroke-width:7;opacity:.85"/>':''}<path d="M150 60 H30" class="ls-s"/><path d="M150 76 H30" class="ls-l"/>${d.ref.iced?'<path d="M150 60 H30" class="frostline"/>':''}`,[24,24,432,100]);
+    const water=d.floatOpen?'<rect x="454" y="104" width="62" height="14" class="k-water"/>':I.drainSlow?'<rect x="454" y="113" width="62" height="5" class="k-water"/>':'';
+    g+=CMP('float',sel,`<rect x="450" y="92" width="70" height="28" rx="2" class="k-metal st"/>${water}<rect x="${d.floatOpen?492:494}" y="${d.floatOpen?66:78}" width="14" height="20" class="k-acc st"/><path d="M520 106 H560 V390" class="pipe"/><text x="458" y="140" class="lbl">Pan / float</text>`,[444,60,124,90]);
+    g+=CMP('filter',sel,`<rect x="96" y="248" width="48" height="142" class="f-${I.filter} st"/>${Array.from({length:8},(_,i)=>`<line x1="98" y1="${258+i*16}" x2="142" y2="${258+i*16}" class="leader" opacity=".35"/>`).join('')}<text x="120" y="240" class="lbl" text-anchor="middle">Filter</text>`,[90,228,60,166]);
+    g+=CMP('sw',sel,`<rect x="500" y="170" width="40" height="56" rx="4" class="k-panel st"/><rect x="514" y="${s.power.furnSw?180:200}" width="12" height="18" rx="2" class="k-dark"/><text x="520" y="242" class="lbl" text-anchor="middle">Svc switch</text>`,[494,164,52,86]);
+    let cab=`<rect x="150" y="120" width="300" height="272" class="k-metal st"/><rect x="164" y="132" width="272" height="94" rx="3" class="k-metal2 st" opacity=".55"/><text x="300" y="184" class="lbl" text-anchor="middle">Burner compartment</text>`;
+    if(I.doorOn){
+      cab+=`<rect x="164" y="236" width="272" height="148" rx="3" class="k-metal st"/>${Array.from({length:6},(_,i)=>`<line x1="190" y1="${252+i*10}" x2="260" y2="${252+i*10}" class="leader"/>`).join('')}<circle cx="380" cy="262" r="9" style="fill:${led}" class="st"/><text x="380" y="288" class="lbl" text-anchor="middle">LED</text><text x="300" y="370" class="lbl" text-anchor="middle">Blower door</text>`;
+      g+=CMP('cab',sel,cab,[144,114,312,284]);
+    }else{
+      g+=CMP('cab',sel,cab+`<rect x="160" y="232" width="280" height="156" class="k-dark"/><rect x="160" y="370" width="16" height="12" class="${I.doorHeld?'k-acc':'k-metal2'}"/><text x="168" y="364" class="tiny" text-anchor="middle" style="fill:#fff">DS</text>`,[144,114,312,118]);
+      g+=CMP('board',sel,`<rect x="176" y="242" width="118" height="58" rx="3" class="k-pcb st"/><circle cx="186" cy="252" r="4" style="fill:${led}"/>${['R','C','Y','G','W'].map((t,i)=>`<rect x="${190+i*20}" y="282" width="14" height="12" class="k-metal"/><text x="${197+i*20}" y="278" class="tiny" text-anchor="middle" style="fill:#fff">${t}</text>`).join('')}${I.jumper?'<path d="M197 288 q20 -16 40 0 q10 -10 20 0" fill="none" style="stroke:var(--hot);stroke-width:2"/>':''}`,[172,238,96,66]);
+      g+=CMP('fuse',sel,`<rect x="270" y="248" width="20" height="10" rx="1" style="fill:${I.fuseOK||!I.fuseVisible?'#e3c56a':'#7a6a40'}" class="st"/>`,[264,242,32,22]);
+      g+=CMP('xfmr',sel,`<rect x="306" y="244" width="44" height="40" rx="2" class="k-metal2 st"/><rect x="314" y="252" width="28" height="24" class="k-copper" opacity=".7"/>`,[300,238,56,52]);
+      g+=CMP('blower',sel,`<circle cx="292" cy="342" r="40" class="k-metal2 st"/><g transform="translate(292 342)"><g class="${d.blower==='run'?'spin':''}">${Array.from({length:12},(_,i)=>`<line x1="0" y1="-14" x2="0" y2="-34" transform="rotate(${i*30})" style="stroke:var(--dark);stroke-width:3"/>`).join('')}</g></g><circle cx="292" cy="342" r="12" class="k-metal st"/>`,[248,298,88,88]);
+      g+=CMP('bcap',sel,`<rect x="370" y="306" width="30" height="58" rx="8" class="k-metal st"/><text x="385" y="340" class="tiny" text-anchor="middle">${I.bCapRated}µF</text>${I.bulge?'<path d="M372 308 q13 -10 26 0" class="k-metal st"/>':''}`,[364,296,42,74]);
+    }
+    return svg(g,'Furnace and indoor coil close-up');
+  }
+  if(z==='panel'){
+    const handle=(x,y,st,w)=>{const off=st==='on'?0:st==='tripped'?w/2-6:w-12;return `<rect x="${x}" y="${y}" width="${w}" height="20" rx="3" class="k-dark"/><rect x="${x+off+1}" y="${y+2}" width="10" height="16" rx="2" class="${st==='on'?'k-metal':st==='tripped'?'k-hot':'k-metal2'}"/>`};
+    const deco=['KITCHEN','BATH','DRYER','LIGHTS','GARAGE','BEDRMS'];
+    let g=`<rect width="600" height="400" class="k-wall2"/><rect x="170" y="30" width="260" height="340" rx="6" class="k-metal2 st"/><rect x="188" y="48" width="224" height="304" rx="3" class="k-dark"/>`;
+    deco.forEach((t,i)=>{g+=`${handle(200,70+i*36,'on',70)}<text x="200" y="${66+i*36}" class="tiny" style="fill:#d5dbe0">${t}</text>`});
+    g+=CMP('brk_ac',sel,`${handle(320,70,s.power.condBkr,70)}${handle(320,94,s.power.condBkr,70)}<rect x="318" y="68" width="74" height="48" fill="none" style="stroke:var(--accent)"/><text x="320" y="64" class="tiny" style="fill:#fff">A/C ${O.mocp}A</text>`,[312,54,90,68]);
+    g+=CMP('brk_f',sel,`${handle(320,160,s.power.furnBkr?'on':'off',70)}<text x="320" y="156" class="tiny" style="fill:#fff">FURNACE 15A</text>`,[312,144,90,42]);
+    g+=`<text x="300" y="392" class="lbl2" text-anchor="middle">Main panel · garage</text>`;
+    return svg(g,'Breaker panel');
+  }
+  if(z==='cond'){
+    const run=d.fan==='run';
+    const fins=Array.from({length:36},(_,i)=>`<line x1="${152+i*8}" y1="128" x2="${152+i*8}" y2="350" class="fin"/>`).join('');
+    let g=`<rect width="600" height="400" class="k-sky"/><rect y="356" width="600" height="44" class="k-grass"/><rect x="500" y="0" width="100" height="400" class="k-wall st"/>`;
+    g+=CMP('amb',sel,`<circle cx="62" cy="54" r="22" class="k-acc"/>${Array.from({length:8},(_,i)=>`<line x1="62" y1="22" x2="62" y2="14" transform="rotate(${i*45} 62 54)" style="stroke:var(--accent);stroke-width:3"/>`).join('')}<text x="62" y="102" class="lbl" text-anchor="middle">${s.env.amb}°F out</text>`,[30,8,64,104]);
+    g+=`<rect x="118" y="350" width="344" height="14" class="k-metal2 st"/>`;
+    g+=CMP('ccoil',sel,`<rect x="140" y="112" width="300" height="240" class="k-metal st"/>${fins}${O.coil==='dirty'?'<rect x="144" y="128" width="292" height="222" class="k-dirt" opacity=".75"/>':O.coil==='dusty'?'<rect x="144" y="128" width="292" height="222" class="k-dirt" opacity=".3"/>':''}${O.bentFins?'<path d="M150 300 l20 8 l-12 10 l18 6 l-6 14" fill="none" style="stroke:var(--sline);stroke-width:2"/>':''}`,[140,128,150,224]);
+    g+=CMP('fan',sel,`<rect x="134" y="98" width="312" height="16" rx="3" class="k-dark"/><ellipse cx="290" cy="98" rx="140" ry="18" class="k-metal2 st"/><g transform="translate(290 98) scale(3.4 .42)"><g class="${run?'spin':d.fan==='hum'?'buzz':''}">${BLADES}</g></g><circle cx="290" cy="98" r="4" class="k-dark"/>${O.ants?Array.from({length:9},(_,i)=>`<circle cx="${200+i*15}" cy="${92+(i%3)*4}" r="1.6" class="k-dark"/>`).join(''):''}`,[146,76,288,40]);
+    g+=CMP('plate',sel,`<rect x="160" y="290" width="92" height="48" rx="2" class="k-panel st"/><line x1="168" y1="302" x2="244" y2="302" class="leader"/><line x1="168" y1="312" x2="236" y2="312" class="leader"/><line x1="168" y1="322" x2="240" y2="322" class="leader"/>${s.ref.type==='R-454B'?'<rect x="226" y="326" width="20" height="9" class="k-hot"/>':''}<text x="206" y="284" class="lbl" text-anchor="middle">Data plate</text>`,[154,272,104,72]);
+    if(O.panelOn){
+      g+=CMP('cpanel',sel,`<rect x="300" y="140" width="140" height="190" rx="3" class="k-metal st"/><circle cx="310" cy="150" r="3" class="k-metal2"/><circle cx="430" cy="150" r="3" class="k-metal2"/><circle cx="310" cy="320" r="3" class="k-metal2"/><circle cx="430" cy="320" r="3" class="k-metal2"/><text x="370" y="240" class="lbl" text-anchor="middle">Service panel</text>`,[296,136,148,198]);
+    }else{
+      g+=CMP('cpanel',sel,`<rect x="300" y="140" width="140" height="190" class="k-dark"/><rect x="454" y="40" width="40" height="52" rx="2" class="k-metal st" opacity=".9"/><text x="474" y="34" class="tiny" text-anchor="middle">PANEL</text>`,[448,30,52,66]);
+      g+=CMP('contactor',sel,`<rect x="310" y="150" width="54" height="66" rx="3" class="k-metal2 st"/><rect x="326" y="${d.pulled?170:160}" width="22" height="20" class="k-acc st"${d.pulled&&O.pitted?' style="animation:buzz .08s linear infinite"':''}/><text x="337" y="210" class="tiny" text-anchor="middle" style="fill:#fff">L1 L2</text>${O.pitted||O.pittedCosmetic?'<circle cx="318" cy="200" r="3" class="k-dark"/>':''}`,[306,146,62,74]);
+      g+=CMP('cap',sel,`<rect x="378" y="150" width="50" height="86" rx="10" class="k-metal st"/>${O.bulge?'<path d="M380 152 q23 -14 46 0" class="k-metal st"/>':''}<text x="403" y="176" class="tiny" text-anchor="middle">H F C</text><text x="403" y="206" class="tiny" text-anchor="middle">${O.hermRated}/${O.fanRated}</text>`,[372,138,62,102]);
+      g+=CMP('comp',sel,`<ellipse cx="370" cy="290" rx="58" ry="34" class="k-metal2 st"/><circle cx="350" cy="282" r="12" class="k-metal st"/>${O.compHot?'<ellipse cx="370" cy="290" rx="58" ry="34" fill="none" style="stroke:var(--hot);stroke-width:3;opacity:.7"/>':''}`,[306,250,128,78]);
+      g+=`<path d="M337 216 V250 M360 216 C380 240 380 240 352 272 M403 236 V262" fill="none" style="stroke:var(--metal);stroke-width:1.6"/>`;
+    }
+    g+=CMP('disc',sel,`<rect x="518" y="120" width="62" height="80" rx="3" class="k-metal2 st"/>${s.power.discIn?'<rect x="530" y="138" width="38" height="44" rx="2" class="k-dark"/>':'<rect x="530" y="138" width="38" height="44" rx="2" class="k-panel st"/><rect x="532" y="250" width="34" height="40" rx="2" class="k-dark"/><text x="549" y="306" class="tiny" text-anchor="middle">pulled</text>'}<text x="549" y="114" class="lbl" text-anchor="middle">Disconnect</text><path d="M518 190 H450 V160" fill="none" style="stroke:var(--metal2);stroke-width:5"/>`,[512,98,74,110]);
+    g+=CMP('lvwire',sel,`<path d="M500 236 C480 236 470 250 440 250" class="wire" style="stroke:var(--panel);stroke-width:3"/>${O.yShort?'<circle cx="442" cy="250" r="3" class="k-copper"/>':''}<text x="470" y="270" class="tiny" text-anchor="middle">T-stat wire</text>`,[436,226,66,50]);
+    g+=CMP('ports',sel,`<rect x="440" y="300" width="22" height="16" class="k-copper"/><rect x="440" y="322" width="18" height="12" class="k-copper"/><path d="M462 308 H500" class="ls-s"/><path d="M458 328 H500" class="ls-l"/>${d.ref.iced?'<path d="M462 308 H500" class="frostline"/>':''}<text x="476" y="350" class="tiny" text-anchor="middle">valves</text>`,[436,292,66,64]);
+    return svg(g,'Condenser close-up');
+  }
+  if(z==='air'){
+    const air=d.blower==='run',cold=air&&d.comp==='run'&&d.dT>8,weak=d.ref.iced;
+    let g=`<rect width="600" height="400" class="k-wall2"/><rect width="600" height="54" class="k-wall st"/>`;
+    g+=CMP('sup',sel,`<rect x="210" y="46" width="180" height="24" rx="2" class="k-metal st"/>${Array.from({length:8},(_,i)=>`<line x1="${224+i*20}" y1="50" x2="${224+i*20}" y2="66" class="leader"/>`).join('')}${air?[240,280,320,360].map(x=>`<path d="M${x} 76 q8 ${weak?10:20} 0 ${weak?20:40} q-8 20 0 ${weak?20:40}" class="air${cold?'':' warm'}"${weak?' style="opacity:.45"':''}/>`).join(''):''}<text x="300" y="${air?180:100}" class="lbl" text-anchor="middle">Supply register</text>`,[204,40,192,150]);
+    g+=CMP('ret',sel,`<rect x="210" y="250" width="180" height="110" rx="2" class="k-metal st"/>${Array.from({length:9},(_,i)=>`<line x1="218" y1="${262+i*11}" x2="382" y2="${262+i*11}" class="leader"/>`).join('')}<text x="300" y="382" class="lbl" text-anchor="middle">Return grille</text>`,[204,244,192,146]);
+    if(s.env.stain)g+=CMP('stain',sel,`<ellipse cx="470" cy="28" rx="44" ry="16" style="fill:#9a7650;opacity:.55"/>`,[420,6,100,46]);
+    return svg(g,'Supply register and return grille');
+  }
+  return '';
+};
+
+/* =====================================================================
+   FAULTS — add v2 faults with sys:['heat-pump'] etc.
+   key: tokens that prove the diagnosis. 'pid' = any valid reading, 'pid@V' = that function, 'i:comp' = inspected.
+   ===================================================================== */
+/* =====================================================================
+   CLOSE-UPS (3rd screen). Each one = drawing + terminal map + node voltages.
+   Voltage readings between ANY two terminals come from nodes(): phasor per terminal
+   (magnitude, phase, circuit 'hv' | 'lv' | 'gnd'), or {f:id} for a floating conductor.
+   map[] ties terminal pairs to the preset test points so grading still credits them.
+   ===================================================================== */
+const PH=(m,ph=0,c='hv')=>({m,ph,c});const FL=id=>({f:id});
+const rad=x=>x*Math.PI/180;
+const padd=(b,m,ph)=>{if(b.f)return b;const x=b.m*Math.cos(rad(b.ph))+m*Math.cos(rad(ph)),y=b.m*Math.sin(rad(b.ph))+m*Math.sin(rad(ph));return PH(Math.hypot(x,y),Math.atan2(y,x)*180/Math.PI,b.c)};
+const vDiff=(a,b)=>Math.hypot(a.m*Math.cos(rad(a.ph))-b.m*Math.cos(rad(b.ph)),a.m*Math.sin(rad(a.ph))-b.m*Math.sin(rad(b.ph)));
+const WR=(p,col,w=6)=>`<path d="${p}" class="wr" style="stroke:var(--w-${col});stroke-width:${w}"/>`;
+const TX=(x,y,t,a='middle',cls='tsm')=>`<text x="${x}" y="${y}" class="${cls}" text-anchor="${a}">${t}</text>`;
+const GN=()=>PH(0,0,'gnd');
+SYSTEMS['split-ac'].hv=function(s,d){
+  const O=s.outdoor,live=d.discLoad>0,L1=live?PH(120.5):PH(0),L2=live?PH(120.5,180):PH(0);
+  let T1,T2;
+  if(d.pulled){T2=L2;T1=O.pitted?L2:(O.pittedCosmetic&&live?PH(118.7):L1)}else{T1=FL('load');T2=FL('load')}
+  let HERM=T1,FAN=T1;
+  if(d.comp==='run')HERM=padd(T1,312,120);
+  if(d.fan==='run')FAN=padd(T1,281,110);else if(d.fan==='hum')FAN=T2;
+  return{L1,L2,T1,T2,HERM,FAN,CC:T1};
+};
+SYSTEMS['split-ac'].cuOf={tstat_t:'tstat',board:'board',fuse:'board',xfmr:'board',blower:'blower',bcap:'blower',float:'float',brk_f:'panel',brk_ac:'panel',disc:'disc',contactor:'contactor',lvwire:'contactor',cap:'cap',comp:'comp',fan:'fan',ports:'ports'};
+SYSTEMS['split-ac'].closeups={
+  tstat:{n:'Thermostat sub-base',z:'tstat',comps:['tstat_t'],req:s=>s.stat.faceOff?null:'Remove the thermostat faceplate first.',
+    about:'R is the 24 V hot from the transformer. C is the common (return) side. The thermostat connects R to Y for cooling and R to G for the fan.',
+    terms:{R:[150,180,'R','v','t'],C:[225,180,'C','v','t'],Y:[300,180,'Y','v','t'],G:[375,180,'G','v','t'],W:[450,180,'W','v','t']},
+    nodes(s,d){const lv=v=>PH(v,0,'lv'),path=!d.floatOpen&&s.outdoor.coilOK;return{R:lv(d.R),C:s.stat.cWire?lv(0):FL('cscrew'),Y:d.statCall?lv(d.R):(path?lv(0):FL('y')),G:lv(d.statCall?d.R:0),W:lv(0)}},
+    map:[['t_rc','V','R','C'],['t_ry','V','R','Y'],['t_yc','V','Y','C']],
+    draw(s){const cols=['red',s.stat.cWire?'blu':null,'yel','grn','wht'];
+      return `<rect width="600" height="400" class="k-wall2"/><rect x="90" y="70" width="420" height="270" rx="18" class="k-metal st"/><ellipse cx="300" cy="300" rx="70" ry="22" class="k-dark"/>
+      ${cols.map((c,i)=>c?WR(`M${290+i*5} 300 C${290+i*5} 250 ${150+i*75} 250 ${150+i*75} 196`,c,5):'').join('')}
+      ${s.stat.cWire?'':`<rect x="160" y="96" width="280" height="40" rx="6" class="k-dark"/>${TX(300,121,'2× AA BATTERIES','middle','tsm inv')}`}
+      ${TX(300,366,'Thermostat cable comes out of the wall here')}`}},
+  board:{n:'Control board & transformer',z:'indoor',comps:['board','fuse','xfmr','cab'],req:s=>s.indoor.doorOn?'Remove the blower door first.':null,
+    about:'Line voltage enters through the door switch to LINE. The transformer primary is fed from the board (120 V); its secondary (24 V) feeds the fuse, then R. C is the common. NEUTRAL is the 120 V return.',
+    terms:{DS_IN:[62,300,'Door sw in','v','t'],DS_OUT:[112,300,'Door sw out','v','b'],LINE:[190,80,'LINE','v','t'],COOL:[255,80,'COOL','v','t'],XFMR:[320,80,'XFMR','v','t'],NEUT:[390,80,'NEUTRAL','v','t'],
+      F_IN:[262,185,'Fuse in','v','t'],F_OUT:[338,185,'Fuse out','v','t'],R:[200,320,'R','v','b'],C:[250,320,'C','v','b'],Y:[300,320,'Y','v','b'],G:[350,320,'G','v','b'],W:[400,320,'W','v','b'],
+      XP1:[500,98,'Pri hot','v','l'],XP2:[560,98,'Pri com','v','t'],XS1:[500,282,'Sec 24 V','v','l'],XS2:[560,282,'Sec C','v','b'],GND:[565,372,'Chassis','v','l']},
+    nodes(s,d){const L=v=>PH(v,0,'hv'),lv=v=>PH(v,0,'lv'),line=L(d.boardPwr?120:0);
+      return{DS_IN:L(d.lineIn),DS_OUT:line,LINE:line,XFMR:line,XP1:line,NEUT:GN(),XP2:GN(),COOL:L(d.blowerV),XS1:lv(d.sec),F_IN:lv(d.sec),XS2:lv(0),C:lv(0),F_OUT:lv(d.R),R:lv(d.R),Y:lv(d.callY?d.R:0),G:lv(d.callY?d.R:0),W:lv(0),GND:GN()}},
+    map:[['f_line','V','DS_IN','NEUT'],['f_xp','V','XP1','XP2'],['f_xp','V','XFMR','NEUT'],['f_xp','R','XP1','XP2'],['f_xs','V','XS1','XS2'],['f_xs','R','XS1','XS2'],['f_fuse','V','F_IN','F_OUT'],['f_fuse','R','F_IN','F_OUT'],['f_rc','V','R','C'],['f_yc','V','Y','C'],['f_gc','V','G','C']],
+    draw(s,d){const I=s.indoor,led=d.R>0?'var(--ok)':'var(--dark)';
+      return `<rect width="600" height="400" class="k-dark"/>
+      <rect x="36" y="262" width="102" height="72" rx="6" class="k-metal2 st"/><rect x="74" y="244" width="26" height="20" class="${I.doorHeld||I.doorOn?'k-acc':'k-metal'} st"/>${TX(87,352,'Door sw · '+(I.doorOn?'closed':I.doorHeld?'taped':'open'),'middle','tsm inv')}
+      ${WR('M62 300 V390','blk',4)}${WR('M112 300 C112 200 150 120 190 80','blk',4)}
+      <rect x="150" y="40" width="300" height="320" rx="6" class="k-pcb st"/>
+      <rect x="170" y="110" width="80" height="44" rx="3" class="k-dark"/>${TX(210,137,'BLOWER RELAY','middle','tsm inv')}
+      <circle cx="420" cy="140" r="8" style="fill:${led}" class="st"/>${TX(420,166,'LED','middle','tsm inv')}
+      <rect x="280" y="176" width="40" height="18" rx="3" style="fill:${!I.fuseOK&&I.fuseVisible?'#7a6a40':'#e3c56a'}" class="st"/>${TX(300,214,'3 A','middle','tsm inv')}
+      <rect x="480" y="120" width="100" height="140" rx="6" class="k-metal2 st"/><rect x="498" y="140" width="64" height="100" class="k-copper" opacity=".75"/>${TX(530,196,'40 VA','middle','tsm inv')}
+      ${WR('M500 98 C480 60 340 60 320 80','blk',3)}${WR('M560 98 C560 40 400 40 390 80','wht',3)}${WR('M500 282 C470 250 290 230 262 185','red',3)}${WR('M560 282 C560 360 260 360 250 320','blu',3)}
+      ${I.jumper?'<path d="M200 320 C220 280 280 280 300 320 M200 320 C230 270 330 270 350 320" fill="none" style="stroke:var(--hot);stroke-width:3"/>':''}`}},
+  blower:{n:'Blower motor & capacitor',z:'indoor',comps:['blower','bcap','cab'],req:s=>s.indoor.doorOn?'Remove the blower door first.':null,
+    about:'The COOL speed lead brings 120 V from the board; the white lead is the neutral return. The run capacitor connects across the motor\'s two windings.',
+    terms:{SPD:[360,120,'COOL lead','v','t'],NEU:[360,212,'Common (white)','v','b'],CAP1:[470,92,'Cap A','v','t'],CAP2:[530,92,'Cap B','v','t'],ML:[268,120,'Motor lead','c','b'],GND:[565,372,'Chassis','v','l']},
+    nodes(s,d){const spd=PH(d.blowerV,0,'hv');return{SPD:spd,NEU:GN(),CAP1:spd,CAP2:d.blower==='run'?padd(spd,165,120):d.blower==='hum'?PH(0):spd,ML:spd,GND:GN()}},
+    map:[['f_bm','V','SPD','NEU'],['f_bm','A','ML'],['f_bcap','C','CAP1','CAP2']],
+    draw(s,d){const I=s.indoor;return `<rect width="600" height="400" class="k-dark"/>
+      ${WR('M220 160 C260 120 300 120 360 120','blu',5)}${WR('M230 210 H360','wht',5)}${WR('M240 250 C380 300 470 200 470 92','brn',4)}${WR('M250 270 C400 330 530 220 530 92','pur',4)}
+      <circle cx="160" cy="210" r="120" class="k-metal2 st"/><circle cx="160" cy="210" r="46" class="k-metal st"/>${TX(160,214,'PSC MOTOR','middle','tsm')}
+      ${d.blower==='hum'?'<circle cx="160" cy="210" r="124" fill="none" style="stroke:var(--hot);stroke-width:4;opacity:.7"/>':''}
+      <rect x="440" y="100" width="120" height="200" rx="26" class="k-metal st"/>${TX(500,200,I.bCapRated+' µF','middle','tsm')}${TX(500,218,'±6% · 370 V','middle','tsm')}
+      ${I.bulge?'<path d="M444 108 Q500 84 556 108" class="k-metal st"/>':''}`}},
+  float:{n:'Float switch',z:'indoor',comps:['float'],
+    about:'The float switch is spliced into the Y wire between the furnace board and the condenser. Closed = the call passes; lifted = the call is blocked.',
+    terms:{IN:[150,96,'Y from board','v','t'],OUT:[450,96,'Y to condenser','v','t'],GND:[505,302,'Pan screw','v','r']},
+    nodes(s,d){const lv=v=>PH(v,0,'lv');return{IN:lv(d.callY?d.R:0),OUT:lv(d.yOut),GND:GN()}},
+    map:[['f_float','V','IN','OUT'],['f_float','R','IN','OUT']],
+    draw(s,d){const water=d.floatOpen?'<rect x="88" y="252" width="424" height="70" class="k-water" opacity=".8"/>':s.indoor.drainSlow?'<rect x="88" y="300" width="424" height="22" class="k-water" opacity=".8"/>':'';
+      return `<rect width="600" height="400" class="k-wall2"/>${WR('M150 96 H0','yel',5)}${WR('M450 96 H600','yel',5)}${WR('M150 96 C200 140 260 120 280 140','yel',4)}${WR('M450 96 C400 140 340 120 320 140','yel',4)}
+      <circle cx="150" cy="96" r="20" class="k-acc st"/><circle cx="450" cy="96" r="20" class="k-acc st"/>
+      <rect x="80" y="240" width="440" height="90" rx="4" class="k-metal st"/>${water}<path d="M520 300 H600" class="pipe"/>
+      <rect x="260" y="136" width="80" height="110" rx="6" class="k-panel st"/><rect x="276" y="${d.floatOpen?200:236}" width="48" height="34" rx="4" class="k-acc st"/>${TX(300,370,d.floatOpen?'float lifted':'float down')}`}},
+  panel:{n:'Breaker panel (dead-front off)',z:'panel',comps:['brk_ac','brk_f'],
+    about:'The two bus bars carry L1 and L2 from the utility (240 V between them, 120 V from either to neutral). A breaker\'s load lug is what it feeds downstream.',
+    terms:{BUS1:[250,42,'Main L1','v','r'],BUS2:[350,42,'Main L2','v','l'],AC1:[452,104,'A/C lug 1','v','r'],AC2:[452,152,'A/C lug 2','v','r'],FURN:[150,258,'Furnace lug','v','l'],NEUT:[60,330,'Neutral bar','v','r'],GND:[540,330,'Ground bar','v','l']},
+    nodes(s,d){const on=s.power.condBkr==='on';return{BUS1:PH(120.5),BUS2:PH(120.5,180),AC1:on?PH(120.5):PH(0),AC2:on?PH(120.5,180):PH(0),FURN:s.power.furnBkr?PH(120.4):PH(0),NEUT:GN(),GND:GN()}},
+    map:[['p_ac','V','AC1','AC2'],['p_furn','V','FURN','NEUT']],
+    draw(s){const st=s.power.condBkr,hx=st==='on'?352:st==='tripped'?378:404;
+      return `<rect width="600" height="400" class="k-metal2"/>${WR('M250 42 V0','blk',8)}${WR('M350 42 V0','red',8)}
+      <rect x="284" y="60" width="32" height="320" class="k-copper"/><rect x="40" y="80" width="40" height="280" rx="3" class="k-metal st"/><rect x="520" y="80" width="40" height="280" rx="3" class="k-metal st"/>
+      <rect x="330" y="86" width="110" height="84" rx="4" class="k-dark"/><rect x="${hx}" y="110" width="14" height="36" rx="3" class="${st==='tripped'?'k-hot':'k-metal'}"/>${TX(385,182,'A/C '+s.outdoor.mocp+' A','middle','tsm')}
+      <rect x="160" y="236" width="110" height="44" rx="4" class="k-dark"/><rect x="${s.power.furnBkr?180:240}" y="246" width="14" height="24" rx="3" class="k-metal"/>${TX(215,298,'FURNACE 15 A','middle','tsm')}
+      ${WR('M452 104 H600','blk',4)}${WR('M452 152 H600','red',4)}${WR('M150 258 H100 V390','blk',3)}
+      ${TX(300,396,'Dead-front removed: exposed bus. Leads only, one hand.','middle','tsm')}`}},
+  disc:{n:'Disconnect box',z:'cond',comps:['disc'],
+    about:'LINE side lugs come from the panel and are always live while the breaker is on. LOAD side lugs feed the condenser and are dead when the pull-out is removed.',
+    terms:{LL1:[230,92,'Line L1','v','t'],LL2:[370,92,'Line L2','v','t'],OL1:[230,310,'Load L1','v','b'],OL2:[370,310,'Load L2','v','b'],GND:[470,200,'Ground lug','v','r']},
+    nodes(s,d){const l=d.lineOut>0,o=d.discLoad>0;return{LL1:l?PH(120.5):PH(0),LL2:l?PH(120.5,180):PH(0),OL1:o?PH(120.5):PH(0),OL2:o?PH(120.5,180):PH(0),GND:GN()}},
+    map:[['c_dline','V','LL1','LL2'],['c_dload','V','OL1','OL2']],
+    draw(s){return `<rect width="600" height="400" class="k-wall"/>${WR('M230 92 V0','blk',7)}${WR('M370 92 V0','red',7)}${WR('M230 310 V400','blk',7)}${WR('M370 310 V400','red',7)}
+      <rect x="150" y="40" width="300" height="320" rx="6" class="k-metal st"/>
+      ${s.power.discIn?'<rect x="196" y="140" width="208" height="120" rx="6" class="k-dark"/><rect x="214" y="160" width="32" height="80" class="k-copper"/><rect x="354" y="160" width="32" height="80" class="k-copper"/>'+TX(300,206,'PULL-OUT','middle','tsm inv'):'<rect x="196" y="140" width="208" height="120" rx="6" fill="none" class="st" style="stroke-dasharray:6 4"/>'+TX(300,206,'pull-out removed')}`}},
+  contactor:{n:'Contactor',z:'cond',comps:['contactor','lvwire','disc'],req:s=>s.outdoor.panelOn?'Remove the service panel first.':null,
+    about:'LINE side (L1, L2) comes from the disconnect. LOAD side (T1, T2) feeds the compressor and fan. The two coil terminals receive the thermostat\'s Y call and the C common.',
+    terms:{L1:[230,92,'L1','v','t'],L2:[370,92,'L2','v','t'],T1:[230,308,'T1','v','b'],T2:[370,308,'T2','v','b'],A1:[118,200,'Coil · Y','v','t'],A2:[482,200,'Coil · C','v','t'],GND:[70,370,'Ground','v','r']},
+    nodes(s,d){const h=SYS().hv(s,d);return{L1:h.L1,L2:h.L2,T1:h.T1,T2:h.T2,A1:PH(d.coilV,0,'lv'),A2:PH(0,0,'lv'),GND:GN()}},
+    map:[['c_line','V','L1','L2'],['c_load','V','T1','T2'],['c_pole1','V','L1','T1'],['c_pole2','V','L2','T2'],['c_coil','V','A1','A2'],['c_coil','R','A1','A2'],['c_ywire','R','A1','GND']],
+    draw(s,d){const O=s.outdoor;return `<rect width="600" height="400" class="k-metal2"/>
+      ${WR('M230 92 V0','blk')}${WR('M370 92 V0','red')}${WR('M230 308 V400','blk')}${WR('M370 308 V400','red')}${WR('M118 200 H0','yel',4)}${WR('M482 200 H600','blu',4)}
+      ${O.yShort?`<circle cx="36" cy="200" r="7" class="k-copper"/>${TX(40,232,'bare copper','start')}`:''}
+      ${TX(300,22,'from disconnect')}${TX(300,394,'to compressor &amp; fan')}${TX(8,226,'from thermostat','start')}
+      <rect x="170" y="56" width="260" height="288" rx="12" class="k-metal st"/><rect x="184" y="68" width="232" height="50" rx="6" class="k-metal2 st"/><rect x="184" y="282" width="232" height="50" rx="6" class="k-metal2 st"/>
+      ${TX(300,140,'LINE')}${TX(300,274,'LOAD')}
+      <rect x="132" y="186" width="38" height="28" class="k-metal2 st"/><rect x="430" y="186" width="38" height="28" class="k-metal2 st"/>
+      <rect x="248" y="150" width="104" height="104" rx="8" class="k-dark"/>
+      <rect x="262" y="${d.pulled?188:160}" width="76" height="44" rx="4" class="k-acc st${d.pulled&&O.pitted?' buzz':''}"/>
+      ${O.pitted?'<circle cx="262" cy="244" r="7" class="k-hot"/><circle cx="276" cy="248" r="5" class="k-hot"/>':O.pittedCosmetic?'<circle cx="264" cy="246" r="4" class="k-hot" opacity=".7"/>':''}
+      ${TX(300,50,'24 VAC coil · 30 FLA')}`}},
+  cap:{n:'Dual run capacitor',z:'cond',comps:['cap','disc'],req:s=>s.outdoor.panelOn?'Remove the service panel first.':null,
+    about:'C is shared. HERM goes to the compressor start winding (S). FAN goes to the fan motor start lead. Running, the voltage across a run cap is normally higher than line voltage.',
+    terms:{HERM:[210,150,'HERM','v','t'],C:[300,205,'C','v','b'],FAN:[390,150,'FAN','v','t'],GND:[560,372,'Ground','v','l']},
+    nodes(s,d){const h=SYS().hv(s,d);return{HERM:h.HERM,C:h.CC,FAN:h.FAN,GND:GN()}},
+    map:[['c_herm','C','HERM','C'],['c_fan','C','FAN','C']],
+    draw(s){const O=s.outdoor;return `<rect width="600" height="400" class="k-metal2"/>
+      ${WR('M210 150 C150 100 90 80 0 60','brn')}${WR('M390 150 C460 100 520 80 600 60','pur')}${WR('M300 205 C300 290 200 330 0 340','blk')}
+      <circle cx="300" cy="200" r="150" class="k-metal st"/><circle cx="300" cy="200" r="132" fill="none" class="st"/>
+      ${O.bulge?'<ellipse cx="300" cy="196" rx="118" ry="104" class="k-metal2" opacity=".55"/>':''}
+      ${TX(300,316,O.hermRated+' + '+O.fanRated+' µF ±6% · 440 VAC')}${TX(8,46,'to compressor S','start')}${TX(592,46,'to fan motor','end')}${TX(8,330,'to contactor T1','start')}`}},
+  comp:{n:'Compressor terminals',z:'cond',comps:['comp','disc'],req:s=>s.outdoor.panelOn?'Remove the service panel first.':null,
+    about:'Terminal cover off. C = common, R = run winding, S = start winding. C–R plus C–S should add up to R–S. The internal overload sits in the common lead.',
+    terms:{C:[300,118,'C','v','r'],S:[252,202,'S','v','l'],R:[348,202,'R','v','r'],GND:[520,352,'Shell bolt','v','l'],CW:[300,42,'Common wire','c','r']},
+    nodes(s,d){const h=SYS().hv(s,d);return{C:h.T2,R:h.T1,S:h.HERM,GND:GN(),CW:h.T2}},
+    map:[['c_wCR','R','C','R'],['c_wCS','R','C','S'],['c_wRS','R','R','S'],['c_comp_g','R','C','GND'],['c_comp_g','R','R','GND'],['c_comp_g','R','S','GND'],['c_comp_a','A','CW']],
+    draw(s){const hot=s.outdoor.compHot;return `<rect width="600" height="400" class="k-metal2"/><ellipse cx="300" cy="420" rx="300" ry="190" class="k-metal st"/>
+      ${hot?'<ellipse cx="300" cy="420" rx="300" ry="190" fill="none" style="stroke:var(--hot);stroke-width:6;opacity:.6"/>':''}
+      <rect x="180" y="70" width="240" height="210" rx="12" class="k-dark"/><circle cx="300" cy="168" r="78" class="k-metal st"/>
+      ${WR('M300 118 V0','blk')}${WR('M252 202 C200 220 120 160 0 130','brn')}${WR('M348 202 C400 220 480 160 600 130','red')}
+      ${TX(330,16,'to T2','start')}${TX(8,118,'to cap HERM','start')}${TX(592,118,'to T1','end')}${hot?TX(300,310,'shell very hot'):''}`}},
+  fan:{n:'Condenser fan motor leads',z:'cond',comps:['fan','disc'],req:s=>s.outdoor.panelOn?'Remove the service panel first.':null,
+    about:'Three leads: COM to the contactor T2, RUN to the capacitor C terminal, START (brown) to the capacitor FAN terminal.',
+    terms:{COM:[200,262,'COM','v','b'],RUN:[300,262,'RUN','v','b'],START:[400,262,'START','v','b'],FL:[200,150,'Fan lead','c','r'],GND:[540,360,'Ground','v','l']},
+    nodes(s,d){const h=SYS().hv(s,d);return{COM:h.T2,RUN:h.CC,START:h.FAN,FL:h.T2,GND:GN()}},
+    map:[['c_fan_a','A','FL']],
+    draw(s,d){return `<rect width="600" height="400" class="k-metal2"/><ellipse cx="300" cy="62" rx="110" ry="52" class="k-metal st"/>${TX(300,66,d.fan==='hum'?'motor humming':'PSC fan motor')}
+      ${WR('M260 100 C220 150 200 200 200 262','blk')}${WR('M300 112 V262','pur')}${WR('M340 100 C380 150 400 200 400 262','brn')}
+      <rect x="150" y="236" width="300" height="52" rx="6" class="k-dark"/>
+      ${WR('M200 288 V400','blk',4)}${WR('M300 288 V400','pur',4)}${WR('M400 288 V400','brn',4)}${TX(200,330,'to T2','end')}${TX(310,360,'to cap C','start')}${TX(410,330,'to cap FAN','start')}`}},
+  ports:{n:'Service valves',z:'cond',comps:['ports'],
+    about:'Large insulated line = suction (vapor). Small bare line = liquid. Gauges go on the Schrader ports; the pipe-clamp thermometer goes on clean copper about 6 in from the valve.',
+    terms:{SP:[200,130,'Suction port','p','t'],ST:[100,240,'Suction line','t','b'],LP:[420,236,'Liquid port','p','t'],LT:[530,320,'Liquid line','t','b']},
+    nodes(){return{}},
+    map:[['c_suct','P','SP'],['c_suct','T','ST'],['c_liq','P','LP'],['c_liq','T','LT']],
+    draw(s,d){return `<rect width="600" height="400" class="k-metal2"/>
+      <path d="M0 240 H600" style="stroke:var(--dark);stroke-width:30"/><path d="M60 240 H140" style="stroke:var(--copper);stroke-width:18"/>${d.ref.iced?'<path d="M0 240 H600" style="stroke:var(--frost);stroke-width:30;opacity:.55"/>':''}
+      <rect x="168" y="196" width="64" height="88" rx="6" class="k-copper st"/><rect x="190" y="140" width="20" height="58" class="k-copper st"/>
+      <path d="M0 320 H600" style="stroke:var(--copper);stroke-width:12"/><rect x="392" y="290" width="56" height="60" rx="6" class="k-copper st"/><rect x="412" y="246" width="16" height="46" class="k-copper st"/>
+      ${TX(100,214,'insulation cut back')}${TX(300,392,'to the house')}`}}
+};
+
+const GEN_SEQ='On a call for cooling the thermostat connects R to Y (compressor) and R to G (indoor blower). 24 V starts at the transformer secondary, passes the board fuse, goes through the thermostat, through any safeties in the Y line (float switch, pressure switches), energizes the contactor coil, and returns on C. The contactor closes and sends 240 V to the compressor and condenser fan; each motor uses its run capacitor to start and run. The blower pushes house air across the evaporator, the refrigerant absorbs that heat, and the condenser dumps it outside.';
+const FAULTS=[
+ {id:'breaker_trip',tier:1,sys:['split-ac'],cat:'electrical',node:[0],code:'NO COOL',label:'Tripped condenser breaker',repair:'Check windings to ground, reset breaker, verify amp draw',
+  apply(s){s.power.condBkr='tripped'},
+  complaint:["The AC quit sometime overnight. The fan inside blows, but it's warm air.","House is 80 degrees. Air comes out of the vents, but the outside unit is dead quiet."],
+  ans:{when:'Sometime last night. It was fine at dinner.',recent:'A thunderstorm came through around midnight. The lights flickered.',noise:"The outside unit isn't making any noise at all.",tried:'I turned the thermostat off and back on.'},
+  key:[['p_ac','c_dline','c_dload','c_line'],'c_comp_g@R','c_comp_a@A'],
+  keyWhy:['Prove the condenser has no line voltage, then find out why.','Check windings to ground BEFORE resetting. Resetting into a grounded compressor is dangerous and just trips it again.','After the reset, compare compressor amps to RLA so you know it is not about to trip again.'],
+  partial:['coil_open','contactor_pitted'],
+  expert:['Verify the complaint: indoor blower runs, condenser silent. The problem is on the condenser\'s line-voltage side or in the Y circuit.','Measure the disconnect line side: 0 V. The contactor is even pulled in, so the 24 V side works.','Go to the panel: the AC breaker handle sits in the tripped (middle) position.','Before resetting: pull the disconnect and check the compressor and fan to ground. OL means no grounded winding.','Reset the breaker (firmly OFF, then ON), restore power, check compressor amps against RLA and the temperature split.','Tell the customer a storm surge is the likely trigger, and recommend a surge protector if it happens again.'],
+  seq:'With the breaker tripped, the 24 V side still works. The thermostat calls, the blower runs on G, and Y reaches the contactor coil (it pulls in). There is simply no 240 V on the contactor\'s line side to pass along.'},
+ {id:'stat_batt',tier:1,sys:['split-ac'],cat:'controls',node:[4],code:'NO COOL',label:'Dead thermostat batteries (no C wire)',repair:'Replace thermostat batteries and recommend adding a C wire',
+  apply(s){s.stat.cWire=false;s.stat.batt=false},
+  complaint:['The thermostat screen is blank and nothing is running.','Nothing comes on. The thermostat on the wall is just a blank screen.'],
+  ans:{when:"Yesterday evening, I think. Didn't notice until the house got warm.",recent:"Nothing. We haven't touched anything.",noise:"Nothing's running, so no.",tried:'I flipped the furnace switch off and on.'},
+  key:['i:tstat_t','f_rc@V'],
+  keyWhy:['Pull the thermostat off the wall and look: no C wire means it runs on batteries.','Prove 24 V is available at the board, so the power supply is not the problem.'],
+  partial:['fuse_swap','xfmr_open','fuse_chafe'],
+  expert:['Verify: blank thermostat, no blower, no condenser.','Ask the key question: is this thermostat powered by batteries or by 24 V? Pull the faceplate: no C wire.','Remove the blower door, tape the door switch, and measure board R–C: 24 V is there. The problem is local to the thermostat.','Replace the batteries, set COOL below room temperature, and confirm the blower and condenser start.','Recommend running a C wire so dead batteries can\'t shut the system down again.'],
+  seq:'A battery-only thermostat has no C wire. Its screen and its switching logic run on AA batteries; R is just the 24 V hot it hands back out on Y and G. Dead batteries mean no display and no call, even though the 24 V system is healthy.'},
+ {id:'float_clog',tier:1,sys:['split-ac'],cat:'controls',node:[5],code:'POOR COOL',label:'Clogged condensate drain tripped the float switch',repair:'Clear and flush the drain, reset the float switch',
+  apply(s){s.indoor.drainClogged=true},
+  complaint:["The fan blows but the air isn't cold.","Air is coming out of the vents, but it's room temperature."],
+  ans:{when:'Started this morning.',recent:'Nothing new.',noise:'The outside unit is quiet.',water:"Now that you mention it, there's water in the pan under the furnace. Is that normal?",tried:'Turned it off and on a couple times.'},
+  key:[['i:float','f_float'],['c_coil@V','f_yc@V']],
+  keyWhy:['Find the open safety: pan full, float lifted.','Trace Y: 24 V at the board but 0 V at the contactor puts the break between them.'],
+  partial:['coil_open','contactor_pitted','breaker_trip'],
+  expert:['Verify: blower runs, condenser off. Suspect the Y circuit or condenser power.','Measure Y–C at the board: 24 V. Measure at the contactor coil: 0 V. The break is between the furnace and the condenser.','Follow the Y wire: it runs through the float switch on the secondary pan. The pan is full and the float is lifted.','Confirm with the meter: 24 V across the float switch. An open switch drops full voltage.','Clear the primary drain (wet-vac or flush), clean the trap, empty the pan, confirm the float drops and the condenser starts.','Root cause: algae slime in the drain. Recommend drain tablets or an annual flush.'],
+  seq:'The float switch is a safety wired in series with Y. When condensate backs up and lifts the float, Y opens so the system stops making water. The blower keeps running because G is not interrupted.'},
+ {id:'fuse_swap',tier:1,sys:['split-ac'],cat:'electrical',node:[3],code:'NO COOL',label:'Blown 3 A board fuse (shorted during a thermostat install)',repair:'Replace the 3 A fuse and correct the thermostat wiring',
+  apply(s,R){s.indoor.fuseOK=false;s.stat.cWire=true;s.indoor.fuseVisible=R.chance(.5)},
+  complaint:["I put in a new Wi-Fi thermostat yesterday and now it's blank. Nothing runs.","The thermostat went blank yesterday and nothing works now."],
+  ans:{when:'Yesterday afternoon.',recent:"I swapped the old thermostat for a smart one. I didn't shut the power off... there was a little spark when two wires touched.",noise:'Nothing is running.',tried:'I checked the breakers. They all look fine.'},
+  key:['f_fuse',['f_xs@V','f_rc@V']],
+  keyWhy:['Measure across the fuse (24 V = open) or read it with power off (OL).','Prove the transformer makes 24 V, so the break is after it.'],
+  partial:['fuse_chafe','xfmr_open','stat_batt'],
+  expert:['Verify: blank thermostat, nothing runs. Ask about recent work: the thermostat swap is your biggest clue.','Remove the blower door and tape the door switch. 120 V on the transformer primary and 24 V on the secondary: the transformer is good.','Board R–C reads 0 V, so something between the transformer and the R terminal is open. Measure across the fuse: 24 V. It is open.','Power off, confirm the fuse reads OL, replace it with the same 3 A rating.','Check the thermostat wiring for a loose strand touching R and C; tighten and re-test. Teach the customer to kill power before touching thermostat wires.'],
+  seq:'R from the transformer passes through the 3 A board fuse before it reaches the thermostat. Touching R to C during the install shorted the secondary; the fuse opened to save the transformer. No R means no thermostat power and no calls.'},
+ {id:'filter_clog',tier:1,sys:['split-ac'],cat:'airflow',node:[11],code:'LOW AIRFLOW',label:'Clogged filter, iced evaporator coil',repair:'Replace filter, thaw the coil, then verify split and pressures',
+  apply(s){s.indoor.filter='clogged'},
+  complaint:["Barely any air is coming out of the vents and it isn't cooling.","Weak air from the vents, and I saw ice on the pipe outside."],
+  ans:{when:"It's been getting worse all week.",recent:"Nothing new. We've been meaning to get it serviced.",noise:'Nothing unusual.',water:'Some water dripping in the furnace closet.',tried:'Nothing yet.'},
+  key:['i:filter',['r_sup@T','r_ret@T'],['i:coil','i:ports']],
+  keyWhy:['On any airflow complaint, check the filter first.','Measure the split to see what the coil is doing.','Look for ice. You can\'t judge the charge with an iced coil.'],
+  partial:['blower_cap','charge_low'],
+  expert:['Verify: weak airflow at the registers.','Check the filter first on any airflow complaint: fully loaded.','Inspect the evaporator: iced. Suction line frosted back to the condenser.','Do NOT read the charge with an iced coil. The numbers mean nothing until it thaws.','Replace the filter, run fan-only until the coil is fully thawed, then verify the split and pressures.','Teach the customer a filter schedule.'],
+  seq:'Low indoor airflow means too little heat reaches the evaporator. Suction pressure drops, the coil goes below 32°F, condensate freezes, and the ice blocks even more air. Low suction with LOW superheat points to airflow; low suction with HIGH superheat points to charge or a restriction.'},
+ {id:'xfmr_open',tier:2,sys:['split-ac'],cat:'electrical',node:[2],code:'NO COOL',label:'Open control transformer',repair:'Replace the transformer (matching VA)',
+  apply(s,R){s.indoor.xfmrOK=false;s.stat.cWire=true;s.indoor.xfmrSmell=R.chance(.5)},
+  complaint:["The thermostat is dead and nothing runs.","No display on the thermostat, no air, nothing."],
+  ans:{when:'This morning.',recent:'No work done. We lost power for a second yesterday.',noise:'I smelled something kind of electrical in the closet yesterday.',tried:'Changed the thermostat batteries. Nothing.'},
+  key:['f_xp@V','f_xs@V'],
+  keyWhy:['120 V on the primary proves power reaches the transformer.','0 V on the secondary with 120 V in = open transformer.'],
+  partial:['fuse_swap','stat_batt','fuse_chafe'],
+  expert:['Verify: blank thermostat, nothing runs.','At the furnace: 120 V at the junction box. Line voltage is fine.','Blower door off, door switch taped: 120 V on the transformer primary, 0 V on the secondary. The transformer is open.','Power off: primary reads OL, which confirms an open winding.','Before installing the new one, make sure no low-voltage short killed it. The fuse is intact, so age or a surge is more likely.','Replace with the same VA rating, restore power, verify 24 V and a normal cooling call.'],
+  seq:'The transformer steps 120 V down to 24 V for the whole control circuit. With an open winding there is no R, so no thermostat power and no calls, even though line voltage to the furnace is fine.'},
+ {id:'coil_open',tier:2,sys:['split-ac'],cat:'electrical',node:[6],code:'NO COOL',label:'Open contactor coil',repair:'Replace the contactor',
+  apply(s){s.outdoor.coilOK=false},
+  complaint:["Air blows inside, but the outside unit won't start.","Warm air. The outside unit just sits there."],
+  ans:{when:'Two days ago.',recent:'Nothing new.',noise:'Dead quiet outside.',tried:'Reset the thermostat.'},
+  key:[['c_dload@V','c_line@V'],'c_coil@V','c_coil@R'],
+  keyWhy:['Confirm 240 V is available to the contactor.','24 V at the coil proves the call arrives.','With power off and a coil wire lifted, OL proves an open coil.'],
+  partial:['contactor_pitted','float_clog','breaker_trip'],
+  expert:['Verify: blower runs, condenser silent.','Line voltage at the disconnect and the contactor line side: 240 V. High voltage is available.','24 V at the contactor coil: the call is reaching the condenser.','Plunger not pulled in with 24 V applied: the coil is suspect.','Power off, lift a coil wire, measure the coil: OL. Open coil.','Replace the contactor; inspect contacts and wiring; verify operation and amps.'],
+  seq:'The contactor is a relay. Its 24 V coil creates a magnetic field that pulls the contacts closed and sends 240 V to the compressor and fan. Voltage at the coil plus no pull-in means an open coil.'},
+ {id:'contactor_pitted',tier:2,sys:['split-ac'],cat:'electrical',node:[7],code:'NO COOL',label:'Burned / pitted contactor contacts',repair:'Replace the contactor',
+  apply(s){s.outdoor.pitted=true},
+  complaint:['The outside unit buzzes, but nothing spins.',"There's a buzzing sound out there but the fan never turns."],
+  ans:{when:'Since yesterday.',recent:'Nothing.',noise:'A steady buzz from the outside unit.',tried:'Turned it off for an hour and back on.'},
+  key:['c_coil@V',['c_pole1@V','c_load@V']],
+  keyWhy:['24 V at the coil with the plunger in: the control side works.','Line voltage across a pulled-in pole (or 0 V on the load side) proves the contact is open.'],
+  partial:['coil_open','cap_fan','cap_herm'],
+  expert:['Verify: blower runs, condenser buzzing, nothing spinning.','24 V at the coil and the plunger is pulled in. The control side is fine.','Line side 240 V. Load side T1–T2 about 0 V. Power is not getting through.','Measure across each pole: about 240 V across L1–T1. That contact is burned open.','Pull the disconnect and replace the contactor. Check compressor and fan amps afterward: burned contacts often come from high amp draw or short cycling.'],
+  seq:'When the contactor pulls in, each pole should act as a closed switch with almost no voltage across it. A pole that reads full line voltage while pulled in is open, and the motors only get one leg.'},
+ {id:'cap_fan',tier:2,sys:['split-ac'],cat:'electrical',node:[8,9],code:'POOR COOL',label:'Weak condenser fan capacitor',repair:'Replace the run capacitor',
+  apply(s,R){s.outdoor.fanUF=s.outdoor.fanRated*R.range(.12,.45);s.outdoor.bulge=R.chance(.5)},
+  complaint:["The outside unit is running, but the fan on top isn't spinning.","Air is kind of cool but not cold. The outside unit sounds weird."],
+  ans:{when:'Today.',recent:'Nothing.',noise:'Humming outside, louder than normal.',tried:'Nothing.'},
+  key:['c_fan@C',['c_fan_a@A','i:fan']],
+  keyWhy:['Discharged cap reading far below its rating confirms it.','Hum without rotation, at high amps, is the classic weak-cap symptom.'],
+  partial:['cap_herm','coil_dirty'],
+  expert:['Verify: compressor running, condenser fan humming but not turning. Head pressure is climbing.','Shut it down quickly: high head plus a hot compressor.','Pull the disconnect, discharge the cap, measure FAN–C: far below rating.','Spin the blade by hand: it turns freely, so the bearings are fine and the cap is the cause.','Replace with the same µF and equal or higher voltage rating. Verify fan amps against FLA and normal head pressure.'],
+  seq:'A PSC fan motor needs its run capacitor to create the phase shift that gets it turning. With a weak cap the motor hums and won\'t self-start, but it runs if you push it. With no condenser airflow, head pressure and compressor amps climb fast.'},
+ {id:'cap_herm',tier:2,sys:['split-ac'],cat:'electrical',node:[8,9],code:'NO COOL',label:'Weak compressor (HERM) run capacitor',repair:'Replace the run capacitor',
+  apply(s,R){s.outdoor.hermUF=s.outdoor.hermRated*R.range(.35,.7);s.outdoor.compHot=true;s.outdoor.bulge=R.chance(.5)},
+  complaint:["The fan outside runs, but the air inside isn't cold. Every few minutes there's a loud hum outside.","The outside fan is going but no cold air. I hear a hum, then a click."],
+  ans:{when:'Yesterday afternoon, during the heat.',recent:'Nothing.',noise:'A loud hum outside, then a click, every few minutes.',tried:'Nothing.'},
+  key:['c_comp_a@A','c_herm@C'],
+  keyWhy:['The amp pattern (0 A, then near-LRA hum and a trip) shows a no-start.','HERM–C far below rating is the cause.'],
+  partial:['cap_fan','contactor_pitted'],
+  expert:['Verify: condenser fan running, compressor off, shell hot.','Clamp the compressor common: 0 A now. When the overload resets it tries, pulls near-LRA amps, hums, trips. That is a no-start.','Hot compressor with C–R and C–S open but R–S intact means an open internal overload, not a dead compressor.','Pull the disconnect, discharge, measure HERM–C: well below rating.','Replace the cap, cool the shell so the overload resets, then verify starting and running amps below RLA.'],
+  seq:'The run capacitor feeds the compressor\'s start winding out of phase so the motor gets starting torque. A weak cap gives too little torque: the motor locks, draws near-LRA current, overheats, and the internal overload opens. It repeats every few minutes.'},
+ {id:'blower_cap',tier:2,sys:['split-ac'],cat:'airflow',node:[10],code:'NO AIRFLOW',label:'Failed blower motor capacitor',repair:'Replace the blower capacitor and thaw the coil',
+  apply(s,R){s.indoor.bCapUF=s.indoor.bCapRated*R.range(.1,.4);s.indoor.bulge=R.chance(.5)},
+  complaint:["No air is coming out of the vents at all, but the outside unit is running.","The outside unit runs but nothing comes out of the vents."],
+  ans:{when:'This afternoon.',recent:'Nothing.',noise:'A hum from the furnace closet.',water:'A little water on the closet floor.',tried:'Changed the filter. No difference.'},
+  key:['f_bm@V','f_bcap@C'],
+  keyWhy:['120 V at the motor leads proves the board is calling the blower.','The capacitor reading far below rating is the cause.'],
+  partial:['filter_clog','xfmr_open'],
+  expert:['Verify: no airflow at the registers while the condenser runs. Shut cooling off before the coil freezes solid.','At the furnace: the board is calling (G) and there is 120 V at the blower leads.','The motor hums, does not turn, housing hot. The wheel spins freely by hand, so it is not seized.','Power off, discharge, measure the blower cap: far below rating.','Replace the cap, thaw the coil, verify blower amps against FLA and the temperature split.'],
+  seq:'On a cooling call the board sends 120 V to the blower\'s cooling speed tap. A PSC blower motor depends on its run capacitor to start. Without airflow the evaporator freezes, so a blower failure often shows up first as ice.'},
+ {id:'coil_dirty',tier:3,sys:['split-ac'],cat:'refrigeration',node:[12],code:'POOR COOL',label:'Dirty condenser coil (high head pressure)',repair:'Clean the condenser coil and re-check pressures and amps',
+  apply(s){s.outdoor.coil='dirty'},
+  complaint:['It runs all day and the house never gets below 77.','It runs and runs. The electric bill is way up.'],
+  ans:{when:'A few weeks now, getting worse.',recent:"Nothing. There's a big cottonwood out back that's been shedding like crazy.",noise:'Seems louder than it used to be.',tried:'Changed the filter last month.'},
+  key:['i:ccoil','c_liq@P','c_liq@T'],
+  keyWhy:['Look at the condenser coil before you hook up gauges.','High head pressure confirms the coil can\'t reject heat.','Liquid line temperature gives subcooling: near target means the charge is fine.'],
+  partial:['charge_over','cap_fan'],
+  expert:['Verify: long runtime, weak split.','Inspect before hooking up gauges: the condenser coil is matted with debris.','Gauges: head pressure high (condensing temperature well above ambient + 20°F). Subcooling near target, so the charge is OK. The coil can\'t reject heat.','Compressor amps elevated against RLA.','Clean the coil (power off, rinse from the inside out), then re-check: head and amps drop toward normal.','Do NOT recover refrigerant to "fix" high head here. That is the overcharge mistake.'],
+  seq:'The condenser rejects heat into outdoor air. Block that airflow and the refrigerant has to get hotter (higher pressure) before it can shed the same heat. High head with normal subcooling = condenser airflow problem. High head with high subcooling = overcharge.'},
+ {id:'charge_low',tier:3,sys:['split-ac'],cat:'refrigeration',node:[13],code:'POOR COOL',label:'Low refrigerant charge (leak)',repair:'Leak search and repair, evacuate, weigh in the charge',
+  apply(s){s.ref.charge='low'},
+  complaint:["It runs constantly and it isn't as cold as it used to be.","Not cooling great. A guy topped it off with Freon last summer."],
+  ans:{when:'Gradually, over the last month.',recent:'Nothing new.',noise:'No.',tried:'Someone added refrigerant last summer. It worked fine for a while.'},
+  key:['i:plate','c_suct@P','c_suct@T','c_liq@P','c_liq@T'],
+  keyWhy:['Read the data plate for refrigerant type and target subcooling before using a PT chart.','Suction pressure → saturation temperature.','Suction line temperature → superheat.','Liquid pressure → condensing temperature.','Liquid line temperature → subcooling.'],
+  partial:['filter_clog'],
+  expert:['Verify: long runtime, split low (about 10–12°F).','Check the filter and indoor airflow first. Low suction can be an airflow problem.','Read the data plate: refrigerant type and target subcooling (TXV system).','Gauges and line temps: low suction, HIGH superheat, LOW subcooling. The evaporator is starving from low charge.','Low charge = leak, and "topped off last year" confirms it. Leak search, repair, pressure test, evacuate to 500 microns, weigh in the charge, verify subcooling.'],
+  seq:'A TXV holds superheat steady until it runs out of liquid to feed. With low charge it opens all the way and still can\'t fill the coil: superheat rises, subcooling drops, and both suction and head pressure fall.'},
+ {id:'charge_over',tier:3,sys:['split-ac'],cat:'refrigeration',node:[13],code:'POOR COOL',label:'Refrigerant overcharge',repair:'Recover refrigerant to the target subcooling',
+  apply(s){s.ref.charge='over'},
+  complaint:["Ever since another company serviced it in the spring, it's louder and doesn't cool as well.","It doesn't keep up. Somebody charged it up a few months ago."],
+  ans:{when:'Since spring.',recent:'Another company did a tune-up and said it needed refrigerant.',noise:'Louder outside than it used to be.',tried:'Nothing.'},
+  key:['i:plate','c_liq@P','c_liq@T','c_suct@P','c_suct@T'],
+  keyWhy:['Get the refrigerant and target subcooling from the data plate.','Liquid pressure → condensing temperature.','Liquid line temperature → subcooling (high).','Suction pressure → saturation.','Suction line temperature → superheat.'],
+  partial:['coil_dirty'],
+  expert:['Verify: weak cooling. Look at the condenser coil first to rule out an airflow cause: it is clean.','Read the data plate: refrigerant type and target subcooling.','Gauges: high head, HIGH subcooling (liquid stacking in the condenser), superheat low to normal.','Compressor amps above normal.','Recover refrigerant until subcooling reaches the target; re-check superheat and amps.'],
+  seq:'Extra refrigerant stacks up as liquid in the condenser. That leaves less coil surface for condensing, so head pressure rises and subcooling climbs well past the target.'},
+ {id:'fuse_chafe',tier:3,sys:['split-ac'],cat:'electrical',node:[3,14],code:'NO COOL · CALLBACK',label:'Repeat blown fuse: chafed Y wire shorting at the condenser',repair:'Repair the chafed wire, add a grommet, replace the fuse',
+  apply(s){s.indoor.fuseOK=false;s.outdoor.yShort=true;s.stat.cWire=true},
+  complaint:['The thermostat went blank again. Second time this month. The last company just replaced a fuse.','It quits every time it starts cooling. The other tech said it was a fuse.'],
+  ans:{when:'Again this morning.',recent:'Another company replaced a little fuse two weeks ago. It worked for a day.',noise:'No.',tried:'Called the other company. They never came back.'},
+  key:['f_fuse',['c_ywire@R','i:lvwire']],
+  keyWhy:['Confirm the fuse is open.','Find WHY: the Y conductor touching the cabinet is a dead short to ground.'],
+  partial:['fuse_swap'],
+  expert:['Verify: blank thermostat. History: a fuse was replaced recently. A fuse that blows twice is a symptom, not the cause.','Confirm the blown fuse (24 V across it, or OL with power off).','Before replacing it, hunt the short. It blows on a cooling call, so suspect the Y circuit.','At the condenser: the Y conductor is rubbed through on the cabinet edge. Lift the wire: Y to ground reads near 0 Ω.','Repair the wire, add a grommet or reroute, replace the fuse, run a full cooling call and confirm it holds.'],
+  seq:'When the thermostat closes R–Y, current flows down Y to the contactor coil. If bare Y copper touches the grounded cabinet, that path bypasses the coil entirely. That is a dead short, and the 3 A fuse opens instantly.'}
+];
+const FAULT_BY=Object.fromEntries(FAULTS.map(f=>[f.id,f]));
+/* Latent defects: real but secondary problems a senior tech is expected to catch (Senior tier only). */
+const LATENT=[
+ {id:'l_fancap',sys:['split-ac'],label:'Fan capacitor out of tolerance (still running)',ex:['cap_fan','cap_herm'],key:'c_fan@C',apply:s=>{s.outdoor.fanUF=s.outdoor.fanRated*.86}},
+ {id:'l_filter',sys:['split-ac'],label:'Dirty filter (not yet freezing the coil)',ex:['filter_clog','blower_cap'],key:'i:filter',apply:s=>{s.indoor.filter='dirty'}},
+ {id:'l_contacts',sys:['split-ac'],label:'Pitted contactor contacts (still working)',ex:['coil_open','contactor_pitted'],key:'i:contactor',apply:s=>{s.outdoor.pittedCosmetic=true}},
+ {id:'l_coildust',sys:['split-ac'],label:'Condenser coil partially loaded with dirt',ex:['coil_dirty','charge_over','charge_low'],key:'i:ccoil',apply:s=>{s.outdoor.coil='dusty'}},
+ {id:'l_drain',sys:['split-ac'],label:'Slow / partially restricted condensate drain',ex:['float_clog'],key:'i:float',apply:s=>{s.indoor.drainSlow=true}}
+];
+const HERRINGS=[
+ {id:'h_storm',sys:['split-ac'],ex:['breaker_trip'],ans:{recent:'The power blinked a few times during a storm last week. Could that have fried something?'}},
+ {id:'h_freon',sys:['split-ac'],ex:['charge_low','charge_over'],say:'My brother-in-law says it probably just needs Freon.'},
+ {id:'h_ants',sys:['split-ac'],ex:['coil_open','contactor_pitted','breaker_trip'],apply:s=>{s.outdoor.ants=true},comp:'fan'},
+ {id:'h_stain',sys:['split-ac'],ex:['float_clog'],apply:s=>{s.env.stain=true},ans:{water:'There is a brown stain on the living room ceiling. Is that from the AC?'},comp:'stain'},
+ {id:'h_rattle',sys:['split-ac'],ex:['cap_fan'],apply:s=>{s.outdoor.rattle=true},ans:{noise:'The outside unit has been rattling for a while.'},comp:'fan'},
+ {id:'h_icon',sys:['split-ac'],ex:['filter_clog','stat_batt','fuse_swap','xfmr_open','fuse_chafe'],apply:s=>{s.stat.icon=true},say:'The thermostat says to change the filter. Is that why?',comp:'tstat'},
+ {id:'h_fins',sys:['split-ac'],ex:['coil_dirty'],apply:s=>{s.outdoor.bentFins=true},say:'The lawn guy hit the outside unit with the mower.',comp:'ccoil'},
+ {id:'h_ducts',sys:['split-ac'],ex:[],ans:{noise:'The ducts bang and tick when it starts up. They always have.'}}
+];
+const WHY={
+ f_rc:['Why check R–C at the board?','To prove the 24 V control circuit is powered before blaming anything downstream',['To test the thermostat batteries','To see if the compressor is grounded']],
+ t_ry:['Why measure across R–Y at the thermostat?','About 0 V means the switch is closed and passing the call; 24 V means it is open',['It shows outdoor line voltage','It measures the thermostat\'s current draw']],
+ f_fuse:['Why measure voltage ACROSS the fuse?','A good fuse drops about 0 V; full voltage across it means it is open',['A healthy fuse should read 24 V across it','It tells you the transformer VA rating']],
+ f_xs:['Why measure the transformer secondary?','To prove the transformer is turning 120 V into 24 V',['To find the blower speed','To check the refrigerant charge']],
+ f_xp:['Why check the transformer primary?','To confirm 120 V reaches the transformer, so a dead secondary points at the transformer itself',['To check gas pressure','To measure airflow']],
+ c_coil:['Why check voltage at the contactor coil?','It proves whether the Y call is actually reaching the condenser',['It shows whether the run capacitor is weak','It measures compressor amps']],
+ c_pole1:['Why measure across a pole while the contactor is pulled in?','A healthy closed contact drops almost nothing; high voltage across it means burned, open contacts',['It gives coil resistance','It discharges the capacitor']],
+ c_herm:['Why read µF on HERM–C?','A weak run cap starves the compressor of starting torque: it hums, locks and trips',['µF tells you the line voltage','It confirms the refrigerant type']],
+ c_fan:['Why read µF on FAN–C?','A weak cap leaves the PSC fan unable to start on its own, so head pressure climbs',['It measures airflow in CFM','It sets the fan speed']],
+ f_bcap:['Why read the blower capacitor?','A PSC blower motor can\'t start without a healthy run capacitor',['It sets the cooling speed tap','It measures static pressure']],
+ c_wCR:['Why read compressor winding resistance?','C–R plus C–S should equal R–S; OL on C–R and C–S with R–S intact means a hot, open internal overload',['To measure superheat','To identify the thermostat wire colors']],
+ c_comp_g:['Why check the compressor terminals to ground?','A winding shorted to the shell will trip the breaker again; never reset into a dead short',['To set the TXV','To read the fan capacitor']],
+ c_comp_a:['Why clamp the compressor common?','Comparing amps to RLA and LRA tells you whether the motor is running, struggling, or failing to start',['To measure voltage drop','To read subcooling']],
+ c_suct:['Why read suction pressure AND line temperature?','Pressure gives saturation temperature; line temp minus saturation = superheat',['Pressure alone tells you the charge','Line temperature alone gives subcooling']],
+ c_liq:['Why read liquid pressure AND line temperature?','Condensing (saturation) temp minus liquid line temp = subcooling, the charge check for a TXV system',['It measures superheat','It shows compressor amps']],
+ r_sup:['Why measure supply and return temperatures?','The temperature split shows whether the coil is removing heat (typically about 16–22°F)',['It calibrates the thermostat','It shows line voltage']],
+ f_float:['Why check across the float switch?','An open safety in the Y circuit drops the full 24 V across itself and blocks the call',['It measures condensate flow','It shows blower amps']],
+ c_ywire:['Why check the Y wire to ground at the condenser?','A Y conductor touching the cabinet shorts the 24 V circuit and blows the board fuse on every call',['To test the capacitor','To measure line voltage']],
+ c_dload:['Why check the disconnect load side?','It confirms 240 V gets past the disconnect to the contactor',['It identifies the refrigerant','It measures µF']]
+};
+
+/* ---------- generation: seeded, weighted away from recent calls ---------- */
+const PEOPLE={first:['Dana','Rick','Priya','Luis','Janet','Tom','Keisha','Walt','Maria','Greg','Nadia','Ed','Carmen','Hal'],last:['Kowalski','Brennan','Ortiz','Nguyen','Patel','Russo','Dube','Hale','Lindqvist','Moreau','Okafor','Shea','Barros','Tran'],
+  street:['Birch Hill Rd','Quarry St','Old Colony Rd','Ridgewood Dr','Mill Pond Ln','Juniper Ct','Valley View Rd','Orchard St'],home:['1960s ranch','split-level','Cape Cod','two-story colonial','raised ranch'],
+  note:['Dog in the house. Knock and wait.','Elderly occupant. Priority call.','Customer works from home; side door.','Park in the street, not the driveway.','Second call this summer for this address.'],
+  svc:['Never, per customer','About 2 years ago','Last spring','Unknown']};
+const ENGINE={
+  generate(seed,tierIdx,store){
+    const R=makeRng(seed),sysId='split-ac',sys=SYSTEMS[sysId],s=sys.base(R);
+    const hist=store.history||[],recent=hist.slice(-6).map(h=>h.fault).reverse(),seen=new Set(hist.map(h=>h.fault));
+    let pool=FAULTS.filter(f=>f.sys.includes(sysId)&&(tierIdx===3?f.tier>=2:f.tier===tierIdx+1));
+    let ws=pool.map(f=>{let w=seen.has(f.id)?1:1.6;const i=recent.indexOf(f.id);if(i===0)w=0;else if(i>0&&i<3)w*=.25;else if(i>=3)w*=.6;return w});
+    if(!ws.some(w=>w>0))ws=pool.map(()=>1);
+    const fault=R.weighted(pool,ws);fault.apply(s,R);
+    let latent=null;
+    if(tierIdx===3){const ok=LATENT.filter(l=>l.sys.includes(sysId)&&!l.ex.includes(fault.id));latent=R.pick(ok);latent.apply(s,R)}
+    const lastH=new Set((hist[hist.length-1]||{}).herrings||[]);
+    const nH=[R.int(0,1),1,R.int(1,2),2][tierIdx];
+    let hp=R.shuffle(HERRINGS.filter(h=>h.sys.includes(sysId)&&!h.ex.includes(fault.id)&&!lastH.has(h.id)));
+    const herrings=hp.slice(0,nH);herrings.forEach(h=>h.apply&&h.apply(s,R));
+    const answers={when:'A couple of days ago, I think.',recent:'Nothing new that I know of.',noise:'Not that I noticed.',water:"No water that I've seen.",tried:'Just messed with the thermostat.',...fault.ans};
+    herrings.forEach(h=>{if(h.ans)for(const k in h.ans)answers[k]=(fault.ans&&fault.ans[k]?fault.ans[k]+' ':'')+h.ans[k]});
+    let complaint=R.pick(fault.complaint);herrings.forEach(h=>{if(h.say)complaint+=' '+h.say});
+    const lastName=(hist[hist.length-1]||{}).cust;let cust;do{cust=R.pick(PEOPLE.first)+' '+R.pick(PEOPLE.last)}while(cust===lastName&&R.f()<.95);
+    const meta={wo:'WO-'+(10000+seed%90000),cust,addr:R.int(12,488)+' '+R.pick(PEOPLE.street),home:R.pick(PEOPLE.home),note:R.pick(PEOPLE.note),svc:R.pick(PEOPLE.svc)};
+    const g={seed,tierIdx,st:s,fault,latent,herrings,meta,complaint,answers,asked:{},log:[],tests:new Set(),inspected:new Set(),order:[],testCount:0,wrongMode:0,violations:[],unneeded:[],why:[],whyAsked:new Set(),resetNoCheck:false,ptWrongRef:false,shWork:null,done:false};
+    G=g;sys.settle(s,[]);
+    return g;
+  },
+  has(t){if(t.startsWith('i:'))return G.inspected.has(t.slice(2));return G.tests.has(t)},
+  grade(sel){
+    const f=G.fault,L=G.latent,S=SYS();
+    const keyHits=f.key.map(k=>(Array.isArray(k)?k:[k]).some(x=>ENGINE.has(x)));
+    const keyRatio=keyHits.filter(Boolean).length/keyHits.length;
+    const correct=sel.diag===f.id,partial=!correct&&(f.partial||[]).includes(sel.diag);
+    const repairOK=sel.repair===f.repair;
+    let D=correct?7:partial?4:(FAULT_BY[sel.diag]&&FAULT_BY[sel.diag].cat===f.cat?1.5:.5);
+    if(repairOK)D+=2;
+    const falseFind=sel.findings.filter(x=>!L||x!==L.id).length,latentFound=!!(L&&sel.findings.includes(L.id));
+    if(L){if(latentFound)D+=1}else if(!falseFind)D+=1;
+    D-=falseFind*.5;
+    const unproven=correct&&keyRatio<.34;if(unproven)D=Math.min(D,5);
+    D=clamp(D,0,10);
+    let T=10;T-=2.5*G.violations.length;T-=.75*Math.min(G.wrongMode,4);T-=1.5*G.unneeded.length;if(G.resetNoCheck)T-=1.5;if(G.ptWrongRef)T-=1;
+    const whyWrong=G.why.filter(w=>!w.ok).length;T-=whyWrong;if(G.shWork)T+=G.shWork.ok?.5:-1;
+    T=clamp(T,0,10);
+    const eff=Math.min(1,(f.expert.length+3)/Math.max(G.testCount,1));
+    const early=G.order.slice(0,4);const verified=early.some(t=>['i:tstat','i:sup','i:ret','r_sup','r_ret','i:cab','i:fan'].includes(t));
+    let TS=6*keyRatio+3*eff+(verified?1:0);if(!correct)TS=Math.min(TS,6);TS=clamp(TS,0,10);
+    const sc=[D,T,TS].map(x=>Math.max(1,Math.round(x)));let overall=(D+T+TS)/3;if(!correct)overall=Math.min(overall,5.4);
+    const rank=overall<4?'Apprentice':overall<6.5?'Junior Tech':overall<8.5?'Service Tech':'Senior Tech';
+    const d=S.derive(G.st);
+    return{D:sc[0],T:sc[1],TS:sc[2],overall,rank,keyHits,keyRatio,correct,partial,repairOK,latentFound,falseFind,unproven,whyWrong,eff,verified,restored:d.restored};
+  }
+};
+</script>
+
+<script id="ui">
+'use strict';
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const KEY='hvac-sim-v1';
+let store={history:[],mode:'auto',tierIdx:0,since:0,callNo:1};
+try{const raw=localStorage.getItem(KEY);if(raw)store={...store,...JSON.parse(raw)}}catch(e){}
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(store))}catch(e){}};
+const UI={mode:'V',zone:'house',comp:null,tab:'dispatch',last:null,msg:null,bad:false,cu:null,leads:[],place:null};
+const QS=[['when','When did this start?'],['recent','Any recent work, changes, or storms?'],['noise','Any unusual noises or smells?'],['water','Seen water anywhere?'],['tried','Have you tried or reset anything?']];
+
+function tierNow(){return store.mode==='auto'?store.tierIdx:Math.max(0,TIERS.findIndex(t=>t.id===store.mode))}
+function newCall(seed){
+  const s=seed!=null?seed>>>0:((Date.now()^Math.imul(store.callNo,2654435761))>>>0);
+  ENGINE.generate(s,tierNow(),store);
+  G.callNo=store.callNo;
+  Object.assign(UI,{zone:'house',comp:null,tab:'dispatch',last:null,msg:null,bad:false,cu:null,leads:[],place:null});
+  addLog(`Arrived on site. ${G.meta.wo}.`);
+  closeOv();renderAll();
+}
+function addLog(t,bad){G.log.push({n:G.log.length+1,t,bad:!!bad})}
+function setMsg(t,bad){UI.msg=t;UI.bad=!!bad}
+
+/* ---------- interactions ---------- */
+function selectComp(id){
+  const c=SYS().comps[id];if(!c)return;UI.comp=id;
+  const first=!G.inspected.has(id);G.inspected.add(id);G.order.push('i:'+id);
+  if(first)addLog(`Inspected ${c.n}.`);
+  UI.msg=null;renderScene();renderCard();renderTab();
+}
+function probe(pid){
+  const S=SYS(),p=S.points[pid],m=UI.mode,s=G.st,d=S.derive(s);
+  const fn=p.m[m];
+  if(!fn){G.wrongMode++;UI.last={t:'— — —',u:'',pt:`${p.l} · ${MODE_N[m]}`,n:`No valid reading. ${MODE_N[m]} doesn't apply at this test point.`};addLog(`${p.l} [${MODE_N[m]}]: wrong meter function.`,true);renderMeter();renderTab();return}
+  if(p.dead&&p.dead[m]&&S.live(p.dead[m],s,d)){
+    const v=`${MODE_N[m]} on an energized circuit (${p.l})`;G.violations.push(v);
+    UI.last={t:'ERR',u:'',pt:`${p.l} · ${MODE_N[m]}`,n:'SAFETY: this circuit is energized. Ohms and capacitance readings need the power OFF (and verified dead). You can damage the meter or get hurt.'};
+    addLog('SAFETY: '+v,true);renderMeter();renderTab();return}
+  if(m==='C'&&p.cap&&!s[p.cap].discharged){
+    const v=`Capacitance on an undischarged capacitor (${p.l})`;G.violations.push(v);
+    UI.last={t:'ERR',u:'',pt:`${p.l} · ${MODE_N[m]}`,n:'SAFETY: discharge the capacitor before you put meter leads on it. A run cap can hold a charge after power is off.'};
+    addLog('SAFETY: '+v,true);renderMeter();renderTab();return}
+  const r=fn(s,d);G.tests.add(pid);G.tests.add(pid+'@'+m);G.testCount++;G.order.push(pid);
+  UI.last={t:r.t,u:r.u,pt:`${p.l} · ${MODE_N[m]}`,n:r.n||'',multi:r.multi};
+  addLog(`${p.l} [${MODE_N[m]}] → ${r.t} ${r.u}${r.n?' ('+r.n+')':''}`);
+  renderMeter();renderTab();maybeWhy(pid);
+}
+function act(aid){
+  const S=SYS(),a=S.actions[aid],s=G.st,d=S.derive(s);
+  if(a.dead&&S.live(a.dead,s,d)){const v=`${a.l(s,d)} with power ON`;G.violations.push(v);addLog('SAFETY: '+v,true);setMsg('SAFETY: kill and verify power before you replace or service that part. The work was not done.',true);renderCard();renderTab();return}
+  if(a.cap&&!s[a.cap].discharged){const v=`${a.l(s,d)} without discharging the capacitor`;G.violations.push(v);addLog('SAFETY: '+v,true);setMsg('SAFETY: discharge the capacitor before you pull its wires.',true);renderCard();renderTab();return}
+  const label=a.l(s,d);
+  if(a.need){const active=[G.fault.id,G.latent&&G.latent.id].filter(Boolean);if(!a.need.some(x=>active.includes(x))&&!a.cheap){G.unneeded.push(label);}}
+  let msg=a.run(s,G);const ev=[];S.settle(s,ev);
+  addLog(`${label}. ${msg}`);ev.forEach(e=>addLog(e,true));
+  setMsg(msg+(ev.length?'\n'+ev.join('\n'):''),ev.length>0);
+  renderAll(true);
+}
+function maybeWhy(pid){
+  const w=WHY[pid];if(!w||G.whyAsked.has(pid)||G.whyAsked.size>=3)return;
+  if(mulberry32(hashStr(G.seed+'why'+pid))()>.55)return;
+  G.whyAsked.add(pid);
+  const opts=makeRng(hashStr(G.seed+pid)).shuffle([{t:w[1],ok:true},...w[2].map(t=>({t,ok:false}))]);
+  showOv(`<div class="dlg" role="dialog" aria-modal="true" aria-labelledby="whyh"><h2 id="whyh">Justify it</h2><p class="muted small">A senior tech wants to know why you took that reading.</p><p style="font-size:17px;font-weight:600">${esc(w[0])}</p><div class="opts">${opts.map((o,i)=>`<label><input type="radio" name="why" value="${i}"> <span>${esc(o.t)}</span></label>`).join('')}</div><div id="whyfb"></div><div class="btnrow" style="margin-top:10px"><button class="btn primary" id="whyGo" type="button">Answer</button></div></div>`);
+  $('#whyGo').onclick=()=>{const v=document.querySelector('input[name=why]:checked');if(!v)return;const o=opts[+v.value];
+    if($('#whyGo').dataset.done){closeOv();return}
+    G.why.push({pid,ok:o.ok});addLog(`Justified ${SYS().points[pid].l}: ${o.ok?'correct':'incorrect'}.`,!o.ok);
+    $('#whyfb').innerHTML=`<div class="event${o.ok?'':' bad'}">${o.ok?'Right.':'Not quite. '}${o.ok?'':esc(w[1])+'.'}</div>`;$('#whyGo').textContent='Continue';$('#whyGo').dataset.done='1';renderTab()};
+}
+
+/* ---------- zoom ---------- */
+function goZone(z){
+  if(UI.cu){UI.cu=null;UI.leads=[];UI.place=null;if(z===UI.zone){UI.msg=null;renderAll();return}}
+  if(z===UI.zone)return;
+  const at=SYS().zoomAt[z],world=$('#world');
+  const reduce=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(UI.zone==='house'&&at&&world&&!reduce){const S=2.6;world.style.transition='transform .42s cubic-bezier(.4,.1,.2,1)';world.style.transform=`translate(${400-at[0]*S}px,${250-at[1]*S}px) scale(${S})`;setTimeout(()=>{UI.zone=z;UI.comp=null;UI.msg=null;renderAll()},430)}
+  else{UI.zone=z;UI.comp=null;UI.msg=null;renderAll()}
+}
+
+/* ---------- render ---------- */
+function renderAll(keepMsg){renderHeader();renderScene();renderMeter();renderCard();renderTabs();renderTab()}
+function renderHeader(){
+  $('#hmeta').textContent=`Call #${G.callNo} · ${G.meta.wo} · seed ${G.seed.toString(16).toUpperCase()}`;
+  $('#htier').textContent=TIERS[G.tierIdx].n+(store.mode==='auto'?' · auto':'');
+}
+function renderScene(){
+  const S=SYS(),d=S.derive(G.st),z=UI.zone,zn=S.zones.find(x=>x.id===z).n;
+  if(UI.cu){const cu=S.closeups[UI.cu],m=cu.req&&cu.req(G.st);if(m){UI.cu=null;UI.leads=[];UI.place=null;setMsg('Close-up closed: '+m,true)}}
+  $('#zones').innerHTML=S.zones.map(x=>`<button class="zc" type="button" data-go="${x.id}" aria-current="${x.id===z&&!UI.cu}">${x.n}</button>`).join('');
+  if(UI.cu){const cu=S.closeups[UI.cu];
+    $('#scene').innerHTML=renderCloseup();$('#where').textContent=`${zn} › ${cu.n}`;
+    $('#bBack').hidden=false;$('#bBack').textContent='← '+zn;$('#sceneHint').textContent='Tap terminals to place your leads';
+    $('#complist').innerHTML='';$('#complist').hidden=true;return}
+  $('#bBack').textContent='← House';
+  $('#scene').innerHTML=z==='house'?S.overview(G.st,d):S.scene(z,G.st,d,UI.comp);
+  $('#where').textContent=zn;
+  $('#bBack').hidden=z==='house';
+  $('#sceneHint').textContent=z==='house'?'Tap equipment to walk over':'Tap a part to inspect it';
+  const list=z==='house'?[]:Object.entries(S.comps).filter(([id,c])=>c.z===z&&c.vis(G.st));
+  $('#complist').innerHTML=list.map(([id,c])=>`<button type="button" data-comp="${id}" aria-pressed="${UI.comp===id}">${c.n}</button>`).join('');
+  $('#complist').hidden=!list.length;
+}
+function renderMeter(){
+  $('#modes').innerHTML=MODES.map(m=>`<button class="mode" type="button" data-mode="${m.k}" aria-pressed="${UI.mode===m.k}" title="${m.n}">${m.s}</button>`).join('');
+  $('#mmode').textContent=MODE_N[UI.mode];
+  const L=UI.last;
+  const r=$('#mread');r.className='read'+(L&&L.multi?' multi':'');
+  r.innerHTML=L?`${esc(L.t)}<small>${esc(L.u)}</small>`:'— — —';
+  $('#mpt').textContent=L?L.pt:'Select a function, then tap a test point';
+  const n=$('#mnote');n.hidden=!(L&&L.n);n.textContent=L&&L.n?L.n:'';
+}
+const CU_HOW={V:'Tap a terminal for the RED lead, then another for the BLACK lead. Any two points work: the meter shows whatever is really between them.',
+  R:'Tap the two points to measure across. Power must be off and verified dead.',C:'Tap the two capacitor terminals. Power off and the capacitor discharged first.',
+  A:'Tap the wire you want inside the clamp jaws.',T:'Tap the spot on the pipe where the clamp thermometer goes.',P:'Tap a service port to connect a gauge hose.'};
+function renderCuCard(){
+  const S=SYS(),cu=S.closeups[UI.cu],el=$('#cardComp'),s=G.st,d=S.derive(s);
+  const acts=[];cu.comps.forEach(id=>(S.comps[id].acts||[]).forEach(a=>{const A=S.actions[a];if(A.show(s,d)&&!acts.some(x=>x[0]===a))acts.push([a,A])}));
+  const tn=t=>cu.terms[t][2];
+  const leads=UI.leads.length&&['V','R','C'].includes(UI.mode)?`<div class="cuhead"><span class="leadchip"><i style="background:var(--lead-red)"></i>Red: ${esc(tn(UI.leads[0]))}</span>${UI.leads[1]?`<span class="leadchip"><i style="background:var(--lead-blk)"></i>Black: ${esc(tn(UI.leads[1]))}</span>`:'<span class="small muted">now tap the black lead\'s spot</span>'}<button class="btn sm" type="button" data-clear="1">Clear leads</button></div>`:'';
+  el.innerHTML=`<h2>Close-up · ${esc(cu.n)}</h2><p class="small" style="margin:0 0 6px">${esc(cu.about)}</p>
+  <div class="obs">${esc(cu.comps.map(id=>S.comps[id].ins(s,d,G)).join('\n\n'))}</div>
+  <div class="lab">How to measure · meter on ${esc(MODE_N[UI.mode])}</div><p class="small" style="margin:0">${esc(CU_HOW[UI.mode])}</p>${leads}
+  ${acts.length?`<div class="lab">Actions</div><div class="btnrow">${acts.map(([id,a])=>`<button class="btn sm" type="button" data-act="${id}">${esc(a.l(s,d))}</button>`).join('')}</div>`:''}
+  ${UI.msg?`<div class="event${UI.bad?' bad':''}" style="white-space:pre-line">${esc(UI.msg)}</div>`:''}`;
+}
+function renderCloseup(){
+  const S=SYS(),cu=S.closeups[UI.cu],s=G.st,d=S.derive(s);
+  let g=cu.draw(s,d);
+  for(const [k,t] of Object.entries(cu.terms)){
+    const [x,y,lab,kind,pos]=t,off={t:[0,-22,'middle'],b:[0,32,'middle'],l:[-22,5,'end'],r:[22,5,'start']}[pos];
+    let icon=kind==='v'?`<circle cx="${x}" cy="${y}" r="12" class="screw"/><line x1="${x-7}" y1="${y-7}" x2="${x+7}" y2="${y+7}" class="slot"/>`
+      :kind==='c'?`<circle cx="${x}" cy="${y}" r="15" fill="none" style="stroke:var(--accent);stroke-width:2.5;stroke-dasharray:5 4"/>`
+      :kind==='p'?`<circle cx="${x}" cy="${y}" r="13" class="k-acc st"/><circle cx="${x}" cy="${y}" r="5" class="k-dark"/>`
+      :`<rect x="${x-16}" y="${y-8}" width="32" height="16" rx="3" fill="none" style="stroke:var(--accent);stroke-width:2.5;stroke-dasharray:5 3"/>`;
+    g+=`<g class="term" data-term="${k}" tabindex="0" role="button" aria-label="${esc(lab)}"><circle cx="${x}" cy="${y}" r="27" class="thit"/>${icon}<text x="${x+off[0]}" y="${y+off[1]}" class="tlab" text-anchor="${off[2]}">${esc(lab)}</text></g>`;
+  }
+  const P=UI.place;
+  if(P&&P.terms.length){
+    const pt=t=>cu.terms[t];
+    if(['A','T','P'].includes(P.mode)){const [x,y]=pt(P.terms[0]);
+      g+=P.mode==='A'?`<path d="M${x-22} ${y+6} A24 24 0 1 1 ${x+22} ${y+6}" fill="none" style="stroke:var(--accent);stroke-width:9;stroke-linecap:round"/><rect x="${x-14}" y="${y+16}" width="28" height="46" rx="6" class="k-acc st"/>`
+        :P.mode==='P'?`<path d="M${x} ${y} C${x} ${y-60} ${x+70} ${y-70} ${x+90} ${y-110}" fill="none" style="stroke:var(--cold);stroke-width:7"/><circle cx="${x}" cy="${y}" r="16" fill="none" style="stroke:var(--cold);stroke-width:5"/>`
+        :`<rect x="${x-20}" y="${y-14}" width="40" height="28" rx="6" fill="none" style="stroke:var(--warn);stroke-width:6"/><path d="M${x} ${y-14} V${y-60}" style="stroke:var(--warn);stroke-width:3"/>`;
+    }else{
+      const [x1,y1]=pt(P.terms[0]);
+      if(P.terms[1]){const [x2,y2]=pt(P.terms[1]);g+=`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" class="ldline"/>`;
+        g+=`<circle cx="${x2}" cy="${y2}" r="18" class="lead-halo"/><circle cx="${x2}" cy="${y2}" r="18" class="lead-b"/><rect x="${x2+12}" y="${y2+10}" width="30" height="16" rx="3" style="fill:var(--lead-blk)"/><text x="${x2+27}" y="${y2+22}" class="ltag" text-anchor="middle">BLK</text>`}
+      g+=`<circle cx="${x1}" cy="${y1}" r="18" class="lead-halo"/><circle cx="${x1}" cy="${y1}" r="18" class="lead-r"/><rect x="${x1+12}" y="${y1+10}" width="30" height="16" rx="3" style="fill:var(--lead-red)"/><text x="${x1+27}" y="${y1+22}" class="ltag" text-anchor="middle">RED</text>`;
+    }
+  }
+  return `<svg viewBox="0 0 600 400" role="img" aria-label="${esc(cu.n)} close-up">${g}</svg>`;
+}
+function openCu(id){
+  const S=SYS(),cu=S.closeups[id],m=cu.req&&cu.req(G.st);
+  if(m){setMsg(m,true);renderCard();return}
+  UI.cu=id;UI.leads=[];UI.place=null;UI.msg=null;
+  cu.comps.forEach(x=>{if(!G.inspected.has(x)){G.inspected.add(x);G.order.push('i:'+x)}});
+  addLog(`Opened close-up: ${cu.n}.`);renderAll();
+}
+function cuMap(cu,m,a,b){return cu.map.find(x=>x[1]===m&&(b===undefined?(x[2]===a&&x[3]===undefined):((x[2]===a&&x[3]===b)||(x[2]===b&&x[3]===a))))}
+function tapTerm(t){
+  const S=SYS(),cu=S.closeups[UI.cu],tm=cu.terms[t],m=UI.mode,kind=tm[3];
+  if(['A','T','P'].includes(m)){
+    UI.place={terms:[t],mode:m};UI.leads=[];
+    const e=cuMap(cu,m,t);
+    if(e){probe(e[0])}else{G.testCount++;UI.last={t:'— — —',u:'',pt:`${tm[2]} · ${MODE_N[m]}`,n:kind==='v'?'That is a screw terminal. The clamp goes around a single wire, gauges go on service ports, and the pipe thermometer goes on the line.':`No useful ${MODE_N[m].toLowerCase()} reading there.`};addLog(`[${cu.n}] ${tm[2]} [${MODE_N[m]}]: nothing useful.`,true);renderMeter()}
+    renderScene();renderCuCard();return}
+  if(kind!=='v'){UI.last={t:'— — —',u:'',pt:`${tm[2]} · ${MODE_N[m]}`,n:`Meter leads go on terminals. Use ${kind==='c'?'the amp clamp (A)':kind==='p'?'the gauges (PSI)':'the pipe-clamp thermometer (°F)'} here.`};renderMeter();return}
+  if(UI.leads.length===1&&UI.leads[0]===t)return;
+  UI.leads=UI.leads.length>=2?[t]:[...UI.leads,t];UI.place={terms:UI.leads.slice(),mode:m};
+  if(UI.leads.length<2){renderScene();renderCuCard();return}
+  const [a,b]=UI.leads;
+  if(m==='V'){probeV(a,b);return}
+  const e=cuMap(cu,m,a,b);
+  if(e)probe(e[0]);
+  else{G.testCount++;UI.last={t:'— — —',u:'',pt:`${cu.terms[a][2]} ↔ ${cu.terms[b][2]} · ${MODE_N[m]}`,n:`No useful ${MODE_N[m].toLowerCase()} reading between those two points.`};addLog(`[${cu.n}] ${cu.terms[a][2]} ↔ ${cu.terms[b][2]} [${MODE_N[m]}]: nothing useful.`,true);renderMeter()}
+  renderScene();renderCuCard();
+}
+function probeV(a,b){
+  const S=SYS(),cu=S.closeups[UI.cu],s=G.st,d=S.derive(s),N=cu.nodes(s,d),na=N[a],nb=N[b],la=cu.terms[a][2],lb=cu.terms[b][2];
+  let t,n='';
+  if(na.f||nb.f){
+    if(na.f&&nb.f&&na.f===nb.f)t='0.0';
+    else{const o=na.f?nb:na,base=o.f?6:Math.max(3,o.m*.2);t=fx(Math.abs(base+noise('gh'+[a,b].sort().join(),base*.6)));
+      n='Unstable, drifting reading. One lead is on a conductor that isn\'t connected to anything energized, so the meter picks up induced "ghost" voltage. Treat it as no real voltage.'}
+  }else{
+    const v=vDiff(na,nb);t=v<.05?'0.0':fx(v+noise('v'+[a,b].sort().join(),Math.min(.4,v*.004)));
+    const cls=[na.c,nb.c].filter(x=>x!=='gnd');
+    if(cls.length===2&&cls[0]!==cls[1]&&v>=.05)n='The leads are on two different circuits (line voltage and the 24 V control circuit). The number is real, but it tells you nothing useful.';
+  }
+  const e=cuMap(cu,'V',a,b);G.testCount++;
+  if(e){G.tests.add(e[0]);G.tests.add(e[0]+'@V');G.order.push(e[0])}else G.order.push('v:'+a+'-'+b);
+  UI.last={t,u:'V AC',pt:`Red ${la} · Black ${lb}`,n};
+  addLog(`[${cu.n}] Red ${la} · Black ${lb} → ${t} V AC${n?' (unstable or cross-circuit)':''}`);
+  renderMeter();renderScene();renderCuCard();renderTab();
+  if(e)maybeWhy(e[0]);
+}
+function renderCard(){
+  if(UI.cu)return renderCuCard();
+  const S=SYS(),c=UI.comp&&S.comps[UI.comp],el=$('#cardComp'),s=G.st,d=S.derive(s);
+  if(!c||!c.vis(s)){
+    el.innerHTML=`<h2>${UI.zone==='house'?'Walk the job':'Pick a part'}</h2><p class="small muted" style="margin:0 0 8px">${UI.zone==='house'?'Read the dispatch, talk to the customer, then tap equipment in the house to walk over to it.':'Tap a part in the picture (or the buttons under it) to inspect it, take readings, or work on it.'}</p><ul class="chk small"><li><span class="y">1</span><span>Verify the complaint before you test anything.</span></li><li><span class="y">2</span><span>Pick a meter function, then tap a test point.</span></li><li><span class="y">3</span><span>Kill power, verify dead, and discharge caps before Ω, µF or part swaps.</span></li><li><span class="y">4</span><span>Call it only when your readings prove it.</span></li></ul>${UI.msg?`<div class="event${UI.bad?' bad':''}">${esc(UI.msg)}</div>`:''}`;
+    return}
+  const pts=(c.pts||[]).filter(p=>S.points[p]);const acts=(c.acts||[]).map(a=>[a,S.actions[a]]).filter(([,a])=>a.show(s,d));
+  const cuId=S.cuOf&&S.cuOf[UI.comp];
+  el.innerHTML=`<h2>${esc(c.n)}</h2><div class="obs">${esc(c.ins(s,d,G))}</div>
+  ${cuId?`<button class="btn primary sm" type="button" data-cu="${cuId}" style="margin:2px 0 6px">Open close-up: ${esc(S.closeups[cuId].n)}</button><p class="small muted" style="margin:0">Probe any terminals yourself in the close-up. The quick list below is the shortcut.</p>`:''}
+  ${pts.length?`<div class="lab">Test points · meter on ${esc(MODE_N[UI.mode])}</div>${pts.map(p=>`<button class="probe" type="button" data-probe="${p}"><span class="dot"></span><span>${esc(S.points[p].l)}</span></button>`).join('')}`:''}
+  ${acts.length?`<div class="lab">Actions</div><div class="btnrow">${acts.map(([id,a])=>`<button class="btn sm" type="button" data-act="${id}">${esc(a.l(s,d))}</button>`).join('')}</div>`:''}
+  ${UI.msg?`<div class="event${UI.bad?' bad':''}" style="white-space:pre-line">${esc(UI.msg)}</div>`:''}`;
+}
+function renderTabs(){
+  const t=[['dispatch','Dispatch'],['customer','Customer'],['log','Log'],['tools','Tools']];
+  $('#tabs').innerHTML=t.map(([id,n])=>`<button class="tab" role="tab" type="button" data-tab="${id}" aria-selected="${UI.tab===id}">${n}${id==='log'?` (${G.log.length})`:''}</button>`).join('');
+}
+function renderTab(){
+  renderTabs();const b=$('#tabBody'),m=G.meta,s=G.st;
+  if(UI.tab==='dispatch'){
+    b.innerHTML=`<dl class="wo"><dt>Order</dt><dd>${esc(m.wo)} · <b>${esc(G.fault.code)}</b></dd><dt>Customer</dt><dd>${esc(m.cust)}</dd><dt>Address</dt><dd>${esc(m.addr)} · ${esc(m.home)}</dd>
+    <dt>Equipment</dt><dd>${esc(s.equip.brand)} ${s.outdoor.tons}-ton split AC on a gas furnace · installed ${s.equip.year}</dd><dt>Last service</dt><dd>${esc(m.svc)}</dd><dt>Weather</dt><dd>${s.env.amb}°F, sunny</dd><dt>Dispatcher</dt><dd>${esc(m.note)}</dd></dl>
+    <div class="lab">Customer said on the phone</div><div class="quote">“${esc(G.complaint)}”</div><p class="small muted" style="margin:0">Refrigerant type isn't on the work order. Confirm it on site before you use a PT chart.</p>`;
+  }else if(UI.tab==='customer'){
+    b.innerHTML=`<div class="quote">“${esc(G.complaint)}”</div><div class="lab">Ask</div><div class="btnrow">${QS.map(([k,q])=>`<button class="btn sm" type="button" data-ask="${k}"${G.asked[k]?' disabled':''}>${esc(q)}</button>`).join('')}</div>
+    ${QS.filter(([k])=>G.asked[k]).map(([k,q])=>`<p class="qa"><b>${esc(q)}</b>“${esc(G.answers[k])}”</p>`).join('')}`;
+  }else if(UI.tab==='log'){
+    b.innerHTML=`<ol class="log">${G.log.slice().reverse().map(l=>`<li class="${l.bad?'bad':''}"><span class="n">${l.n}</span>${esc(l.t)}</li>`).join('')}</ol>`;
+  }else{
+    const refs=Object.keys(REFRIG);
+    b.innerHTML=`<div class="lab">PT chart lookup</div><div class="frow"><label class="field">Refrigerant<select id="ptRef">${refs.map(r=>`<option>${r}</option>`).join('')}</select></label><label class="field">Pressure (psig)<input id="ptP" inputmode="decimal" placeholder="e.g. 118"></label></div>
+    <div class="btnrow" style="margin-top:8px"><button class="btn sm" type="button" id="ptGo">Convert</button></div><div id="ptOut" class="obs" hidden></div>
+    <div class="lab">Superheat / subcooling check</div><p class="small muted" style="margin:0 0 6px">SH = suction line °F − suction saturation (dew). SC = liquid saturation (bubble) − liquid line °F.</p>
+    <div class="frow"><label class="field">Your superheat (°F)<input id="shIn" inputmode="decimal"></label><label class="field">Your subcooling (°F)<input id="scIn" inputmode="decimal"></label></div>
+    <div class="btnrow" style="margin-top:8px"><button class="btn sm" type="button" id="shGo">Check my math</button></div><div id="shOut"></div>
+    <p class="small muted">PT values are approximate training numbers. In the field, use the manufacturer's chart or your digital manifold.</p>`;
+    $('#ptGo').onclick=()=>{const r=$('#ptRef').value,p=parseFloat($('#ptP').value);if(!isFinite(p))return;
+      if(r!==G.st.ref.type)G.ptWrongRef=true;
+      const dew=pToTemp(r,p,'dew'),bub=pToTemp(r,p,'bubble');addLog(`PT chart (${r}): ${p} psig → ${fx(dew)}°F dew${REFRIG[r].glide?` / ${fx(bub)}°F bubble`:''}.`);
+      const o=$('#ptOut');o.hidden=false;o.textContent=`${r} at ${p} psig → ${fx(dew)}°F${REFRIG[r].glide?` dew (use for superheat) · ${fx(bub)}°F bubble (use for subcooling). Glide about ${REFRIG[r].glide}°F.`:' saturation (near-zero glide).'}`};
+    $('#shGo').onclick=()=>{const d=SYS().derive(G.st),out=$('#shOut');
+      const need=['c_suct@P','c_suct@T','c_liq@P','c_liq@T'].filter(k=>!G.tests.has(k));
+      if(!d.ref.run){out.innerHTML='<div class="event bad">The compressor isn\'t running. Superheat and subcooling only mean something with the system running at steady state.</div>';return}
+      if(need.length){out.innerHTML='<div class="event bad">Take suction and liquid pressures AND both line temperatures first.</div>';return}
+      const sh=parseFloat($('#shIn').value),sc=parseFloat($('#scIn').value);if(!isFinite(sh)||!isFinite(sc))return;
+      const tsh=d.ref.SH,tsc=d.ref.SC,ok=Math.abs(sh-tsh)<=2.5&&Math.abs(sc-tsc)<=2.5;G.shWork={ok};
+      addLog(`SH/SC worksheet: you ${fx(sh)} / ${fx(sc)}°F, actual ${fx(tsh)} / ${fx(tsc)}°F.`,!ok);
+      out.innerHTML=`<div class="event${ok?'':' bad'}">${ok?'Math checks out.':'Off.'} Actual superheat ${fx(tsh)}°F, subcooling ${fx(tsc)}°F.${ok?'':' Check you used the right refrigerant, dew for suction and bubble for liquid.'} Target subcooling is on the data plate.</div>`};
+  }
+}
+
+/* ---------- overlays ---------- */
+function showOv(html){$('#ov').innerHTML=`<div class="ov">${html}</div>`;const f=$('#ov').querySelector('button,input,select');f&&f.focus()}
+function closeOv(){$('#ov').innerHTML=''}
+function openCall(){
+  const fl=FAULTS.filter(f=>f.sys.includes(G.st.sys));
+  const R=makeRng(hashStr(G.seed+'opts'));const diag=R.shuffle(fl);const reps=R.shuffle([...new Set(fl.map(f=>f.repair))]);
+  showOv(`<div class="dlg" role="dialog" aria-modal="true" aria-labelledby="ch"><h2 id="ch">Call it</h2><p class="muted small" style="margin:0">Commit to a diagnosis. You'll be graded on whether your readings proved it.</p>
+  <h3>Diagnosis</h3><label class="field"><select id="cDiag"><option value="">Choose…</option>${diag.map(f=>`<option value="${f.id}">${esc(f.label)}</option>`).join('')}</select></label>
+  <h3>Repair</h3><label class="field"><select id="cRep"><option value="">Choose…</option>${reps.map(r=>`<option>${esc(r)}</option>`).join('')}</select></label>
+  <h3>Other problems found (optional)</h3><div class="opts">${LATENT.filter(l=>l.sys.includes(G.st.sys)).map(l=>`<label><input type="checkbox" value="${l.id}"> <span>${esc(l.label)}</span></label>`).join('')}</div>
+  <div class="btnrow" style="margin-top:14px"><button class="btn primary" type="button" id="cGo">Submit and debrief</button><button class="btn" type="button" id="cX">Keep troubleshooting</button></div><div id="cErr"></div></div>`);
+  $('#cX').onclick=closeOv;
+  $('#cGo').onclick=()=>{const diag=$('#cDiag').value,repair=$('#cRep').value;if(!diag||!repair){$('#cErr').innerHTML='<div class="event bad">Pick a diagnosis and a repair.</div>';return}
+    const findings=[...document.querySelectorAll('#ov input[type=checkbox]:checked')].map(x=>x.value);debrief({diag,repair,findings})};
+}
+function debrief(sel){
+  const g=ENGINE.grade(sel),f=G.fault,L=G.latent;
+  if(!G.done){G.done=true;
+    store.history.push({fault:f.id,tier:G.tierIdx,D:g.D,T:g.T,TS:g.TS,o:+g.overall.toFixed(2),rank:g.rank,date:new Date().toISOString().slice(0,10),herrings:G.herrings.map(h=>h.id),cust:G.meta.cust,seed:G.seed});
+    store.history=store.history.slice(-60);store.callNo++;store.since=(store.since||0)+1;
+    let tierMsg='';
+    if(store.mode==='auto'){const last=store.history.slice(-3).map(h=>h.o),avg=last.reduce((a,b)=>a+b,0)/last.length;
+      if(store.since>=3&&last.length>=3&&avg>=8&&store.tierIdx<3){store.tierIdx++;store.since=0;tierMsg=`Promoted to ${TIERS[store.tierIdx].n}. Calls get harder.`}
+      else if(store.since>=2&&avg<4.5&&store.tierIdx>0){store.tierIdx--;store.since=0;tierMsg=`Back to ${TIERS[store.tierIdx].n} for a few calls.`}}
+    G.tierMsg=tierMsg;save();}
+  const nodes=new Set(f.node);
+  const chain=CHAIN.map((c,i)=>`<span class="${nodes.has(i)?'hit':''}">${esc(c)}</span>`).join('<i>›</i>');
+  const keys=f.key.map((k,i)=>{const lbl=(Array.isArray(k)?k:[k]).map(x=>x.startsWith('i:')?'inspect '+(SYS().comps[x.slice(2)]||{n:x}).n:(SYS().points[x.split('@')[0]].l+(x.includes('@')?' ['+MODE_N[x.split('@')[1]]+']':''))).join(' or ');
+    return `<li><span class="${g.keyHits[i]?'y':'n'}">${g.keyHits[i]?'✓':'✗'}</span><span><b>${esc(lbl)}</b><br><span class="muted">${esc(f.keyWhy[i]||'')}</span></span></li>`}).join('');
+  const issues=[];
+  G.violations.forEach(v=>issues.push(['n','Safety: '+v]));
+  if(G.wrongMode)issues.push(['n',`${G.wrongMode} reading${G.wrongMode>1?'s':''} taken with the wrong meter function.`]);
+  G.unneeded.forEach(u=>issues.push(['n',`Unneeded part or repair: ${u}. On a real call that is a cost to the customer and a callback risk.`]));
+  if(G.resetNoCheck)issues.push(['n','Reset a tripped breaker without first checking the compressor for a short to ground.']);
+  if(G.ptWrongRef)issues.push(['n',`Used the wrong refrigerant's PT chart at least once. This system runs ${G.st.ref.type}; the data plate says so.`]);
+  if(g.whyWrong)issues.push(['n',`${g.whyWrong} justification${g.whyWrong>1?'s':''} missed.`]);
+  if(G.shWork)issues.push([G.shWork.ok?'y':'n',G.shWork.ok?'Superheat/subcooling math was correct.':'Superheat/subcooling math was off.']);
+  if(g.unproven)issues.push(['n','Right answer, but your readings never proved it. On a real call, an unproven guess is a parts-cannon waiting to happen.']);
+  if(!g.verified)issues.push(['n','You didn\'t verify the complaint first (thermostat, registers, or a look at the equipment running).']);else issues.push(['y','Verified the complaint early.']);
+  if(g.eff<.6)issues.push(['n',`Took ${G.testCount} readings. An experienced tech gets there in about ${f.expert.length+2}. Test with a reason.`]);
+  G.herrings.forEach(h=>{if(h.comp&&G.inspected.has(h.comp))issues.push(['y',`Checked the ${SYS().comps[h.comp].n.toLowerCase()} and didn't get distracted by it. That was a red herring.`])});
+  if(L)issues.push([g.latentFound?'y':'n',`Secondary defect: ${L.label}. ${g.latentFound?'You caught it.':'You missed it.'}`]);
+  if(g.falseFind)issues.push(['n',`${g.falseFind} secondary finding${g.falseFind>1?'s':''} reported that weren't there.`]);
+  const yourDiag=FAULT_BY[sel.diag];
+  showOv(`<div class="dlg" role="dialog" aria-modal="true" aria-labelledby="dh"><h2 id="dh">Debrief · ${esc(G.meta.wo)}</h2><p class="muted small" style="margin:0">${esc(TIERS[G.tierIdx].n)} call · ${esc(G.st.equip.brand)} ${G.st.outdoor.tons}-ton · ${esc(G.st.ref.type)}</p>
+  <div class="scores"><div class="score"><div class="k">Diagnostic</div><div class="v">${g.D}<small>/10</small></div></div><div class="score"><div class="k">Technical accuracy</div><div class="v">${g.T}<small>/10</small></div></div><div class="score"><div class="k">Troubleshooting</div><div class="v">${g.TS}<small>/10</small></div></div><div class="score rank"><div class="k">Rating</div><div class="v">${esc(g.rank)}</div></div></div>
+  ${G.tierMsg?`<div class="event">${esc(G.tierMsg)}</div>`:''}
+  <h3>What was wrong</h3><p style="margin:0 0 6px"><b>${esc(f.label)}.</b> ${esc(f.repair)}.</p><div class="chain">${chain}</div>
+  <h3>Your call</h3><ul class="chk"><li><span class="${g.correct?'y':'n'}">${g.correct?'✓':'✗'}</span><span>Diagnosis: ${esc(yourDiag?yourDiag.label:'—')}${g.partial?' (related, but not the root problem)':''}</span></li><li><span class="${g.repairOK?'y':'n'}">${g.repairOK?'✓':'✗'}</span><span>Repair: ${esc(sel.repair)}</span></li><li><span class="${g.restored?'y':'n'}">${g.restored?'✓':'–'}</span><span>${g.restored?'System left running and cooling.':'System not restored in the sim (fine for refrigerant repairs, which are recorded on the work order).'}</span></li></ul>
+  <h3>Proof readings</h3><ul class="chk">${keys}</ul>
+  <h3>Critique</h3><ul class="chk">${issues.map(([c,t])=>`<li><span class="${c}">${c==='y'?'✓':'✗'}</span><span>${esc(t)}</span></li>`).join('')}</ul>
+  <h3>How a senior tech runs this call</h3><ol class="exp">${f.expert.map(x=>`<li>${esc(x)}</li>`).join('')}</ol>
+  <h3>Sequence of operation</h3><p class="small" style="margin:0 0 6px">${esc(GEN_SEQ)}</p><p class="small" style="margin:0"><b>Where it broke:</b> ${esc(f.seq)}</p>
+  <div class="btnrow" style="margin-top:16px"><button class="btn primary" type="button" id="dNext">Next service call</button><button class="btn" type="button" id="dStay">Back to the job site</button></div></div>`);
+  $('#dNext').onclick=()=>newCall();$('#dStay').onclick=closeOv;
+}
+function openStats(){
+  const h=store.history.slice().reverse().slice(0,15);const avg=k=>h.length?(h.reduce((a,x)=>a+x[k],0)/h.length).toFixed(1):'—';
+  showOv(`<div class="dlg" role="dialog" aria-modal="true" aria-labelledby="sh"><h2 id="sh">Record &amp; settings</h2>
+  <div class="scores"><div class="score"><div class="k">Calls run</div><div class="v">${store.history.length}</div></div><div class="score"><div class="k">Avg diagnostic</div><div class="v">${avg('D')}</div></div><div class="score"><div class="k">Avg technical</div><div class="v">${avg('T')}</div></div><div class="score"><div class="k">Avg troubleshooting</div><div class="v">${avg('TS')}</div></div></div>
+  <h3>Difficulty</h3><label class="field"><select id="sMode"><option value="auto"${store.mode==='auto'?' selected':''}>Auto — promote on a 3-call average of 8+ (now ${TIERS[store.tierIdx].n})</option>${TIERS.map(t=>`<option value="${t.id}"${store.mode===t.id?' selected':''}>${t.n} only</option>`).join('')}</select></label><p class="small muted">Applies from the next call.</p>
+  <h3>Replay a call</h3><div class="frow"><label class="field">Seed (hex, from the header)<input id="sSeed" placeholder="e.g. 3F2A91C"></label><label class="field">&nbsp;<button class="btn" type="button" id="sReplay">Load seed</button></label></div>
+  <h3>Recent calls</h3><div class="tablewrap"><table class="hist"><thead><tr><th>Date</th><th>Problem</th><th>Tier</th><th>D</th><th>T</th><th>TS</th><th>Rating</th></tr></thead><tbody>${h.map(x=>`<tr><td>${x.date}</td><td>${esc((FAULT_BY[x.fault]||{label:x.fault}).label)}</td><td>${TIERS[x.tier].n}</td><td>${x.D}</td><td>${x.T}</td><td>${x.TS}</td><td>${esc(x.rank)}</td></tr>`).join('')||'<tr><td colspan="7" class="muted">No calls finished yet. Your record is saved in this browser only.</td></tr>'}</tbody></table></div>
+  <div class="btnrow" style="margin-top:14px"><button class="btn" type="button" id="sClose">Done</button><button class="btn danger" type="button" id="sReset">Reset record</button></div></div>`);
+  $('#sMode').onchange=e=>{store.mode=e.target.value;save();renderHeader()};
+  $('#sClose').onclick=closeOv;
+  $('#sReplay').onclick=()=>{const v=parseInt($('#sSeed').value.trim(),16);if(isFinite(v))newCall(v)};
+  $('#sReset').onclick=e=>{const b=e.target;if(!b.dataset.arm){b.dataset.arm='1';b.textContent='Tap again to erase everything';return}store={history:[],mode:'auto',tierIdx:0,since:0,callNo:1};save();closeOv();newCall()};
+}
+
+/* ---------- events ---------- */
+document.addEventListener('click',e=>{
+  const t=e.target.closest('[data-zone],[data-go],[data-comp],[data-probe],[data-act],[data-mode],[data-tab],[data-ask],[data-term],[data-cu],[data-clear]');if(!t)return;
+  if(t.dataset.term)return tapTerm(t.dataset.term);
+  if(t.dataset.cu)return openCu(t.dataset.cu);
+  if(t.dataset.clear){UI.leads=[];UI.place=null;renderScene();renderCard();return}
+  if(t.dataset.zone)return goZone(t.dataset.zone);
+  if(t.dataset.go)return goZone(t.dataset.go);
+  if(t.dataset.comp)return selectComp(t.dataset.comp);
+  if(t.dataset.probe)return probe(t.dataset.probe);
+  if(t.dataset.act)return act(t.dataset.act);
+  if(t.dataset.mode){UI.mode=t.dataset.mode;UI.leads=[];if(UI.cu){UI.place=null;renderScene()}renderMeter();renderCard();return}
+  if(t.dataset.tab){UI.tab=t.dataset.tab;renderTab();return}
+  if(t.dataset.ask){const k=t.dataset.ask;G.asked[k]=true;G.order.push('q:'+k);addLog(`Asked: ${QS.find(q=>q[0]===k)[1]}`);renderTab();return}
+});
+document.addEventListener('keydown',e=>{
+  if((e.key==='Enter'||e.key===' ')&&e.target.matches('g[data-zone],g[data-comp],g[data-term]')){e.preventDefault();e.target.dispatchEvent(new MouseEvent('click',{bubbles:true}))}
+  if(e.key==='Escape'&&$('#ov').innerHTML&&!$('#whyGo'))closeOv();
+});
+$('#bBack').onclick=()=>{if(UI.cu){UI.cu=null;UI.leads=[];UI.place=null;UI.msg=null;renderAll();return}UI.zone='house';UI.comp=null;UI.msg=null;renderAll()};
+$('#bNew').onclick=()=>newCall();
+$('#bStats').onclick=openStats;
+$('#bCall').onclick=openCall;
+newCall();
+</script>
+
+<script>if('serviceWorker' in navigator&&location.protocol!=='file:'){addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}))}</script>
+</body>
+</html>
