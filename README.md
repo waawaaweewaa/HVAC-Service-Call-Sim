@@ -90,7 +90,7 @@ Tech: plain HTML, CSS, SVG and JavaScript with no frameworks or build step. Inst
 - [ ] Review by a working HVAC technician
 - [x] HD mode: realistic textures in the job site and close-up views
 - [x] Landscape split view on phones
-- [ ] Version label in the app header
+- [x] Version label in the app header
 - [ ] Heat pumps (reversing valve, defrost)
 - [ ] Rooftop units and light commercial
 - [ ] Pressure switches and building automation controls
@@ -108,7 +108,7 @@ icons/                app icons
 
 ## Changelog
 
-- **v5** HD mode (textured siding, shingles, metal, copper, insulation, circuit board, filter pleats, plus label and washer details in close-ups), landscape split view on phones (house left, meter and work order right, each scrolling on its own).
+- **v5** Version tag in the title, HD mode (textured siding, shingles, metal, copper, insulation, circuit board, filter pleats, plus label and washer details in close-ups), landscape split view on phones (house left, meter and work order right, each scrolling on its own).
 - **v4** Randomized house layouts (4 types, 2–3 rooms, mirrored sides), per-room registers, layout-aware airflow and airflow view. Note: replay seeds from v3 or earlier generate different calls.
 - **v3** Quick-action bar under the scene, pulsing panel markers, airflow that matches what's running, hidden airflow view, iOS animation fix.
 - **v2** Close-up views with free meter-lead probing, separate pole and winding readings, installable offline app.

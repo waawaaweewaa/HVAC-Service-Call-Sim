@@ -47,6 +47,7 @@ header.top{display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;padding-
 .brand h1{font:700 28px/1 var(--f-display);letter-spacing:.04em;text-transform:uppercase;margin:0;text-wrap:balance}
 .brand h1 b{background:var(--accent);color:var(--accent-ink);padding:0 6px;border-radius:3px}
 .meta{font:500 12px var(--f-mono);color:var(--muted)}
+.ver{font:600 12px var(--f-mono);letter-spacing:0;text-transform:none;color:var(--muted);vertical-align:super;margin-left:5px;line-height:0}
 .chip{display:inline-flex;align-items:center;gap:6px;font:600 12px/1 var(--f-display);letter-spacing:.08em;text-transform:uppercase;padding:5px 8px;border-radius:4px;border:1px solid var(--line);background:var(--panel)}
 .chip.tier{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 18%,var(--panel))}
 .spacer{flex:1}
@@ -232,7 +233,7 @@ table.hist th,table.hist td{text-align:left;padding:6px;border-bottom:1px solid 
 <body>
 <div class="wrap">
   <header class="top">
-    <div class="brand"><h1><b>HVAC</b> Service Call Sim</h1><span class="meta" id="hmeta"></span></div>
+    <div class="brand"><h1><b>HVAC</b> Service Call Sim<sup class="ver" title="Version">v5</sup></h1><span class="meta" id="hmeta"></span></div>
     <span class="chip tier" id="htier"></span>
     <span class="spacer"></span>
     <button class="btn sm" id="bHD" type="button" aria-pressed="false" title="Realistic textures">HD</button>
