@@ -1,6 +1,6 @@
 /* HVAC Service Call Sim — service worker.
    Bump VERSION whenever you upload a new index.html so phones pick it up. */
-const VERSION = 'hvac-sim-v5.1';
+const VERSION = 'hvac-sim-v6';
 const SHELL = ['./', './index.html', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png', './icons/icon-maskable-512.png', './icons/apple-touch-icon.png'];
 const FONTS = 'hvac-sim-fonts';
 

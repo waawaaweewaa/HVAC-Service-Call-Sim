@@ -104,10 +104,11 @@ manifest.webmanifest  install settings (name, icons, colors)
 icons/                app icons
 ```
 
-**Updating:** after replacing `index.html`, change `VERSION` in `sw.js` (e.g. `hvac-sim-v5` → `hvac-sim-v6`) so installed copies pick up the new build.
+**Updating:** after replacing `index.html`, change `VERSION` in `sw.js` (e.g. `hvac-sim-v6` → `hvac-sim-v7`) and the version tag in the `index.html` title so installed copies pick up the new build.
 
 ## Changelog
 
+- **v6** Scene-only zoom: pinch, double-tap empty scenery, drag to pan, Reset zoom button; double-tap no longer zooms the whole page. Repeat readings are no longer re-logged: an identical reading shows an "Already logged · #n" notice with a View log shortcut, and doesn't count against efficiency. Readings that change after you change something still log.
 - **v5** Version tag in the title, HD mode (textured siding, shingles, metal, copper, insulation, circuit board, filter pleats, plus label and washer details in close-ups), landscape split view on phones (house left, meter and work order right, each scrolling on its own).
 - **v4** Randomized house layouts (4 types, 2–3 rooms, mirrored sides), per-room registers, layout-aware airflow and airflow view. Note: replay seeds from v3 or earlier generate different calls.
 - **v3** Quick-action bar under the scene, pulsing panel markers, airflow that matches what's running, hidden airflow view, iOS animation fix.

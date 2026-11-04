@@ -65,7 +65,12 @@ header.top{display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;padding-
 .scenewrap{overflow:hidden}
 .crumb{display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid var(--line);flex-wrap:wrap}
 .crumb .where{font:600 16px var(--f-display);letter-spacing:.06em;text-transform:uppercase}
-#scene svg{display:block;width:100%;height:auto;max-width:100%;touch-action:manipulation}
+html{touch-action:manipulation}
+#scene{touch-action:pan-y;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+#scene.zoomed{touch-action:none;cursor:grab}
+#scene.zoomed:active{cursor:grabbing}
+#scene svg{display:block;width:100%;height:auto;max-width:100%}
+.egg.vreset{left:auto;right:8px;width:auto;padding:0 10px;border-radius:999px;font:700 12px var(--f-display);letter-spacing:.08em;text-transform:uppercase;opacity:.9}
 .zones{display:flex;gap:6px;flex-wrap:wrap;padding:10px 12px;border-top:1px solid var(--line)}
 .zc{cursor:pointer;border:1px solid var(--line);background:var(--panel2);border-radius:999px;padding:5px 11px;font:600 13px var(--f-display);letter-spacing:.05em;text-transform:uppercase}
 .zc[aria-current="true"]{background:var(--ink);color:var(--panel);border-color:var(--ink)}
@@ -108,6 +113,11 @@ header.top{display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;padding-
 .log{list-style:none;margin:0;padding:0;font:13px/1.45 var(--f-mono);max-height:340px;overflow:auto}
 .log li{padding:5px 0;border-bottom:1px dashed var(--line)}
 .log li.bad{color:var(--hot)}
+.log li.hl{background:color-mix(in srgb,var(--accent) 28%,transparent);border-radius:4px;padding-left:4px;padding-right:4px}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:25;width:min(520px,calc(100vw - 32px));background:var(--ink);color:var(--panel);border-radius:10px;padding:10px 12px;display:flex;flex-wrap:wrap;gap:4px 10px;align-items:center;box-shadow:0 10px 30px rgba(0,0,0,.3);font-size:14px}
+.toast b{font:700 13px var(--f-display);letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
+.toast span{flex:1 1 100%;font:13px/1.4 var(--f-mono);min-width:0;overflow-wrap:anywhere}
+.toast .btn{background:transparent;color:var(--panel);border-color:color-mix(in srgb,var(--panel) 40%,transparent)}
 .log .n{color:var(--muted);margin-right:6px}
 .field{display:flex;flex-direction:column;gap:4px;font-size:13px;min-width:0}
 .field input,.field select{font:15px var(--f-mono);padding:7px 8px;border-radius:6px;border:1px solid var(--line);background:var(--panel2);color:var(--ink);min-width:0;width:100%}
@@ -233,7 +243,7 @@ table.hist th,table.hist td{text-align:left;padding:6px;border-bottom:1px solid 
 <body>
 <div class="wrap">
   <header class="top">
-    <div class="brand"><h1><b>HVAC</b> Service Call Sim<sup class="ver" title="Version">v5</sup></h1><span class="meta" id="hmeta"></span></div>
+    <div class="brand"><h1><b>HVAC</b> Service Call Sim<sup class="ver" title="Version">v6</sup></h1><span class="meta" id="hmeta"></span></div>
     <span class="chip tier" id="htier"></span>
     <span class="spacer"></span>
     <button class="btn sm" id="bHD" type="button" aria-pressed="false" title="Realistic textures">HD</button>
@@ -243,7 +253,7 @@ table.hist th,table.hist td{text-align:left;padding:6px;border-bottom:1px solid 
   <div class="grid">
     <section class="card scenewrap" aria-label="Job site">
       <div class="crumb"><button class="btn sm" id="bBack" type="button" hidden>← House</button><span class="where" id="where"></span><span class="spacer"></span><span class="meta" id="sceneHint"></span></div>
-      <div class="scenebox"><div id="scene"></div><button class="egg" id="bFlow" type="button" aria-label="Airflow view" aria-pressed="false" title="Airflow view" hidden><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 8h11a3 3 0 1 0-3-3M3 12h15a3 3 0 1 1-3 3M3 16h8"/></svg></button></div>
+      <div class="scenebox"><div id="scene"></div><button class="egg vreset" id="bView" type="button" aria-label="Reset zoom" hidden>Reset zoom</button><button class="egg" id="bFlow" type="button" aria-label="Airflow view" aria-pressed="false" title="Airflow view" hidden><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 8h11a3 3 0 1 0-3-3M3 12h15a3 3 0 1 1-3 3M3 16h8"/></svg></button></div>
       <div class="qbar" id="qbar" hidden></div>
       <div class="complist" id="complist"></div>
       <nav class="zones" id="zones" aria-label="Go to"></nav>
@@ -265,6 +275,7 @@ table.hist th,table.hist td{text-align:left;padding:6px;border-bottom:1px solid 
   </div>
 </div>
 <div id="ov"></div>
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 
 <script id="engine">
 'use strict';
@@ -1199,13 +1210,24 @@ const QS=[['when','When did this start?'],['recent','Any recent work, changes, o
 function tierNow(){return store.mode==='auto'?store.tierIdx:Math.max(0,TIERS.findIndex(t=>t.id===store.mode))}
 function newCall(seed){
   const s=seed!=null?seed>>>0:((Date.now()^Math.imul(store.callNo,2654435761))>>>0);
-  ENGINE.generate(s,tierNow(),store);
+  ENGINE.generate(s,tierNow(),store);VIEW.cur=null;VIEW.key=null;
   G.callNo=store.callNo;
-  Object.assign(UI,{zone:'house',comp:null,tab:'dispatch',last:null,msg:null,bad:false,cu:null,leads:[],place:null});
+  Object.assign(UI,{zone:'house',comp:null,tab:'dispatch',last:null,msg:null,bad:false,cu:null,leads:[],place:null,hl:null});const tst=$('#toast');if(tst)tst.hidden=true;
   addLog(`Arrived on site. ${G.meta.wo}.`);
   closeOv();renderAll();
 }
 function addLog(t,bad){G.log.push({n:G.log.length+1,t,bad:!!bad})}
+/* Log a reading once. Same key + same result = no new entry; show which entry already has it. */
+function logOnce(key,text,bad,sig){
+  G.logIdx=G.logIdx||{};const prev=G.logIdx[key],s=sig==null?text:sig;
+  if(prev&&prev.sig===s){showDup(prev.n);return false}
+  addLog(text,bad);G.logIdx[key]={n:G.log.length,sig:s};const tst=$('#toast');if(tst)tst.hidden=true;return true;
+}
+function showDup(n){
+  const e=G.log[n-1],el=$('#toast');if(!e||!el)return;
+  el.innerHTML=`<b>Already logged · #${n}</b><button class="btn sm" type="button" data-showlog="${n}">View log</button><span>${esc(e.t)}</span>`;
+  el.hidden=false;clearTimeout(showDup.t);showDup.t=setTimeout(()=>{el.hidden=true},4500);
+}
 function setMsg(t,bad){UI.msg=t;UI.bad=!!bad}
 
 /* ---------- interactions ---------- */
@@ -1218,7 +1240,7 @@ function selectComp(id){
 function probe(pid){
   const S=SYS(),p=S.points[pid],m=UI.mode,s=G.st,d=S.derive(s);
   const fn=p.m[m];
-  if(!fn){G.wrongMode++;UI.last={t:'— — —',u:'',pt:`${p.l} · ${MODE_N[m]}`,n:`No valid reading. ${MODE_N[m]} doesn't apply at this test point.`};addLog(`${p.l} [${MODE_N[m]}]: wrong meter function.`,true);renderMeter();renderTab();return}
+  if(!fn){UI.last={t:'— — —',u:'',pt:`${p.l} · ${MODE_N[m]}`,n:`No valid reading. ${MODE_N[m]} doesn't apply at this test point.`};if(logOnce('wm:'+pid+'@'+m,`${p.l} [${MODE_N[m]}]: wrong meter function.`,true))G.wrongMode++;renderMeter();renderTab();return}
   if(p.dead&&p.dead[m]&&S.live(p.dead[m],s,d)){
     const v=`${MODE_N[m]} on an energized circuit (${p.l})`;G.violations.push(v);
     UI.last={t:'ERR',u:'',pt:`${p.l} · ${MODE_N[m]}`,n:'SAFETY: this circuit is energized. Ohms and capacitance readings need the power OFF (and verified dead). You can damage the meter or get hurt.'};
@@ -1227,9 +1249,10 @@ function probe(pid){
     const v=`Capacitance on an undischarged capacitor (${p.l})`;G.violations.push(v);
     UI.last={t:'ERR',u:'',pt:`${p.l} · ${MODE_N[m]}`,n:'SAFETY: discharge the capacitor before you put meter leads on it. A run cap can hold a charge after power is off.'};
     addLog('SAFETY: '+v,true);renderMeter();renderTab();return}
-  const r=fn(s,d);G.tests.add(pid);G.tests.add(pid+'@'+m);G.testCount++;G.order.push(pid);
+  const r=fn(s,d);
   UI.last={t:r.t,u:r.u,pt:`${p.l} · ${MODE_N[m]}`,n:r.n||'',multi:r.multi};
-  addLog(`${p.l} [${MODE_N[m]}] → ${r.t} ${r.u}${r.n?' ('+r.n+')':''}`);
+  if(!logOnce('r:'+pid+'@'+m,`${p.l} [${MODE_N[m]}] → ${r.t} ${r.u}${r.n?' ('+r.n+')':''}`,false,r.t)){renderMeter();return}
+  G.tests.add(pid);G.tests.add(pid+'@'+m);G.testCount++;G.order.push(pid);
   renderMeter();renderTab();maybeWhy(pid);
 }
 function act(aid){
@@ -1257,6 +1280,7 @@ function maybeWhy(pid){
 
 /* ---------- zoom ---------- */
 function goZone(z,room){
+  if(VIEW.cur){VIEW.cur=null;setVB()}
   if(room!=null&&room!=='')G.room=+room;
   if(UI.cu){UI.cu=null;UI.leads=[];UI.place=null;if(z===UI.zone){UI.msg=null;renderAll();return}}
   if(z===UI.zone){if(z==='air'){UI.comp=null;renderAll()}return}
@@ -1281,17 +1305,17 @@ function renderScene(){
   if(UI.cu){const cu=S.closeups[UI.cu];
     $('#scene').innerHTML=renderCloseup();hdInject();$('#where').textContent=`${zn} › ${cu.n}`;
     $('#bBack').hidden=false;$('#bBack').textContent='← '+zn;$('#sceneHint').textContent='Tap terminals to place your leads';
-    $('#complist').innerHTML='';$('#complist').hidden=true;$('#bFlow').hidden=true;renderQbar();return}
+    $('#complist').innerHTML='';$('#complist').hidden=true;$('#bFlow').hidden=true;renderQbar();applyView();return}
   $('#bBack').textContent='← House';
   $('#scene').innerHTML=z==='house'?S.overview(G.st,d,UI.flow):S.scene(z,G.st,d,UI.comp);hdInject();
   const bf=$('#bFlow');bf.hidden=z!=='house';bf.setAttribute('aria-pressed',String(UI.flow));
   $('#where').textContent=z==='air'?`${zn} · ${S.geom(G.st).rooms[G.room||0].name}`:zn;
   $('#bBack').hidden=z==='house';
-  $('#sceneHint').textContent=z==='house'?'Tap equipment to walk over':'Tap a part to inspect it';
+  $('#sceneHint').textContent=(z==='house'?'Tap equipment to walk over':'Tap a part to inspect it')+' · double-tap to zoom';
   const list=z==='house'?[]:Object.entries(S.comps).filter(([id,c])=>c.z===z&&c.vis(G.st));
   $('#complist').innerHTML=list.map(([id,c])=>`<button type="button" data-comp="${id}" aria-pressed="${UI.comp===id}">${c.n}</button>`).join('');
   $('#complist').hidden=!list.length;
-  renderQbar();
+  renderQbar();applyView();
 }
 function renderQbar(){
   const S=SYS(),s=G.st,d=S.derive(s),el=$('#qbar'),btns=[];
@@ -1361,7 +1385,7 @@ function openCu(id){
   if(m){setMsg(m,true);renderCard();return}
   UI.cu=id;UI.leads=[];UI.place=null;UI.msg=null;
   cu.comps.forEach(x=>{if(!G.inspected.has(x)){G.inspected.add(x);G.order.push('i:'+x)}});
-  addLog(`Opened close-up: ${cu.n}.`);renderAll();
+  G.logIdx=G.logIdx||{};if(!G.logIdx['cu:'+id]){addLog(`Opened close-up: ${cu.n}.`);G.logIdx['cu:'+id]={n:G.log.length,sig:''}}renderAll();
 }
 function cuMap(cu,m,a,b){return cu.map.find(x=>x[1]===m&&(b===undefined?(x[2]===a&&x[3]===undefined):((x[2]===a&&x[3]===b)||(x[2]===b&&x[3]===a))))}
 function tapTerm(t){
@@ -1369,7 +1393,7 @@ function tapTerm(t){
   if(['A','T','P'].includes(m)){
     UI.place={terms:[t],mode:m};UI.leads=[];
     const e=cuMap(cu,m,t);
-    if(e){probe(e[0])}else{G.testCount++;UI.last={t:'— — —',u:'',pt:`${tm[2]} · ${MODE_N[m]}`,n:kind==='v'?'That is a screw terminal. The clamp goes around a single wire, gauges go on service ports, and the pipe thermometer goes on the line.':`No useful ${MODE_N[m].toLowerCase()} reading there.`};addLog(`[${cu.n}] ${tm[2]} [${MODE_N[m]}]: nothing useful.`,true);renderMeter()}
+    if(e){probe(e[0])}else{G.testCount++;UI.last={t:'— — —',u:'',pt:`${tm[2]} · ${MODE_N[m]}`,n:kind==='v'?'That is a screw terminal. The clamp goes around a single wire, gauges go on service ports, and the pipe thermometer goes on the line.':`No useful ${MODE_N[m].toLowerCase()} reading there.`};if(!logOnce('nu:'+UI.cu+':'+t+'@'+m,`[${cu.n}] ${tm[2]} [${MODE_N[m]}]: nothing useful.`,true))G.testCount--;renderMeter()}
     renderScene();renderCuCard();return}
   if(kind!=='v'){UI.last={t:'— — —',u:'',pt:`${tm[2]} · ${MODE_N[m]}`,n:`Meter leads go on terminals. Use ${kind==='c'?'the amp clamp (A)':kind==='p'?'the gauges (PSI)':'the pipe-clamp thermometer (°F)'} here.`};renderMeter();return}
   if(UI.leads.length===1&&UI.leads[0]===t)return;
@@ -1379,7 +1403,7 @@ function tapTerm(t){
   if(m==='V'){probeV(a,b);return}
   const e=cuMap(cu,m,a,b);
   if(e)probe(e[0]);
-  else{G.testCount++;UI.last={t:'— — —',u:'',pt:`${cu.terms[a][2]} ↔ ${cu.terms[b][2]} · ${MODE_N[m]}`,n:`No useful ${MODE_N[m].toLowerCase()} reading between those two points.`};addLog(`[${cu.n}] ${cu.terms[a][2]} ↔ ${cu.terms[b][2]} [${MODE_N[m]}]: nothing useful.`,true);renderMeter()}
+  else{UI.last={t:'— — —',u:'',pt:`${cu.terms[a][2]} ↔ ${cu.terms[b][2]} · ${MODE_N[m]}`,n:`No useful ${MODE_N[m].toLowerCase()} reading between those two points.`};if(logOnce('nu:'+UI.cu+':'+[a,b].sort().join('-')+'@'+m,`[${cu.n}] ${cu.terms[a][2]} ↔ ${cu.terms[b][2]} [${MODE_N[m]}]: nothing useful.`,true))G.testCount++;renderMeter()}
   renderScene();renderCuCard();
 }
 function probeV(a,b){
@@ -1394,12 +1418,12 @@ function probeV(a,b){
     const cls=[na.c,nb.c].filter(x=>x!=='gnd');
     if(cls.length===2&&cls[0]!==cls[1]&&v>=.05)n='The leads are on two different circuits (line voltage and the 24 V control circuit). The number is real, but it tells you nothing useful.';
   }
-  const e=cuMap(cu,'V',a,b);G.testCount++;
-  if(e){G.tests.add(e[0]);G.tests.add(e[0]+'@V');G.order.push(e[0])}else G.order.push('v:'+a+'-'+b);
+  const e=cuMap(cu,'V',a,b);
   UI.last={t,u:'V AC',pt:`Red ${la} · Black ${lb}`,n};
-  addLog(`[${cu.n}] Red ${la} · Black ${lb} → ${t} V AC${n?' (unstable or cross-circuit)':''}`);
+  const fresh=logOnce('v:'+UI.cu+':'+[a,b].sort().join('-'),`[${cu.n}] Red ${la} · Black ${lb} → ${t} V AC${n?' (unstable or cross-circuit)':''}`,false,t);
+  if(fresh){G.testCount++;if(e){G.tests.add(e[0]);G.tests.add(e[0]+'@V');G.order.push(e[0])}else G.order.push('v:'+a+'-'+b)}
   renderMeter();renderScene();renderCuCard();renderTab();
-  if(e)maybeWhy(e[0]);
+  if(fresh&&e)maybeWhy(e[0]);
 }
 function renderCard(){
   if(UI.cu)return renderCuCard();
@@ -1429,7 +1453,7 @@ function renderTab(){
     b.innerHTML=`<div class="quote">“${esc(G.complaint)}”</div><div class="lab">Ask</div><div class="btnrow">${QS.map(([k,q])=>`<button class="btn sm" type="button" data-ask="${k}"${G.asked[k]?' disabled':''}>${esc(q)}</button>`).join('')}</div>
     ${QS.filter(([k])=>G.asked[k]).map(([k,q])=>`<p class="qa"><b>${esc(q)}</b>“${esc(G.answers[k])}”</p>`).join('')}`;
   }else if(UI.tab==='log'){
-    b.innerHTML=`<ol class="log">${G.log.slice().reverse().map(l=>`<li class="${l.bad?'bad':''}"><span class="n">${l.n}</span>${esc(l.t)}</li>`).join('')}</ol>`;
+    b.innerHTML=`<ol class="log">${G.log.slice().reverse().map(l=>`<li data-ln="${l.n}" class="${l.bad?'bad':''}${UI.hl===l.n?' hl':''}"><span class="n">${l.n}</span>${esc(l.t)}</li>`).join('')}</ol>`;
   }else{
     const refs=Object.keys(REFRIG);
     b.innerHTML=`<div class="lab">PT chart lookup</div><div class="frow"><label class="field">Refrigerant<select id="ptRef">${refs.map(r=>`<option>${r}</option>`).join('')}</select></label><label class="field">Pressure (psig)<input id="ptP" inputmode="decimal" placeholder="e.g. 118"></label></div>
@@ -1525,7 +1549,8 @@ function openStats(){
 
 /* ---------- events ---------- */
 document.addEventListener('click',e=>{
-  const t=e.target.closest('[data-zone],[data-go],[data-comp],[data-probe],[data-act],[data-mode],[data-tab],[data-ask],[data-term],[data-cu],[data-clear],[data-room]');if(!t)return;
+  const t=e.target.closest('[data-zone],[data-go],[data-comp],[data-probe],[data-act],[data-mode],[data-tab],[data-ask],[data-term],[data-cu],[data-clear],[data-room],[data-showlog]');if(!t)return;
+  if(t.dataset.showlog){const n=+t.dataset.showlog;UI.tab='log';UI.hl=n;$('#toast').hidden=true;renderTab();const li=document.querySelector(`.log li[data-ln="${n}"]`);if(li){li.scrollIntoView({block:'nearest'});$('#tabs').scrollIntoView({block:'nearest',behavior:'smooth'})}setTimeout(()=>{if(UI.hl===n){UI.hl=null;if(UI.tab==='log')renderTab()}},4000);return}
   if(t.dataset.term)return tapTerm(t.dataset.term);
   if(t.dataset.cu)return openCu(t.dataset.cu);
   if(t.dataset.clear){UI.leads=[];UI.place=null;renderScene();renderCard();return}
@@ -1545,6 +1570,48 @@ document.addEventListener('keydown',e=>{
 });
 $('#bBack').onclick=()=>{if(UI.cu){UI.cu=null;UI.leads=[];UI.place=null;UI.msg=null;renderAll();return}UI.zone='house';UI.comp=null;UI.msg=null;renderAll()};
 $('#bNew').onclick=()=>newCall();
+
+/* ---------- scene-only zoom & pan: pinch, double-tap empty scenery, drag when zoomed ---------- */
+const VIEW={key:null,base:[0,0,800,500],cur:null};
+const sceneSvg=()=>$('#scene svg');
+const sceneKey=()=>UI.cu?'cu:'+UI.cu:UI.zone+(UI.zone==='air'?':'+(G.room||0):'');
+function setVB(){const sv=sceneSvg();if(!sv)return;sv.setAttribute('viewBox',(VIEW.cur||VIEW.base).map(n=>+n.toFixed(2)).join(' '));
+  const z=!!VIEW.cur;$('#scene').classList.toggle('zoomed',z);$('#bView').hidden=!z}
+function applyView(){const sv=sceneSvg();if(!sv)return;const vb=sv.getAttribute('viewBox').split(/[\s,]+/).map(Number);
+  const k=sceneKey();if(VIEW.key!==k){VIEW.key=k;VIEW.cur=null}VIEW.base=vb;setVB()}
+function clampVB(x,y,w,hh){const b=VIEW.base;w=clamp(w,b[2]/4,b[2]);hh=w*b[3]/b[2];return[clamp(x,0,b[2]-w),clamp(y,0,b[3]-hh),w,hh]}
+function zoomAround(px,py,factor,from){const c=from||VIEW.cur||VIEW.base,w=c[2]/factor,k=w/c[2];
+  const v=clampVB(px-(px-c[0])*k,py-(py-c[1])*k,w,c[3]*k);VIEW.cur=v[2]>=VIEW.base[2]-.5?null:v;setVB()}
+function toSvg(cx,cy){const sv=sceneSvg(),m=sv.getScreenCTM();if(!m)return{x:0,y:0};const pt=sv.createSVGPoint();pt.x=cx;pt.y=cy;return pt.matrixTransform(m.inverse())}
+(function(){
+  const sc=$('#scene'),P=new Map();let pinch=null,drag=null,moved=false,lastTap=null,raf=0,lastPT='mouse';
+  const interactive=t=>t.closest('[data-zone],[data-comp],[data-term],button,a');
+  const sched=fn=>{cancelAnimationFrame(raf);raf=requestAnimationFrame(fn)};
+  sc.addEventListener('pointerdown',e=>{lastPT=e.pointerType;if(e.pointerType==='mouse'&&e.button!==0)return;if(!sceneSvg())return;
+    P.set(e.pointerId,{x:e.clientX,y:e.clientY});if(P.size===1)moved=false;
+    const cur=(VIEW.cur||VIEW.base).slice();
+    if(P.size===2){const [a,b]=[...P.values()];pinch={d:Math.hypot(a.x-b.x,a.y-b.y)||1,vb:cur,mid:toSvg((a.x+b.x)/2,(a.y+b.y)/2)};drag=null;moved=true}
+    else if(P.size===1)drag={x:e.clientX,y:e.clientY,vb:cur,id:e.pointerId}});
+  sc.addEventListener('pointermove',e=>{if(!P.has(e.pointerId))return;P.set(e.pointerId,{x:e.clientX,y:e.clientY});
+    if(pinch&&P.size>=2){const [a,b]=[...P.values()],f=Math.hypot(a.x-b.x,a.y-b.y)/pinch.d;e.preventDefault();sched(()=>zoomAround(pinch.mid.x,pinch.mid.y,f,pinch.vb));return}
+    if(drag&&VIEW.cur){const dx=e.clientX-drag.x,dy=e.clientY-drag.y;
+      if(!moved&&Math.hypot(dx,dy)>8){moved=true;try{sc.setPointerCapture(e.pointerId)}catch(_){}}
+      if(moved){e.preventDefault();const s=drag.vb[2]/sc.getBoundingClientRect().width;sched(()=>{VIEW.cur=clampVB(drag.vb[0]-dx*s,drag.vb[1]-dy*s,drag.vb[2],drag.vb[3]);setVB()})}}
+    else if(drag&&Math.hypot(e.clientX-drag.x,e.clientY-drag.y)>8)moved=true});
+  const end=e=>{if(!P.has(e.pointerId))return;P.delete(e.pointerId);
+    if(P.size<2)pinch=null;
+    if(P.size===1){const [id,p]=[...P.entries()][0];drag={x:p.x,y:p.y,vb:(VIEW.cur||VIEW.base).slice(),id}}
+    if(P.size===0){drag=null;
+      if(e.type==='pointerup'&&e.pointerType!=='mouse'&&!moved&&!interactive(e.target)){const now=Date.now();
+        if(lastTap&&now-lastTap.t<320&&Math.hypot(e.clientX-lastTap.x,e.clientY-lastTap.y)<34){const p=toSvg(e.clientX,e.clientY);VIEW.cur?(VIEW.cur=null,setVB()):zoomAround(p.x,p.y,2.2);lastTap=null}
+        else lastTap={t:now,x:e.clientX,y:e.clientY}}}};
+  sc.addEventListener('pointerup',end);sc.addEventListener('pointercancel',end);
+  sc.addEventListener('click',e=>{if(moved){e.stopPropagation();e.preventDefault();moved=false}},true);
+  sc.addEventListener('dblclick',e=>{if(lastPT!=='mouse'||interactive(e.target))return;const p=toSvg(e.clientX,e.clientY);VIEW.cur?(VIEW.cur=null,setVB()):zoomAround(p.x,p.y,2.2)});
+  sc.addEventListener('wheel',e=>{if(!e.ctrlKey&&!VIEW.cur)return;e.preventDefault();const p=toSvg(e.clientX,e.clientY);zoomAround(p.x,p.y,Math.exp(-e.deltaY*(e.ctrlKey?.01:.0025)))},{passive:false});
+  ['gesturestart','gesturechange'].forEach(t=>sc.addEventListener(t,e=>e.preventDefault(),{passive:false}));
+  $('#bView').onclick=()=>{VIEW.cur=null;setVB()};
+})();
 $('#bStats').onclick=openStats;
 $('#bHD').onclick=()=>{setHD(!store.hd);save();renderScene()};
 setHD(store.hd);
