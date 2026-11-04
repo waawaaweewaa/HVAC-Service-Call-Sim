@@ -27,6 +27,8 @@ It runs as one HTML file with no server, no account and no tracking. Your scores
 | **Randomized calls** | 15 faults across 4 difficulty tiers. Customer complaints vary, red herrings appear, and the same fault never comes up twice in a row. |
 | **Graded debriefs** | Diagnostic, Technical Accuracy, and Troubleshooting scores. Shows which proof readings you took, a critique, how a senior tech would run the call, and the sequence of operation. |
 | **Auto difficulty** | Apprentice → Junior Tech → Service Tech → Senior Tech, based on your recent scores. |
+| **HD mode** | One tap switches flat colors to textured surfaces. Terminals and labels stay high-contrast for learning. |
+| **Landscape split** | Turn your phone sideways: house on the left, meter and work order on the right. |
 | **Live airflow** | Duct and condenser airflow reflects what is actually running. A hidden airflow view shows air temperature and volume through the whole system. |
 
 ## How a call works
@@ -86,7 +88,8 @@ Tech: plain HTML, CSS, SVG and JavaScript with no frameworks or build step. Inst
 ## Roadmap
 
 - [ ] Review by a working HVAC technician
-- [ ] HD mode: realistic textures in the job site and close-up views
+- [x] HD mode: realistic textures in the job site and close-up views
+- [x] Landscape split view on phones
 - [ ] Version label in the app header
 - [ ] Heat pumps (reversing valve, defrost)
 - [ ] Rooftop units and light commercial
@@ -101,10 +104,11 @@ manifest.webmanifest  install settings (name, icons, colors)
 icons/                app icons
 ```
 
-**Updating:** after replacing `index.html`, change `VERSION` in `sw.js` (e.g. `hvac-sim-v4` → `hvac-sim-v5`) so installed copies pick up the new build.
+**Updating:** after replacing `index.html`, change `VERSION` in `sw.js` (e.g. `hvac-sim-v5` → `hvac-sim-v6`) so installed copies pick up the new build.
 
 ## Changelog
 
+- **v5** HD mode (textured siding, shingles, metal, copper, insulation, circuit board, filter pleats, plus label and washer details in close-ups), landscape split view on phones (house left, meter and work order right, each scrolling on its own).
 - **v4** Randomized house layouts (4 types, 2–3 rooms, mirrored sides), per-room registers, layout-aware airflow and airflow view. Note: replay seeds from v3 or earlier generate different calls.
 - **v3** Quick-action bar under the scene, pulsing panel markers, airflow that matches what's running, hidden airflow view, iOS animation fix.
 - **v2** Close-up views with free meter-lead probing, separate pole and winding readings, installable offline app.

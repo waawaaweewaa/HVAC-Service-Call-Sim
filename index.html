@@ -202,6 +202,29 @@ table.hist th,table.hist td{text-align:left;padding:6px;border-bottom:1px solid 
 .qbar .ql{font:700 11px var(--f-display);letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-right:2px}
 .qmsg{flex-basis:100%;font-size:13px;color:var(--muted)}.qmsg.bad{color:var(--hot)}
 #world{transform-origin:0 0}
+
+/* ---------- landscape phones: 50/50 split, each half scrolls on its own ---------- */
+@media (orientation:landscape) and (max-height:540px){
+  .wrap{padding-block:4px 4px}
+  header.top{padding-block:2px 6px;gap:6px 10px;flex-wrap:nowrap}
+  .brand h1{font-size:19px;white-space:nowrap}
+  .brand .meta{display:none}
+  .grid{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px;align-items:stretch}
+  .scenewrap,.rail{height:calc(100vh - var(--hdr,48px) - 12px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px));height:calc(100dvh - var(--hdr,48px) - 12px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px));overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+  .rail{gap:10px;padding-bottom:8px}
+  .meter{padding:8px}.meter .lcdbox{min-height:64px;padding:6px 10px}.meter .read{font-size:26px}.modes{margin-top:6px}.mode{padding:6px 0}
+  .crumb{padding:6px 10px}.zones,.qbar{padding:8px 10px}
+}
+/* ---------- HD textures: same shapes, richer surfaces (fallback color if a texture is missing) ---------- */
+.hd .k-sky{fill:url(#hdSky) var(--sky)}.hd .k-metal{fill:url(#hdMetal) var(--metal)}.hd .k-metal2{fill:url(#hdMetal2) var(--metal2)}
+.hd .k-dark{fill:url(#hdDark) var(--dark)}.hd .k-copper{fill:url(#hdCopper) var(--copper)}.hd .k-panel{fill:url(#hdPanel) var(--panel)}
+.hd .k-wall{fill:url(#hdSiding) var(--wall)}.hd .k-wall2{fill:url(#hdDrywall) var(--wall2)}.hd .k-roof{fill:url(#hdShingle) var(--roof)}
+.hd .k-attic{fill:url(#hdInsul) var(--attic)}.hd .k-grass{fill:url(#hdGrass) var(--grass)}.hd .k-dirt{fill:url(#hdDirt) var(--dirt)}
+.hd .k-pcb{fill:url(#hdPcb) var(--pcb)}.hd .k-water{fill:url(#hdWater) var(--water)}.hd .screw{fill:url(#hdScrew) var(--metal)}
+.hd .f-clean{fill:url(#hdPleat0) var(--filter)}.hd .f-dirty{fill:url(#hdPleat1) #b9a27c}.hd .f-clogged{fill:url(#hdPleat2) #6b5a46}
+.hd .ls-s{stroke:url(#hdFoam) var(--dark)}.hd .ls-l{stroke:color-mix(in srgb,var(--copper) 80%,white)}
+.hd .duct-i{stroke:color-mix(in srgb,var(--duct) 75%,white)}.hd .fin{stroke:color-mix(in srgb,var(--metal2) 75%,black)}
+#bHD[aria-pressed="true"]{background:var(--ink);color:var(--panel);border-color:var(--ink)}
 @media (prefers-reduced-motion:reduce){.spin,.spin-s,.air,.buzz{animation:none}#world{transition:none!important}}
 </style>
 
@@ -212,6 +235,7 @@ table.hist th,table.hist td{text-align:left;padding:6px;border-bottom:1px solid 
     <div class="brand"><h1><b>HVAC</b> Service Call Sim</h1><span class="meta" id="hmeta"></span></div>
     <span class="chip tier" id="htier"></span>
     <span class="spacer"></span>
+    <button class="btn sm" id="bHD" type="button" aria-pressed="false" title="Realistic textures">HD</button>
     <button class="btn sm" id="bStats" type="button">Record &amp; settings</button>
     <button class="btn sm" id="bNew" type="button">New call</button>
   </header>
@@ -591,6 +615,9 @@ SYSTEMS['split-ac'].overview=function(s,d,flow){
   if(L.bsmt)a+=`<rect x="${hx0}" y="${L.ground}" width="${hx1-hx0}" height="${L.bsmt[1]+6-L.ground}" class="k-metal2 st"/><rect x="${hx0+10}" y="${L.bsmt[0]}" width="${hx1-hx0-20}" height="${L.bsmt[1]-L.bsmt[0]}" class="k-wall2"/>`;
   L.slabs.forEach(([y0,y1])=>{a+=`<rect x="${hx0}" y="${y0}" width="${hx1-hx0}" height="${y1-y0}" class="k-wall st"/>`});
   if(L.closet)a+=`<rect x="${L.closet}" y="${f1a}" width="8" height="${f1b-f1a}" class="k-wall"/>`;
+  if(globalThis.HDON){const rp=L.roof.split(' ').map(q=>q.split(',').map(Number));a+=`<rect x="${rp[0][0]-2}" y="${rp[0][1]-3}" width="${rp[2][0]-rp[0][0]+4}" height="5" rx="2" class="k-metal st"/>`;
+    if(!L.bsmt)a+=`<rect x="${hx0}" y="${L.ground-10}" width="${hx1-hx0}" height="10" class="k-metal2 st"/>`;
+    a+=`<rect x="${(rp[1][0]+rp[2][0])/2-8}" y="${(rp[1][1]+rp[2][1])/2-14}" width="16" height="12" class="k-dark"/>`}
   g.rooms.forEach(r=>{
     if(r.fl===1&&r.i>0)a+=`<rect x="${r.x0-4}" y="${r.y0}" width="8" height="${r.y1-r.y0}" class="k-wall"/>`;
     if(r.fl===1||L.up.riserX){const ww=40,wh=Math.min(54,(r.y1-r.y0)*.34),wx=r.x0+Math.max(8,(r.x1-r.x0-40-40)*r.wf),wy=r.y0+(r.y1-r.y0)*.16;
@@ -608,6 +635,7 @@ SYSTEMS['split-ac'].overview=function(s,d,flow){
   a+=`<rect x="${cx-10}" y="${cy+62}" width="108" height="8" class="k-metal2"/><rect x="${cx}" y="${cy}" width="88" height="62" class="k-metal st"/>${Array.from({length:10},(_,i)=>`<line x1="${cx+6+i*8}" y1="${cy+6}" x2="${cx+6+i*8}" y2="${cy+60}" class="fin"/>`).join('')}`;
   a+=`<ellipse cx="${cx+44}" cy="${cy}" rx="44" ry="7" class="k-dark"/><g transform="translate(${cx+44} ${cy}) scale(1 .16)"><g>${BLADES}${d.fan==='run'?SPINA(.45):''}</g></g>`;
   a+=`<rect x="${dx}" y="${dy}" width="14" height="30" rx="2" class="k-metal2 st"/>`;
+  if(globalThis.HDON)a+=`<rect x="${cx+10}" y="${cy+16}" width="22" height="14" rx="1" class="k-panel st"/><path d="M${cx+70} ${cy+44} q2 8 -1 16" style="stroke:var(--dirt);stroke-width:3;opacity:.45;fill:none"/>`;
   const l1=`M${cx+88} ${cy+38} H${L.lx} V${f.coilY+Math.min(22,f.coilH-6)} H${fx+4}`,l2=`M${cx+88} ${cy+47} H${L.lx+7} V${f.coilY+Math.min(32,f.coilH-2)} H${fx+4}`;
   a+=`<path d="${l1}" class="ls-s"/><path d="${l2}" class="ls-l"/>${d.ref.iced?`<path d="${l1}" class="frostline"/>`:''}`;
   L.labels.forEach(l=>{if(l[4])a+=`<path d="${l[4]}" class="leader"/>`});
@@ -858,7 +886,7 @@ SYSTEMS['split-ac'].closeups={
       <rect x="248" y="150" width="104" height="104" rx="8" class="k-dark"/>
       <rect x="262" y="${d.pulled?188:160}" width="76" height="44" rx="4" class="k-acc st${d.pulled&&O.pitted?' buzz':''}"/>
       ${O.pitted?'<circle cx="262" cy="244" r="7" class="k-hot"/><circle cx="276" cy="248" r="5" class="k-hot"/>':O.pittedCosmetic?'<circle cx="264" cy="246" r="4" class="k-hot" opacity=".7"/>':''}
-      ${TX(300,50,'24 VAC coil · 30 FLA')}`}},
+      ${TX(300,50,'24 VAC coil · 30 FLA')}${globalThis.HDON?`<rect x="196" y="300" width="64" height="26" rx="2" class="k-panel st"/>${TX(228,318,'2P · 30A')}`:''}`}},
   cap:{n:'Dual run capacitor',z:'cond',comps:['cap','disc'],req:s=>s.outdoor.panelOn?'Remove the service panel first.':null,
     about:'C is shared. HERM goes to the compressor start winding (S). FAN goes to the fan motor start lead. Running, the voltage across a run cap is normally higher than line voltage.',
     terms:{HERM:[210,150,'HERM','v','t'],C:[300,205,'C','v','b'],FAN:[390,150,'FAN','v','t'],GND:[560,372,'Ground','v','l']},
@@ -868,6 +896,7 @@ SYSTEMS['split-ac'].closeups={
       ${WR('M210 150 C150 100 90 80 0 60','brn')}${WR('M390 150 C460 100 520 80 600 60','pur')}${WR('M300 205 C300 290 200 330 0 340','blk')}
       <circle cx="300" cy="200" r="150" class="k-metal st"/><circle cx="300" cy="200" r="132" fill="none" class="st"/>
       ${O.bulge?'<ellipse cx="300" cy="196" rx="118" ry="104" class="k-metal2" opacity=".55"/>':''}
+      ${globalThis.HDON?`<rect x="196" y="250" width="208" height="44" rx="4" class="k-panel st"/>${TX(300,268,'DUAL RUN CAPACITOR')}${TX(300,286,'70°C · 50/60 Hz · P2 PROTECTED')}`:''}
       ${TX(300,316,O.hermRated+' + '+O.fanRated+' µF ±6% · 440 VAC')}${TX(8,46,'to compressor S','start')}${TX(592,46,'to fan motor','end')}${TX(8,330,'to contactor T1','start')}`}},
   comp:{n:'Compressor terminals',z:'cond',comps:['comp','disc'],req:s=>s.outdoor.panelOn?'Remove the service panel first.':null,
     about:'Terminal cover off. C = common, R = run winding, S = start winding. C–R plus C–S should add up to R–S. The internal overload sits in the common lead.',
@@ -1139,8 +1168,28 @@ const ENGINE={
 'use strict';
 const $=s=>document.querySelector(s);
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const MIX=(v,p,w)=>`color-mix(in srgb,var(--${v}) ${p}%,${w})`;
+const SC=c=>`style="stop-color:${c}"`,FL2=c=>`style="fill:${c}"`;
+const HD_DEFS=`<defs>
+<linearGradient id="hdSky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" ${SC(MIX('sky',78,'var(--cold)'))}/><stop offset="1" ${SC(MIX('sky',80,'white'))}/></linearGradient>
+${[['hdMetal','metal'],['hdMetal2','metal2']].map(([id,v])=>`<linearGradient id="${id}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" ${SC(MIX(v,65,'white'))}/><stop offset=".42" ${SC(`var(--${v})`)}/><stop offset=".5" ${SC(MIX(v,82,'white'))}/><stop offset=".58" ${SC(`var(--${v})`)}/><stop offset="1" ${SC(MIX(v,75,'black'))}/></linearGradient>`).join('')}
+<linearGradient id="hdDark" x1="0" y1="0" x2="0" y2="1"><stop offset="0" ${SC(MIX('dark',82,'white'))}/><stop offset="1" ${SC('var(--dark)')}/></linearGradient>
+<linearGradient id="hdCopper" x1="0" y1="0" x2="0" y2="1"><stop offset="0" ${SC(MIX('copper',55,'white'))}/><stop offset=".35" ${SC('var(--copper)')}/><stop offset="1" ${SC(MIX('copper',65,'black'))}/></linearGradient>
+<linearGradient id="hdPanel" x1="0" y1="0" x2="0" y2="1"><stop offset="0" ${SC('var(--panel)')}/><stop offset="1" ${SC(MIX('panel',86,'black'))}/></linearGradient>
+<linearGradient id="hdWater" x1="0" y1="0" x2="0" y2="1"><stop offset="0" ${SC(MIX('water',70,'white'))}/><stop offset="1" ${SC(MIX('water',80,'black'))}/></linearGradient>
+<radialGradient id="hdScrew" cx=".35" cy=".35" r=".8"><stop offset="0" ${SC(MIX('metal',45,'white'))}/><stop offset=".6" ${SC('var(--metal)')}/><stop offset="1" ${SC(MIX('metal',55,'black'))}/></radialGradient>
+<pattern id="hdSiding" width="40" height="12" patternUnits="userSpaceOnUse"><rect width="40" height="12" ${FL2('var(--wall)')}/><rect y="9.5" width="40" height="2.5" ${FL2(MIX('wall',80,'black'))}/><rect width="40" height="1.2" ${FL2(MIX('wall',65,'white'))}/></pattern>
+<pattern id="hdDrywall" width="14" height="14" patternUnits="userSpaceOnUse"><rect width="14" height="14" ${FL2('var(--wall2)')}/><circle cx="3" cy="4" r=".8" ${FL2(MIX('wall2',82,'black'))}/><circle cx="10" cy="10" r=".7" ${FL2(MIX('wall2',75,'white'))}/><circle cx="11" cy="3" r=".5" ${FL2(MIX('wall2',85,'black'))}/></pattern>
+<pattern id="hdShingle" width="22" height="12" patternUnits="userSpaceOnUse"><rect width="22" height="12" ${FL2('var(--roof)')}/><rect y="5" width="22" height="1.3" ${FL2(MIX('roof',65,'black'))}/><rect y="11" width="22" height="1.3" ${FL2(MIX('roof',65,'black'))}/><rect x="10.5" width="1.2" height="6" ${FL2(MIX('roof',65,'black'))}/><rect x="4.5" y="6" width="1.2" height="6" ${FL2(MIX('roof',65,'black'))}/><rect x="16" y="6" width="1.2" height="6" ${FL2(MIX('roof',65,'black'))}/><rect y="1" width="22" height="1" ${FL2(MIX('roof',80,'white'))}/></pattern>
+<pattern id="hdInsul" width="16" height="9" patternUnits="userSpaceOnUse"><rect width="16" height="9" ${FL2('var(--attic)')}/><path d="M0 6 q4 -5 8 0 t8 0" fill="none" style="stroke:${MIX('attic',78,'black')};stroke-width:1"/><path d="M-8 2 q4 -4 8 0 t8 0 t8 0" fill="none" style="stroke:${MIX('attic',70,'white')};stroke-width:.8"/></pattern>
+<pattern id="hdGrass" width="12" height="10" patternUnits="userSpaceOnUse"><rect width="12" height="10" ${FL2('var(--grass)')}/><path d="M2 10 l1 -6 M6 10 l-1 -7 M9 10 l1.5 -5" style="stroke:${MIX('grass',65,'black')};stroke-width:1.1"/><path d="M4 10 l.5 -4" style="stroke:${MIX('grass',70,'white')};stroke-width:1"/></pattern>
+<pattern id="hdDirt" width="16" height="16" patternUnits="userSpaceOnUse"><rect width="16" height="16" ${FL2('var(--dirt)')}/><circle cx="4" cy="5" r="1.3" ${FL2(MIX('dirt',65,'black'))}/><circle cx="12" cy="11" r="1.1" ${FL2(MIX('dirt',70,'white'))}/><circle cx="9" cy="2" r=".8" ${FL2(MIX('dirt',60,'black'))}/><circle cx="2" cy="13" r=".7" ${FL2(MIX('dirt',75,'white'))}/></pattern>
+<pattern id="hdPcb" width="24" height="24" patternUnits="userSpaceOnUse"><rect width="24" height="24" ${FL2('var(--pcb)')}/><path d="M0 6 H10 L14 10 H24 M6 24 V16 L10 12 M18 0 V5" fill="none" style="stroke:${MIX('pcb',70,'white')};stroke-width:1.2;opacity:.55"/><circle cx="18" cy="18" r="1.7" ${FL2('#c9b26a')}/><circle cx="6" cy="16" r="1.2" ${FL2('#c9b26a')}/></pattern>
+<pattern id="hdFoam" width="6" height="6" patternUnits="userSpaceOnUse"><rect width="6" height="6" ${FL2('var(--dark)')}/><circle cx="2" cy="2" r=".9" ${FL2(MIX('dark',72,'white'))}/><circle cx="4.8" cy="4.6" r=".7" ${FL2(MIX('dark',78,'white'))}/></pattern>
+${[['hdPleat0','var(--filter)'],['hdPleat1','#b9a27c'],['hdPleat2','#6b5a46']].map(([id,c])=>`<pattern id="${id}" width="8" height="8" patternUnits="userSpaceOnUse"><rect width="8" height="8" ${FL2(c)}/><path d="M0 0 L4 8 L8 0" fill="none" style="stroke:color-mix(in srgb,${c} 72%,black);stroke-width:1"/></pattern>`).join('')}
+</defs>`;
 const KEY='hvac-sim-v1';
-let store={history:[],mode:'auto',tierIdx:0,since:0,callNo:1};
+let store={history:[],mode:'auto',tierIdx:0,since:0,callNo:1,hd:false};
 try{const raw=localStorage.getItem(KEY);if(raw)store={...store,...JSON.parse(raw)}}catch(e){}
 const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(store))}catch(e){}};
 const UI={mode:'V',zone:'house',comp:null,tab:'dispatch',last:null,msg:null,bad:false,cu:null,leads:[],place:null,flow:false};
@@ -1222,16 +1271,18 @@ function renderHeader(){
   $('#hmeta').textContent=`Call #${G.callNo} · ${G.meta.wo} · seed ${G.seed.toString(16).toUpperCase()}`;
   $('#htier').textContent=TIERS[G.tierIdx].n+(store.mode==='auto'?' · auto':'');
 }
+function hdInject(){if(!store.hd)return;const sv=$('#scene svg');if(sv)sv.insertAdjacentHTML('afterbegin',HD_DEFS)}
+function setHD(on){store.hd=!!on;globalThis.HDON=store.hd;document.documentElement.classList.toggle('hd',store.hd);const b=$('#bHD');if(b)b.setAttribute('aria-pressed',String(store.hd))}
 function renderScene(){
   const S=SYS(),d=S.derive(G.st),z=UI.zone,zn=S.zones.find(x=>x.id===z).n;
   if(UI.cu){const cu=S.closeups[UI.cu],m=cu.req&&cu.req(G.st);if(m){UI.cu=null;UI.leads=[];UI.place=null;setMsg('Close-up closed: '+m,true)}}
   $('#zones').innerHTML=S.zones.map(x=>`<button class="zc" type="button" data-go="${x.id}" aria-current="${x.id===z&&!UI.cu}">${x.n}</button>`).join('');
   if(UI.cu){const cu=S.closeups[UI.cu];
-    $('#scene').innerHTML=renderCloseup();$('#where').textContent=`${zn} › ${cu.n}`;
+    $('#scene').innerHTML=renderCloseup();hdInject();$('#where').textContent=`${zn} › ${cu.n}`;
     $('#bBack').hidden=false;$('#bBack').textContent='← '+zn;$('#sceneHint').textContent='Tap terminals to place your leads';
     $('#complist').innerHTML='';$('#complist').hidden=true;$('#bFlow').hidden=true;renderQbar();return}
   $('#bBack').textContent='← House';
-  $('#scene').innerHTML=z==='house'?S.overview(G.st,d,UI.flow):S.scene(z,G.st,d,UI.comp);
+  $('#scene').innerHTML=z==='house'?S.overview(G.st,d,UI.flow):S.scene(z,G.st,d,UI.comp);hdInject();
   const bf=$('#bFlow');bf.hidden=z!=='house';bf.setAttribute('aria-pressed',String(UI.flow));
   $('#where').textContent=z==='air'?`${zn} · ${S.geom(G.st).rooms[G.room||0].name}`:zn;
   $('#bBack').hidden=z==='house';
@@ -1282,7 +1333,7 @@ function renderCloseup(){
   let g=cu.draw(s,d);
   for(const [k,t] of Object.entries(cu.terms)){
     const [x,y,lab,kind,pos]=t,off={t:[0,-22,'middle'],b:[0,32,'middle'],l:[-22,5,'end'],r:[22,5,'start']}[pos];
-    let icon=kind==='v'?`<circle cx="${x}" cy="${y}" r="12" class="screw"/><line x1="${x-7}" y1="${y-7}" x2="${x+7}" y2="${y+7}" class="slot"/>`
+    let icon=kind==='v'?`${store.hd?`<circle cx="${x}" cy="${y}" r="17" class="k-metal2 st"/>`:''}<circle cx="${x}" cy="${y}" r="12" class="screw"/><line x1="${x-7}" y1="${y-7}" x2="${x+7}" y2="${y+7}" class="slot"/>`
       :kind==='c'?`<circle cx="${x}" cy="${y}" r="15" fill="none" style="stroke:var(--accent);stroke-width:2.5;stroke-dasharray:5 4"/>`
       :kind==='p'?`<circle cx="${x}" cy="${y}" r="13" class="k-acc st"/><circle cx="${x}" cy="${y}" r="5" class="k-dark"/>`
       :`<rect x="${x-16}" y="${y-8}" width="32" height="16" rx="3" fill="none" style="stroke:var(--accent);stroke-width:2.5;stroke-dasharray:5 3"/>`;
@@ -1494,6 +1545,10 @@ document.addEventListener('keydown',e=>{
 $('#bBack').onclick=()=>{if(UI.cu){UI.cu=null;UI.leads=[];UI.place=null;UI.msg=null;renderAll();return}UI.zone='house';UI.comp=null;UI.msg=null;renderAll()};
 $('#bNew').onclick=()=>newCall();
 $('#bStats').onclick=openStats;
+$('#bHD').onclick=()=>{setHD(!store.hd);save();renderScene()};
+setHD(store.hd);
+const setHdr=()=>document.documentElement.style.setProperty('--hdr',$('header.top').offsetHeight+'px');
+addEventListener('resize',setHdr);addEventListener('orientationchange',()=>setTimeout(setHdr,250));setHdr();
 $('#bFlow').onclick=()=>{UI.flow=!UI.flow;if(UI.flow)addLog('Airflow view on.');renderScene()};
 $('#bCall').onclick=openCall;
 newCall();
