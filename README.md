@@ -24,11 +24,12 @@ It runs as one HTML file with no server, no account and no tracking. Your scores
 | **Real tools** | Multimeter (V AC, Ω, µF), amp clamp, probe and pipe-clamp thermometer, refrigerant gauges, PT chart, superheat and subcooling worksheet. |
 | **Safety gating** | Taking Ω or µF readings on live circuits, skipping capacitor discharge, or swapping parts with power on is flagged and graded. |
 | **Two refrigerants** | R-410A and R-454B, assigned at random. You confirm which one from the condenser data plate, as in the field. |
-| **Randomized calls** | 15 faults across 4 difficulty tiers. Customer complaints vary, red herrings appear, and the same fault never comes up twice in a row. |
+| **Randomized calls** | 16 faults across 4 difficulty tiers. Customer complaints vary, red herrings appear, and the same fault never comes up twice in a row. |
 | **Graded debriefs** | Diagnostic, Technical Accuracy, and Troubleshooting scores. Shows which proof readings you took, a critique, how a senior tech would run the call, and the sequence of operation. |
 | **Auto difficulty** | Apprentice → Junior Tech → Service Tech → Senior Tech, based on your recent scores. |
 | **HD mode** | One tap switches flat colors to textured surfaces. Terminals and labels stay high-contrast for learning. |
 | **Landscape split** | Turn your phone sideways: house on the left, meter and work order on the right. |
+| **Field wear** | Oil stains at leaks, scorch marks, melted insulation, rust and fin corrosion by equipment age, sweating suction lines. Clues show up on some calls only, and some are decoys. |
 | **Live airflow** | Duct and condenser airflow reflects what is actually running. A hidden airflow view shows air temperature and volume through the whole system. |
 
 ## How a call works
@@ -47,7 +48,7 @@ It runs as one HTML file with no server, no account and no tracking. Your scores
 |---|---|
 | Apprentice | Tripped condenser breaker · Dead thermostat batteries · Clogged drain / tripped float switch · Blown board fuse after a thermostat install · Clogged filter with iced coil |
 | Junior Tech | Open transformer · Open contactor coil · Burned contactor contacts · Weak fan capacitor · Weak compressor capacitor · Failed blower capacitor |
-| Service Tech | Dirty condenser coil · Low charge (leak) · Overcharge · Repeat blown fuse from a chafed Y wire |
+| Service Tech | Dirty condenser coil · Low charge (leak) · Overcharge · Repeat blown fuse from a chafed Y wire · Loose / burnt connection at contactor T1 |
 | Senior Tech | Junior/Service faults plus a hidden secondary defect and extra red herrings |
 
 </details>
@@ -69,7 +70,7 @@ Tech: plain HTML, CSS, SVG and JavaScript with no frameworks or build step. Inst
 
 ## Testing notes
 
-- All 15 faults run through the simulation; readings checked against each fault's expected symptoms.
+- All 16 faults run through the simulation; readings checked against each fault's expected symptoms.
 - Close-up voltages cross-checked against the standard test-point readings for every fault (1 mismatch found and fixed).
 - Grading checked on correct and incorrect runs (1 scoring bug found and fixed).
 - 300 generated calls checked for back-to-back repeats (none).
@@ -104,11 +105,12 @@ manifest.webmanifest  install settings (name, icons, colors)
 icons/                app icons
 ```
 
-**Updating:** after replacing `index.html`, change `VERSION` in `sw.js` (e.g. `hvac-sim-v6` → `hvac-sim-v7`) and the version tag in the `index.html` title so installed copies pick up the new build.
+**Updating:** after replacing `index.html`, change `VERSION` in `sw.js` (e.g. `hvac-sim-v7` → `hvac-sim-v8`) and the version tag in the `index.html` title so installed copies pick up the new build.
 
 ## Changelog
 
-- **v6** Scene-only zoom: pinch, double-tap empty scenery, drag to pan, Reset zoom button; double-tap no longer zooms the whole page. Repeat readings are no longer re-logged: an identical reading shows an "Already logged · #n" notice with a View log shortcut, and doesn't count against efficiency. Readings that change after you change something still log.
+- **v7** Field wear and damage pack: new fault (loose / burnt connection at contactor T1, found by measuring voltage drop under load), oil stains at refrigerant leaks, scorch marks on shorts and burnt contacts, age-based rust and fin corrosion, sweating suction line. Visual clues appear on only some calls, and some are decoys (old repaired-leak oil, harmless heat tint), so readings still decide the diagnosis.
+- **v6** Tighter default framing (house and equipment fill the scene; whole house fits the left half in landscape). Scene-only zoom: pinch, double-tap empty scenery, drag to pan, Reset zoom button; double-tap no longer zooms the whole page. Repeat readings are no longer re-logged: an identical reading shows an "Already logged · #n" notice with a View log shortcut, and doesn't count against efficiency. Readings that change after you change something still log.
 - **v5** Version tag in the title, HD mode (textured siding, shingles, metal, copper, insulation, circuit board, filter pleats, plus label and washer details in close-ups), landscape split view on phones (house left, meter and work order right, each scrolling on its own).
 - **v4** Randomized house layouts (4 types, 2–3 rooms, mirrored sides), per-room registers, layout-aware airflow and airflow view. Note: replay seeds from v3 or earlier generate different calls.
 - **v3** Quick-action bar under the scene, pulsing panel markers, airflow that matches what's running, hidden airflow view, iOS animation fix.
