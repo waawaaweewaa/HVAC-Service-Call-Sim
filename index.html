@@ -86,7 +86,33 @@ html{touch-action:manipulation}
 .meter .read.multi{font-size:19px}
 .meter .pt{font:500 12px var(--f-mono);opacity:.85;margin-top:4px}
 .meter .mnote{font-size:13px;margin-top:8px;line-height:1.4}
-.modes{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px;margin-top:10px}
+.modes{display:grid;grid-template-columns:repeat(auto-fit,minmax(44px,1fr));gap:6px;margin-top:10px}
+.jacks{display:flex;align-items:center;gap:6px;margin-top:8px;font:700 11px var(--f-display);letter-spacing:.1em;text-transform:uppercase}
+.jacks span{flex:none;margin-right:2px}
+.jack{cursor:pointer;flex:1;border:2px solid var(--dark);border-radius:999px;background:transparent;color:var(--accent-ink);font:600 13px var(--f-mono);padding:5px 0}
+.jack[aria-pressed="true"]{background:var(--dark);color:#fff}
+.jack.amp[aria-pressed="true"]{background:#b3261e;border-color:#b3261e;color:#fff}
+.lcdtop{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.leadal{font:700 16px var(--f-mono);color:#b3261e;animation:blink 1s steps(2) infinite}
+@keyframes blink{50%{opacity:.15}}
+.meter .lcdbox.face-gauge,.meter .lcdbox.face-ncv,.meter .lcdbox.face-info{background:var(--panel);color:var(--ink);box-shadow:inset 0 1px 4px rgba(0,0,0,.25)}
+.face-ncv .light{flex:none;width:42px;height:42px;border-radius:50%;background:var(--dark);border:3px solid var(--sline)}
+.face-ncv .light.on{background:#e53b2c;box-shadow:0 0 18px #e53b2c}
+.gsvg{display:block;width:100%;height:auto;max-height:150px}
+.tray{display:flex;align-items:center;gap:6px;margin-top:-6px}
+.trayscroll{display:flex;gap:6px;overflow-x:auto;scroll-snap-type:x proximity;flex:1;min-width:0;scrollbar-width:none;padding:2px}
+.trayscroll::-webkit-scrollbar{display:none}
+.tchip{cursor:pointer;flex:none;scroll-snap-align:start;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-width:74px;min-height:60px;padding:6px 8px;border-radius:10px;border:1px solid var(--line);background:var(--panel);font:600 11px/1.1 var(--f-display);letter-spacing:.05em;text-transform:uppercase;color:var(--ink)}
+.tchip svg{width:30px;height:30px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.tchip[aria-pressed="true"]{background:var(--ink);color:var(--panel);border-color:var(--ink)}
+.tchip:focus-visible,.tarrow:focus-visible,.jack:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.tarrow{cursor:pointer;flex:none;width:34px;height:60px;border-radius:10px;border:1px solid var(--line);background:var(--panel);font:700 20px var(--f-body);color:var(--ink)}
+.dlg.crit{border-left:5px solid var(--hot)}
+.nlist{margin:0;padding-left:20px;font-size:14px;display:flex;flex-direction:column;gap:6px}
+.notecard{border-bottom:1px solid var(--line)}
+.notecard summary{cursor:pointer;font:700 15px var(--f-display);letter-spacing:.05em;text-transform:uppercase;padding:9px 0}
+.notecard.crit summary{color:var(--hot)}
+.notecard .nlist{margin-bottom:10px}
 .mode{cursor:pointer;border:0;border-radius:999px;background:var(--dark);color:#e9eef2;font:600 13px var(--f-mono);padding:8px 0}
 .mode[aria-pressed="true"]{background:#fff;color:#111;box-shadow:0 0 0 2px var(--dark)}
 .mlabel{display:flex;justify-content:space-between;font:700 12px var(--f-display);letter-spacing:.12em;text-transform:uppercase;margin-bottom:8px}
@@ -226,6 +252,7 @@ table.hist th,table.hist td{text-align:left;padding:6px;border-bottom:1px solid 
   .meter{padding:8px}.meter .lcdbox{min-height:64px;padding:6px 10px}.meter .read{font-size:26px}.modes{margin-top:6px}.mode{padding:6px 0}
   .crumb{padding:6px 10px}.zones,.qbar{padding:8px 10px}
   #sceneHint{display:none}
+  .tchip{min-height:48px;min-width:62px;padding:4px 6px}.tchip svg{width:24px;height:24px}.tarrow{height:48px}.tray{margin-top:-4px}
   /* whole scene fits the column height; letterboxed left/right instead of cut off at the bottom */
   #scene svg{height:calc(100vh - var(--hdr,48px) - 58px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px));height:calc(100dvh - var(--hdr,48px) - 58px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px))}
   #scene{background:var(--sky)}
@@ -240,14 +267,14 @@ table.hist th,table.hist td{text-align:left;padding:6px;border-bottom:1px solid 
 .hd .ls-s{stroke:url(#hdFoam) var(--dark)}.hd .ls-l{stroke:color-mix(in srgb,var(--copper) 80%,white)}
 .hd .duct-i{stroke:color-mix(in srgb,var(--duct) 75%,white)}.hd .fin{stroke:color-mix(in srgb,var(--metal2) 75%,black)}
 #bHD[aria-pressed="true"]{background:var(--ink);color:var(--panel);border-color:var(--ink)}
-@media (prefers-reduced-motion:reduce){.spin,.spin-s,.air,.buzz{animation:none}#world{transition:none!important}}
+@media (prefers-reduced-motion:reduce){.leadal{animation:none}.spin,.spin-s,.air,.buzz{animation:none}#world{transition:none!important}}
 </style>
 
 </head>
 <body>
 <div class="wrap">
   <header class="top">
-    <div class="brand"><h1><b>HVAC</b> Service Call Sim<sup class="ver" title="Version">v7</sup></h1><span class="meta" id="hmeta"></span></div>
+    <div class="brand"><h1><b>HVAC</b> Service Call Sim<sup class="ver" title="Version">v8</sup></h1><span class="meta" id="hmeta"></span></div>
     <span class="chip tier" id="htier"></span>
     <span class="spacer"></span>
     <button class="btn sm" id="bHD" type="button" aria-pressed="false" title="Realistic textures">HD</button>
@@ -264,11 +291,13 @@ table.hist th,table.hist td{text-align:left;padding:6px;border-bottom:1px solid 
     </section>
     <aside class="rail">
       <div class="meter" aria-live="polite">
-        <div class="mlabel"><span>Meter</span><span id="mmode"></span></div>
-        <div class="lcdbox"><div class="read" id="mread">— — —</div><div class="pt" id="mpt">Select a function, then tap a test point</div></div>
+        <div class="mlabel"><span id="mtool">Multimeter</span><span id="mmode"></span></div>
+        <div class="lcdbox" id="mface"></div>
         <div class="mnote" id="mnote" hidden></div>
         <div class="modes" id="modes"></div>
+        <div class="jacks" id="jacks"></div>
       </div>
+      <div class="tray"><button class="tarrow" type="button" data-tnav="-1" aria-label="Previous tool">‹</button><div class="trayscroll" id="trayscroll" role="toolbar" aria-label="Tools"></div><button class="tarrow" type="button" data-tnav="1" aria-label="Next tool">›</button></div>
       <section class="card sect" id="cardComp" aria-live="polite"></section>
       <section class="card">
         <div class="tabs" role="tablist" id="tabs"></div>
@@ -313,7 +342,7 @@ function lerpTab(tab,x,i,j){let a=tab[0],b=tab[1];for(let k=1;k<tab.length;k++){
 const tempToP=(ref,t,kind)=>lerpTab(REFRIG[ref].pt,kind==='bubble'?t+REFRIG[ref].glide:t,0,1);
 const pToTemp=(ref,p,kind)=>{const t=lerpTab(REFRIG[ref].pt,p,1,0);return kind==='bubble'?t-REFRIG[ref].glide:t};
 
-const MODES=[{k:'V',n:'V AC',s:'V~'},{k:'R',n:'Ohms',s:'Ω'},{k:'C',n:'Capacitance',s:'µF'},{k:'A',n:'Amps (clamp)',s:'A'},{k:'T',n:'Temperature',s:'°F'},{k:'P',n:'Pressure (gauges)',s:'PSI'}];
+const MODES=[{k:'V',n:'V AC',s:'V~'},{k:'D',n:'V DC',s:'V⎓'},{k:'R',n:'Ohms',s:'Ω'},{k:'K',n:'Continuity',s:'·)))'},{k:'C',n:'Capacitance',s:'µF'},{k:'A',n:'Amps (clamp)',s:'A'},{k:'T',n:'Temperature',s:'°F'},{k:'P',n:'Pressure (gauges)',s:'PSI'},{k:'N',n:'Non-contact tester',s:'NCV'},{k:'J',n:'Jumper wire',s:'J'},{k:'X',n:'Discharge tool',s:'X'}];
 const MODE_N=Object.fromEntries(MODES.map(m=>[m.k,m.n]));
 const TIERS=[{id:'apprentice',n:'Apprentice'},{id:'junior',n:'Junior Tech'},{id:'service',n:'Service Tech'},{id:'senior',n:'Senior Tech'}];
 const BRANDS=['Northline','Arctura','Keystone Air','Halvorsen','Coldfront'];
@@ -416,12 +445,13 @@ SYSTEMS['split-ac']={
     d.lineIn=P.furnBkr&&P.furnSw?120:0;
     d.boardPwr=d.lineIn>0&&(I.doorOn||I.doorHeld);
     d.sec=d.boardPwr&&I.xfmrOK?24.6:0;
-    d.R=I.fuseOK?d.sec:0;
+    const jt=I.jumpAt?I.jumpAt.type:null;d.jt=jt;
+    d.R=(I.fuseOK||jt==='FU')?d.sec:0;
     d.statOn=T.cWire?d.R>0:T.batt;
     d.statCall=d.statOn&&T.mode==='cool'&&E.room>T.set;
-    d.callY=d.R>0&&(d.statCall||I.jumper);
+    d.callY=d.R>0&&(d.statCall||I.jumper||jt==='Y');
     d.floatOpen=I.drainClogged;
-    d.yOut=d.callY&&!d.floatOpen&&!O.yShort?d.R:0;
+    d.yOut=d.callY&&(!d.floatOpen||jt==='FL')&&!O.yShort?d.R:0;
     d.lineOut=P.condBkr==='on'?241:0;
     d.discLoad=P.discIn?d.lineOut:0;
     d.coilV=d.yOut?d.yOut-.3:0;
@@ -429,7 +459,7 @@ SYSTEMS['split-ac']={
     d.T=d.pulled&&!O.pitted?d.discLoad:0;
     d.comp=!d.T?'off':(O.hermUF/O.hermRated<.8?'hum':'run');
     d.fan=!d.T?'off':(O.fanUF/O.fanRated<.6?'hum':'run');
-    d.blowerV=d.callY&&d.boardPwr?120:0;
+    d.blowerV=(d.callY||(jt==='G'&&d.R>0))&&d.boardPwr?120:0;
     d.blower=!d.blowerV?'off':(I.bCapUF/I.bCapRated<.6?'hum':'run');
     const amb=E.amb,room=E.room,rf=s.ref.type;let sS,SH,sC,SC,dT,ampF=.78,iced=false;
     if(d.comp==='run'){
@@ -460,7 +490,19 @@ SYSTEMS['split-ac']={
     if(s.outdoor.yShort&&d.callY&&!d.floatOpen&&s.indoor.fuseOK){
       s.indoor.fuseOK=false;ev.push('Pop. The instant the call for cooling reaches the condenser, the board goes dead. The fuse is open again.');d=this.derive(s);
     }
-    if(d.discLoad>0)s.outdoor.discharged=false;
+    if(s.outdoor.yShort&&d.callY&&d.jt==='FU'&&s.indoor.xfmrOK){
+      s.indoor.xfmrOK=false;induce('i_xfmr','Transformer burned out: the fuse was jumpered while a short was on the Y wire');ev.push('Smoke from the transformer. With the fuse jumpered out, nothing stopped the Y-wire short, and the transformer burned open.');d=this.derive(s);
+    }
+    const J=s.indoor.jumpAt;
+    if(J&&J.type==='short'){
+      const hot=J.cond==='SEC'?d.sec>0:J.cond==='R'?d.R>0:J.cond==='Y'?d.callY:J.cond==='YOUT'?d.yOut>0:false;
+      if(hot){
+        if(J.cond==='SEC'){if(s.indoor.xfmrOK){s.indoor.xfmrOK=false;induce('i_xfmr','Transformer burned out by a jumper short ahead of the fuse');ev.push('Smoke from the transformer. Your jumper shorted the 24 V secondary ahead of the fuse, and the transformer burned open.')}}
+        else if(s.indoor.fuseOK){s.indoor.fuseOK=false;induce('i_fuse','Board fuse blown by a jumper short');ev.push('Spark. Your jumper put a dead short on the 24 V circuit, and the 3 A board fuse blew.')}
+        d=this.derive(s);
+      }
+    }
+    if(d.discLoad>0){s.outdoor.discharged=false;s.outdoor.dH=false;s.outdoor.dF=false}
     if(d.boardPwr)s.indoor.discharged=false;
     if(s.outdoor.hermUF/s.outdoor.hermRated>=.8)s.outdoor.compHot=false;else if(d.comp==='hum')s.outdoor.compHot=true;
     return d;
@@ -483,7 +525,7 @@ Field tip — confirming refrigerant: (1) this data plate; (2) A2L units such as
       acts:['statFace','statCool','statBatt']},
     tstat_t:{z:'tstat',n:'Thermostat terminals',vis:s=>s.stat.faceOff,
       ins:s=>s.stat.cWire?'Sub-base wiring: R, C, Y, G, W landed. C wire present, so the thermostat runs on 24 V from the furnace.':'Sub-base wiring: R, Y, G, W. No C wire. Battery compartment holds 2× AA.',
-      pts:['t_rc','t_ry','t_yc'],acts:['statFace','statBatt']},
+      pts:['t_rc','t_ry','t_yc'],acts:['statFace','statBatt','jumpOff']},
     cab:{z:'indoor',n:'Furnace cabinet / blower door',vis:()=>true,
       ins:(s,d)=>{const I=s.indoor;let t=I.doorOn?'Blower door installed. A door safety switch behind it is closed only while the door is on.':'Blower door removed. The door switch is open, so the board and blower are de-energized'+(I.doorHeld?' — but you have it taped closed: board is LIVE.':'.');
         t+='\nStatus LED (sight glass): '+(d.R>0?'slow green flash (normal).':'off.');return t},
@@ -491,7 +533,7 @@ Field tip — confirming refrigerant: (1) this data plate; (2) A2L units such as
     sw:{z:'indoor',n:'Furnace service switch',vis:()=>true,ins:s=>`Wall toggle switch feeding the furnace: ${s.power.furnSw?'ON':'OFF'}.`,pts:['f_line'],acts:['furnSw']},
     board:{z:'indoor',n:'Control board',vis:s=>!s.indoor.doorOn,
       ins:(s,d)=>`Terminal strip R · C · Y · G · W. LED ${d.R>0?'flashing green':'dark'}.${s.indoor.jumper?'\nYour jumper is installed R → Y and G.':''}`,
-      pts:['f_rc','f_yc','f_gc'],acts:['jumper']},
+      pts:['f_rc','f_yc','f_gc'],acts:['jumper','jumpOff']},
     fuse:{z:'indoor',n:'Board fuse (3 A)',vis:s=>!s.indoor.doorOn,
       ins:s=>'3 A automotive blade fuse protecting the 24 V R circuit.'+(!s.indoor.fuseOK&&s.indoor.fuseVisible?' The element looks broken and the window is smoky.':' Hard to judge the element by eye from here.'),
       pts:['f_fuse'],acts:['fuseRep']},
@@ -503,7 +545,7 @@ Field tip — confirming refrigerant: (1) this data plate; (2) A2L units such as
       pts:['f_bm']},
     bcap:{z:'indoor',n:'Blower run capacitor',vis:s=>!s.indoor.doorOn,
       ins:s=>`Run capacitor ${s.indoor.bCapRated} µF ±6%, 370 V.`+(s.indoor.bulge?' Top is slightly domed.':''),
-      pts:['f_bcap'],acts:['bcapDis','bcapRep']},
+      pts:['f_bcap'],acts:['bcapRep']},
     filter:{z:'indoor',n:'Air filter',vis:()=>true,
       ins:s=>({clean:'16×25×1 pleated filter. Clean, light shows through.',dirty:'16×25×1 pleated filter. Gray and loaded, but still passing air.',clogged:'16×25×1 pleated filter. Caked solid with dust and hair; bowed inward from suction. No light passes through.'})[s.indoor.filter],
       acts:['filterRep']},
@@ -511,7 +553,7 @@ Field tip — confirming refrigerant: (1) this data plate; (2) A2L units such as
       ins:(s,d)=>(d.ref.iced?'Coil access panel off: the evaporator is a block of ice. Suction line frosted on its way out of the cabinet.':(d.comp==='run'?'Coil cold and sweating normally. No ice.':'Coil at room temperature. No ice.'))+(s.ref.oilAt==='coil'?'\nOily, dirt-caked spot on a return bend near the bottom of the coil slab.':'')},
     float:{z:'indoor',n:'Condensate pan & float switch',vis:()=>true,
       ins:(s,d)=>(d.floatOpen?'Secondary pan full of water. Float switch is lifted (tripped). Primary drain backed up; slime in the trap.':s.indoor.drainSlow?'About an inch of standing water in the pan. Float not lifted yet. Primary drain is running slowly.':'Pan dry. Float switch down (closed).')+'\nThis float switch is wired in series with the Y wire to the condenser.',
-      pts:['f_float'],acts:['drainClr']},
+      pts:['f_float'],acts:['drainClr','jumpOff']},
     brk_f:{z:'panel',n:'Furnace breaker (15 A)',vis:()=>true,ins:s=>`15 A single-pole, labeled FURNACE. Handle ${s.power.furnBkr?'ON':'OFF'}.`,pts:['p_furn'],acts:['furnBkr']},
     brk_ac:{z:'panel',n:'AC breaker',vis:()=>true,ins:s=>`${s.outdoor.mocp} A two-pole, labeled A/C. `+({on:'Handle firmly ON.',off:'Handle OFF.',tripped:'Handle sitting in the middle position: tripped.'})[s.power.condBkr],pts:['p_ac'],acts:['acBkr']},
     disc:{z:'cond',n:'Disconnect',vis:()=>true,ins:s=>s.power.discIn?'Pull-out disconnect installed (ON).':'Disconnect pulled (OFF). Condenser high voltage is dead past this point.',pts:['c_dline','c_dload'],acts:['disc']},
@@ -528,7 +570,7 @@ Field tip — confirming refrigerant: (1) this data plate; (2) A2L units such as
       pts:['c_coil','c_line','c_load','c_pole1','c_pole2','c_lugdrop'],acts:['contRep','lugRep']},
     cap:{z:'cond',n:'Dual run capacitor',vis:s=>!s.outdoor.panelOn,
       ins:s=>`Dual run capacitor ${s.outdoor.hermRated}/${s.outdoor.fanRated} µF ±6%, 440 V. Terminals HERM · FAN · C.`+(s.outdoor.bulge?' Top is domed.':'')+(s.outdoor.rust?' Light surface rust on the terminals.':''),
-      pts:['c_herm','c_fan'],acts:['capDis','capRep']},
+      pts:['c_herm','c_fan'],acts:['capRep']},
     comp:{z:'cond',n:'Compressor',vis:s=>!s.outdoor.panelOn,
       ins:(s,d)=>(d.comp==='run'?'Compressor running with a normal hum.':s.outdoor.compHot?'Compressor silent. Shell is very hot to the touch.':'Compressor off, shell warm from the sun.')+`\nNameplate RLA ${s.outdoor.rla} A · LRA ${s.outdoor.lra} A.`,
       pts:['c_comp_a','c_compV','c_wCR','c_wCS','c_wRS','c_comp_g']},
@@ -596,8 +638,9 @@ Field tip — confirming refrigerant: (1) this data plate; (2) A2L units such as
     doorHold:{l:s=>s.indoor.doorHeld?'Release door switch':'Tape door switch closed',show:s=>!s.indoor.doorOn,run:s=>{s.indoor.doorHeld=!s.indoor.doorHeld;return s.indoor.doorHeld?'Door switch taped closed. Board is LIVE with the door off. Watch your hands.':'Door switch released. Board de-energized.'}},
     furnSw:{l:s=>s.power.furnSw?'Turn service switch OFF':'Turn service switch ON',show:()=>true,run:s=>{s.power.furnSw=!s.power.furnSw;return `Furnace service switch ${s.power.furnSw?'ON':'OFF'}.`}},
     jumper:{l:s=>s.indoor.jumper?'Remove jumper':'Jumper R → Y and G at board',show:s=>!s.indoor.doorOn,run:s=>{s.indoor.jumper=!s.indoor.jumper;return s.indoor.jumper?'Jumper in: the board now sees a cooling call no matter what the thermostat does.':'Jumper removed.'}},
-    fuseRep:{l:()=>'Replace 3 A fuse',show:()=>true,dead:'in',need:['fuse_swap','fuse_chafe'],run:s=>{s.indoor.fuseOK=true;return 'New 3 A fuse installed.'}},
-    xfmrRep:{l:()=>'Replace transformer',show:()=>true,dead:'in',need:['xfmr_open'],run:s=>{s.indoor.xfmrOK=true;s.indoor.xfmrSmell=false;return 'New 40 VA transformer installed and wired.'}},
+    jumpOff:{l:()=>'Remove jumper wire',show:s=>!!s.indoor.jumpAt,cheap:true,run:s=>{s.indoor.jumpAt=null;return 'Jumper wire removed.'}},
+    fuseRep:{l:()=>'Replace 3 A fuse',show:()=>true,dead:'in',need:['fuse_swap','fuse_chafe','i_fuse'],run:s=>{s.indoor.fuseOK=true;return 'New 3 A fuse installed.'}},
+    xfmrRep:{l:()=>'Replace transformer',show:()=>true,dead:'in',need:['xfmr_open','i_xfmr'],run:s=>{s.indoor.xfmrOK=true;s.indoor.xfmrSmell=false;return 'New 40 VA transformer installed and wired.'}},
     bcapDis:{l:()=>'Discharge capacitor',show:()=>true,dead:'in',run:s=>{s.indoor.discharged=true;return 'Blower capacitor discharged through an insulated resistor tool.'}},
     bcapRep:{l:()=>'Replace blower capacitor',show:()=>true,dead:'in',cap:'indoor',need:['blower_cap'],run:s=>{s.indoor.bCapUF=s.indoor.bCapRated;s.indoor.bulge=false;return `New ${s.indoor.bCapRated} µF capacitor installed. (If the coil was iced, you ran fan-only until it thawed.)`}},
     filterRep:{l:()=>'Replace filter (thaw coil if iced)',show:()=>true,need:['filter_clog','l_filter'],cheap:true,run:s=>{s.indoor.filter='clean';return 'Clean filter in. If the coil was iced, you ran fan-only until it fully thawed.'}},
@@ -789,7 +832,7 @@ SYSTEMS['split-ac'].scene=function(z,s,d,sel){
    (magnitude, phase, circuit 'hv' | 'lv' | 'gnd'), or {f:id} for a floating conductor.
    map[] ties terminal pairs to the preset test points so grading still credits them.
    ===================================================================== */
-SYSTEMS['split-ac'].quick={tstat:['statFace','statCool','statBatt'],indoor:['door','doorHold','furnSw'],cond:['cpanel','disc'],panel:['acBkr','furnBkr'],air:[]};
+SYSTEMS['split-ac'].quick={tstat:['statFace','statCool','statBatt','jumpOff'],indoor:['door','doorHold','furnSw','jumpOff'],cond:['cpanel','disc'],panel:['acBkr','furnBkr'],air:[]};
 /* Easter egg: particle view of the air paths, driven by the same physics as everything else */
 SYSTEMS['split-ac'].flowView=function(s,d,g){
   const af=AIRF(s,d),cool=d.comp==='run'&&d.dT>8,weak=d.comp==='run'&&!cool,[cx,cy]=g.L.cond;
@@ -963,6 +1006,58 @@ SYSTEMS['split-ac'].closeups={
       ${TX(100,214,'insulation cut back')}${TX(300,392,'to the house')}`}}
 };
 
+
+/* v8 tool metadata: which circuit a reading sits on (for amp-jack shorts), pipe vs air temperature, jumper & discharge maps */
+(function(){
+  const S=SYSTEMS['split-ac'],P=S.points,C=S.closeups;
+  ['t_rc','t_ry','t_yc','f_rc','f_yc','f_gc','f_fuse','f_xs','f_float','c_coil'].forEach(k=>P[k].ckt='lv');
+  Object.values(P).forEach(p=>{if(p.m.V&&!p.ckt)p.ckt='hv'});
+  Object.assign(P.t_ry,{sc:'Y'});Object.assign(P.f_fuse,{sc:'FU'});Object.assign(P.f_float,{sc:'FL'});Object.assign(P.f_xs,{sc:'xfmr'});
+  ['c_suct','c_liq'].forEach(k=>P[k].tt='pipe');['c_amb','r_sup','r_ret'].forEach(k=>P[k].tt='air');
+  P.c_herm.capSec='H';P.c_fan.capSec='F';
+  Object.assign(C.tstat,{lvJ:true,pairs:{'R-Y':'Y','G-R':'G','R-W':'W'},hot:{R:'R',Y:'Y',G:'Y',W:'W'},commons:['C']});
+  Object.assign(C.board,{lvJ:true,pairs:{'R-Y':'Y','G-R':'G','R-W':'W','F_IN-F_OUT':'FU'},hot:{R:'R',F_OUT:'R',XS1:'SEC',F_IN:'SEC',Y:'Y',G:'Y',W:'W'},commons:['C','XS2','GND']});
+  Object.assign(C.float,{lvJ:true,pairs:{'IN-OUT':'FL'},hot:{IN:'Y',OUT:'YOUT'},commons:['GND']});
+  C.cap.caps={'C-HERM':'H','C-FAN':'F'};C.blower.caps={'CAP1-CAP2':'B'};
+  C.blower.terms.CAB=[300,166,'Whole cord','c','t'];C.fan.terms.CAB=[300,350,'Whole cable','c','r'];
+})();
+function induce(id,label){if(G&&G.induced&&!G.induced.some(x=>x.id===id))G.induced.push({id,label})}
+
+/* =====================================================================
+   HAZARD REGISTER: single source of truth for safety coverage.
+   status: covered | partial | v9 | v10 | out.  test: id in HZ_TESTS (UI), run from Record & settings.
+   ===================================================================== */
+const HAZARDS=[
+ {id:'ohms_live',t:'Ohms or continuity on a live circuit',src:'NFPA 70E; meter manufacturer',sim:'Reading refused, safety violation; critical on line voltage',status:'covered',test:'H1'},
+ {id:'uf_live',t:'Capacitance (µF) on a live capacitor',src:'NFPA 70E; meter manufacturer',sim:'Reading refused, critical safety event',status:'covered',test:'H2'},
+ {id:'cap_test',t:'Testing a capacitor without discharging it',src:'Manufacturer service manuals',sim:'Reading refused, safety violation, field note',status:'covered',test:'H3'},
+ {id:'cap_ohm',t:'Ohms or continuity across a charged capacitor',src:'Manufacturer service manuals',sim:'Reading refused, safety violation',status:'covered',test:'H4'},
+ {id:'cap_replace',t:'Removing a capacitor without discharging it',src:'OSHA 1910.147 (stored energy)',sim:'Repair refused, safety violation',status:'covered',test:'H5'},
+ {id:'cap_disch_live',t:'Discharging a capacitor with power on',src:'NFPA 70E',sim:'Refused, safety violation',status:'covered',test:'H6'},
+ {id:'cap_verify',t:'Not verifying 0 V DC after discharging',src:'Manufacturer service manuals',sim:'Leftover DC shows until discharged; debrief credits verification',status:'covered',test:'H7'},
+ {id:'live_work',t:'Replacing parts with power on',src:'OSHA 1910.147; NFPA 70E',sim:'Repair refused, safety violation',status:'covered',test:'H8'},
+ {id:'ampjack_lv',t:'Voltage reading from an amp jack (24 V)',src:'Meter manufacturer; NFPA 70E',sim:'Board fuse blows or transformer burns; repair required',status:'covered',test:'H9'},
+ {id:'ampjack_hv',t:'Voltage reading from an amp jack (line voltage)',src:'NFPA 70E (arc flash)',sim:'Arc-flash event, critical, rating capped',status:'covered',test:'H10'},
+ {id:'ampjack_bypass',t:'Amp-jack probes across R–Y start equipment',src:'Meter manufacturer',sim:'Equipment starts through the meter, minor event',status:'covered',test:'H11'},
+ {id:'dc_on_ac',t:'DC setting on an AC circuit (live reads as dead)',src:'Meter manufacturer',sim:'Reads about 0 V, penalized, field note',status:'covered',test:'H12'},
+ {id:'jumper_short',t:'Jumper from R to C (dead short)',src:'Manufacturer service manuals',sim:'Fuse blows; blows again if left on',status:'covered',test:'H13'},
+ {id:'jumper_fuse',t:'Jumpering around a fuse',src:'NEC overcurrent protection principles',sim:'Safety violation; transformer burns if a short exists',status:'covered',test:'H14'},
+ {id:'jumper_safety',t:'Jumpering around a safety (float switch)',src:'Manufacturer service manuals',sim:'Flagged at closeout',status:'covered',test:'H15'},
+ {id:'door_switch',t:'Leaving the door switch defeated',src:'Manufacturer service manuals',sim:'Flagged at closeout',status:'covered',test:'H16'},
+ {id:'bkr_ground',t:'Resetting a tripped breaker without a ground check',src:'NFPA 70E',sim:'Penalized in the debrief',status:'covered',test:'H17'},
+ {id:'ncv_trust',t:'Trusting a non-contact tester on 24 V',src:'Tester manufacturer',sim:'No beep on 24 V; field note says verify with a meter',status:'covered',test:'H18'},
+ {id:'clamp_cable',t:'Clamping a whole cable',src:'Meter manufacturer',sim:'Reads about 0 A; field note',status:'covered',test:'H19'},
+ {id:'a2l',t:'A2L refrigerant handling (R-454B)',src:'UL 60335-2-40; ASHRAE 15',sim:'Field note only',status:'partial'},
+ {id:'verify_repair',t:'Not verifying the repair (amps, temperature split)',src:'Industry practice',sim:'Shown in the debrief, not graded',status:'partial'},
+ {id:'verify_dead',t:'Touching parts without proving them dead (live-dead-live)',src:'OSHA 1910.147; NFPA 70E',sim:'Not yet modeled',status:'v9'},
+ {id:'mislabeled',t:'Mislabeled breaker: unit still live after shutoff',src:'NFPA 70E',sim:'Not yet modeled',status:'v9'},
+ {id:'wrong_rating',t:'Wrong replacement rating (fuse size, µF, voltage)',src:'Manufacturer specs',sim:'Not yet modeled',status:'v9'},
+ {id:'fan_blade',t:'Fan blade starts while hands are near it',src:'OSHA 1910.212',sim:'Not yet modeled',status:'v9'},
+ {id:'comp_term',t:'Compressor terminal venting on a grounded compressor',src:'Compressor manufacturer warnings',sim:'Not yet modeled',status:'v9'},
+ {id:'ppe_hoses',t:'Refrigerant burns: gloves and glasses at hose hookup',src:'EPA 608 training; OSHA PPE',sim:'Not yet modeled',status:'v9'},
+ {id:'venting',t:'Venting refrigerant instead of recovering it',src:'EPA Section 608',sim:'Not yet modeled',status:'v10'},
+ {id:'gas_co',t:'Gas leaks, CO, venting, heat exchangers',src:'NFPA 54; manufacturer',sim:'Out of scope (cooling only)',status:'out'}
+];
 const GEN_SEQ='On a call for cooling the thermostat connects R to Y (compressor) and R to G (indoor blower). 24 V starts at the transformer secondary, passes the board fuse, goes through the thermostat, through any safeties in the Y line (float switch, pressure switches), energizes the contactor coil, and returns on C. The contactor closes and sends 240 V to the compressor and condenser fan; each motor uses its run capacitor to start and run. The blower pushes house air across the evaporator, the refrigerant absorbs that heat, and the condenser dumps it outside.';
 const FAULTS=[
  {id:'breaker_trip',tier:1,sys:['split-ac'],cat:'electrical',node:[0],code:'NO COOL',label:'Tripped condenser breaker',repair:'Check windings to ground, reset breaker, verify amp draw',
@@ -1179,11 +1274,17 @@ const ENGINE={
     let complaint=R.pick(fault.complaint);herrings.forEach(h=>{if(h.say)complaint+=' '+h.say});
     const lastName=(hist[hist.length-1]||{}).cust;let cust;do{cust=R.pick(PEOPLE.first)+' '+R.pick(PEOPLE.last)}while(cust===lastName&&R.f()<.95);
     const meta={wo:'WO-'+(10000+seed%90000),cust,addr:R.int(12,488)+' '+R.pick(PEOPLE.street),home:LAYOUTS[s.house.type].n,note:R.pick(PEOPLE.note),svc:R.pick(PEOPLE.svc)};
-    const g={room:0,seed,tierIdx,st:s,fault,latent,herrings,meta,complaint,answers,asked:{},log:[],tests:new Set(),inspected:new Set(),order:[],testCount:0,wrongMode:0,violations:[],unneeded:[],why:[],whyAsked:new Set(),resetNoCheck:false,ptWrongRef:false,shWork:null,done:false};
+    const g={room:0,seed,tierIdx,st:s,fault,latent,herrings,meta,complaint,answers,asked:{},log:[],tests:new Set(),inspected:new Set(),order:[],testCount:0,wrongMode:0,violations:[],unneeded:[],why:[],whyAsked:new Set(),resetNoCheck:false,ptWrongRef:false,shWork:null,done:false,events:[],induced:[],dcMis:0,critical:0,notesShown:new Set(),noteQ:[],capVerified:new Set(),didDischarge:false};
     G=g;sys.settle(s,[]);
     return g;
   },
-  has(t){if(t.startsWith('i:'))return G.inspected.has(t.slice(2));return G.tests.has(t)},
+  has(t){if(t.startsWith('i:'))return G.inspected.has(t.slice(2));if(G.tests.has(t))return true;return t.endsWith('@R')&&G.tests.has(t.slice(0,-2)+'@K')},
+  closeout(s){const o=[],I=s.indoor,O=s.outdoor,P=s.power;
+    if(!I.doorOn)o.push('Blower door left off');if(I.doorHeld)o.push('Door switch left taped closed');
+    if(I.jumper)o.push('Board jumper (R → Y, G) left in place');if(I.jumpAt)o.push(I.jumpAt.type==='FL'?'Jumper left bypassing the float switch (water damage risk)':I.jumpAt.type==='FU'?'Jumper left bypassing the board fuse (fire risk)':'Jumper wire left in place');
+    if(!O.panelOn)o.push('Condenser service panel left off');if(!P.discIn)o.push('Disconnect left pulled');
+    if(P.condBkr!=='on')o.push('AC breaker left '+(P.condBkr==='tripped'?'tripped':'off'));if(!P.furnBkr||!P.furnSw)o.push('Furnace power left off');
+    if(s.stat.faceOff)o.push('Thermostat faceplate left off');return o},
   grade(sel){
     const f=G.fault,L=G.latent,S=SYS();
     const keyHits=f.key.map(k=>(Array.isArray(k)?k:[k]).some(x=>ENGINE.has(x)));
@@ -1199,14 +1300,17 @@ const ENGINE={
     D=clamp(D,0,10);
     let T=10;T-=2.5*G.violations.length;T-=.75*Math.min(G.wrongMode,4);T-=1.5*G.unneeded.length;if(G.resetNoCheck)T-=1.5;if(G.ptWrongRef)T-=1;
     const whyWrong=G.why.filter(w=>!w.ok).length;T-=whyWrong;if(G.shWork)T+=G.shWork.ok?.5:-1;
+    G.events.forEach(e=>{T-=({minor:1,major:2,critical:4})[e.sev]||0});
+    const unfixed=G.induced.filter(x=>x.id==='i_fuse'?!G.st.indoor.fuseOK:x.id==='i_xfmr'?!G.st.indoor.xfmrOK:false);T-=2*unfixed.length;
+    const closeout=this.closeout(G.st);T-=Math.min(2.5,.5*closeout.length);T-=Math.min(2,.5*G.dcMis);
     T=clamp(T,0,10);
     const eff=Math.min(1,(f.expert.length+3)/Math.max(G.testCount,1));
     const early=G.order.slice(0,4);const verified=early.some(t=>['i:tstat','i:sup','i:ret','r_sup','r_ret','i:cab','i:fan'].includes(t));
     let TS=6*keyRatio+3*eff+(verified?1:0);if(!correct)TS=Math.min(TS,6);TS=clamp(TS,0,10);
-    const sc=[D,T,TS].map(x=>Math.max(1,Math.round(x)));let overall=(D+T+TS)/3;if(!correct)overall=Math.min(overall,5.4);
+    const sc=[D,T,TS].map(x=>Math.max(1,Math.round(x)));let overall=(D+T+TS)/3;if(!correct)overall=Math.min(overall,5.4);if(G.critical)overall=Math.min(overall,6.4);
     const rank=overall<4?'Apprentice':overall<6.5?'Junior Tech':overall<8.5?'Service Tech':'Senior Tech';
     const d=S.derive(G.st);
-    return{D:sc[0],T:sc[1],TS:sc[2],overall,rank,keyHits,keyRatio,correct,partial,repairOK,latentFound,falseFind,unproven,whyWrong,eff,verified,restored:d.restored};
+    return{unfixed,closeout,D:sc[0],T:sc[1],TS:sc[2],overall,rank,keyHits,keyRatio,correct,partial,repairOK,latentFound,falseFind,unproven,whyWrong,eff,verified,restored:d.restored};
   }
 };
 </script>
@@ -1235,11 +1339,40 @@ ${[['hdMetal','metal'],['hdMetal2','metal2']].map(([id,v])=>`<linearGradient id=
 <pattern id="hdFoam" width="6" height="6" patternUnits="userSpaceOnUse"><rect width="6" height="6" ${FL2('var(--dark)')}/><circle cx="2" cy="2" r=".9" ${FL2(MIX('dark',72,'white'))}/><circle cx="4.8" cy="4.6" r=".7" ${FL2(MIX('dark',78,'white'))}/></pattern>
 ${[['hdPleat0','var(--filter)'],['hdPleat1','#b9a27c'],['hdPleat2','#6b5a46']].map(([id,c])=>`<pattern id="${id}" width="8" height="8" patternUnits="userSpaceOnUse"><rect width="8" height="8" ${FL2(c)}/><path d="M0 0 L4 8 L8 0" fill="none" style="stroke:color-mix(in srgb,${c} 72%,black);stroke-width:1"/></pattern>`).join('')}
 </defs>`;
+const TOOLS=[
+ {id:'mm',n:'Multimeter',s:'Meter',fns:['V','D','R','K','C'],ic:'<rect x="7" y="2" width="18" height="28" rx="4"/><rect x="10" y="5" width="12" height="7" rx="1" fill="currentColor" fill-opacity=".28"/><circle cx="16" cy="19" r="4.6"/><path d="M16 19l2.8-2.8"/><path d="M10.5 15.5l1 1M21.5 15.5l-1 1M16 13.4v1.2"/><circle cx="11" cy="26.5" r="1.4" fill="currentColor"/><circle cx="16" cy="26.5" r="1.4" fill="currentColor"/><circle cx="21" cy="26.5" r="1.4" fill="currentColor"/>'},
+ {id:'clamp',n:'Clamp meter',s:'Clamp',fns:['A'],ic:'<path d="M14.3 2.3A7.6 7.6 0 1 0 17.7 2.3"/><path d="M14.3 2.3l.6 3M17.7 2.3l-.6 3"/><rect x="10.5" y="15" width="11" height="15" rx="3"/><rect x="12.8" y="18" width="6.4" height="4" rx=".8" fill="currentColor" fill-opacity=".28"/><path d="M21.5 16.5q3.2 1 2.6 5.5"/><circle cx="16" cy="26" r="1.6"/>'},
+ {id:'ncv',n:'Non-contact voltage tester',s:'NCV',fns:['N'],ic:'<path d="M16 2.2l3.2 6.3V27a2.5 2.5 0 0 1-2.5 2.5h-1.4A2.5 2.5 0 0 1 12.8 27V8.5z"/><path d="M12.8 8.5h6.4"/><rect x="14.6" y="11" width="2.8" height="3" rx=".8" fill="currentColor"/><path d="M19.2 12.5h1.8v10h-1.8"/><path d="M8.8 7.5a8 8 0 0 1 2.8-4.6M23.2 7.5a8 8 0 0 0-2.8-4.6M6 9a11 11 0 0 1 3.4-6.8"/>'},
+ {id:'gauges',n:'Manifold gauges',s:'Gauges',fns:['P'],ic:'<circle cx="9.5" cy="9.5" r="6.5"/><circle cx="22.5" cy="9.5" r="6.5"/><path d="M9.5 9.5l3-3M22.5 9.5l-3-3"/><rect x="4" y="16.5" width="24" height="5" rx="1.5" fill="currentColor" fill-opacity=".28"/><path d="M8 21.5c0 4-2.5 5.5-5 8M16 21.5v8.5M24 21.5c0 4 2.5 5.5 5 8"/>'},
+ {id:'pipe',n:'Pipe-clamp thermometers',s:'Pipe °F',fns:['T'],ic:'<rect x="1.5" y="11" width="29" height="7.5" rx="3.7" fill="currentColor" fill-opacity=".18"/><rect x="10.5" y="8.5" width="7" height="12.5" rx="1.8" fill="currentColor" fill-opacity=".45"/><path d="M14 21c0 4 3.5 6 8 6"/><rect x="22" y="22.5" width="8.5" height="8" rx="1.3"/><rect x="23.7" y="24.2" width="5.1" height="2.8" rx=".5" fill="currentColor"/>'},
+ {id:'probe',n:'Probe thermometer',s:'Air °F',fns:['T'],ic:'<rect x="11.5" y="2" width="10" height="14" rx="2.5"/><rect x="13.7" y="4.5" width="5.6" height="4.5" rx=".8" fill="currentColor" fill-opacity=".28"/><circle cx="16.5" cy="12.8" r="1.2" fill="currentColor"/><path d="M16.5 16v13"/><path d="M15.5 29.5h2"/>'},
+ {id:'jumper',n:'Jumper wire',s:'Jumper',fns:['J'],ic:'<path d="M9.5 11.5c2.5-7 5 3 6.5-2s4.5 5 6.5 2"/><g transform="rotate(22 9 12)"><path d="M6.5 11.5h5l.8 5.5H5.7z" fill="currentColor" fill-opacity=".3"/><path d="M5.9 17l-1.2 11M12.1 17l1.2 11M6 21h1.6M5.6 24.5h1.6M10.5 21h1.6M10.9 24.5h1.6"/></g><g transform="rotate(-22 23 12)"><path d="M20.5 11.5h5l.8 5.5h-6.6z" fill="currentColor" fill-opacity=".3"/><path d="M19.9 17l-1.2 11M26.1 17l1.2 11M20 21h1.6M19.6 24.5h1.6M24.5 21h1.6M24.9 24.5h1.6"/></g>'},
+ {id:'disch',n:'Capacitor discharge tool',s:'Discharge',fns:['X'],ic:'<rect x="2" y="20" width="12" height="6" rx="3" transform="rotate(-40 8 23)" fill="currentColor" fill-opacity=".28"/><rect x="11.5" y="11.5" width="10" height="6" rx="1.8" transform="rotate(-40 16.5 14.5)"/><path d="M14.4 12.7l2.4 2.9M16.6 10.9l2.4 2.9"/><path d="M20.5 9.5l4.5-4M24 11.5l4.5-4"/><path d="M12 22c3 5 10 6 15 3"/><path d="M27 25v5"/>'}
+];
+const TOOL_BY=Object.fromEntries(TOOLS.map(t=>[t.id,t]));
+const FN_S={V:'V~',D:'V⎓',R:'Ω',K:'·)))',C:'µF'};
+const NEED={V:'the multimeter on V~',R:'the multimeter on Ω',C:'the multimeter on µF',A:'the clamp meter',P:'the manifold gauges'};
+function needTool(p){const k=Object.keys(p.m);if(k.includes('T'))return p.tt==='pipe'?'the pipe-clamp thermometers':'the probe thermometer';return k.map(x=>NEED[x]).filter(Boolean).join(' or ')}
+const NOTES=[
+ {id:'ampjack',crit:true,t:'Never measure voltage from an amp jack',b:['In the mA or 10A jack, the meter is nearly a dead short between its probes.','Across R and C (or Y and C during a call), it shorts the 24 V transformer: a spark, and the 3 A board fuse blows, or the meter\'s own fuse does.','Across R and Y, it acts like a jumper and the outdoor unit starts. It isn\'t a dead short because the contactor coil limits the current, but you have just started equipment someone may be working on.','Across 120 or 240 V, it can arc-flash at the probe tips. That is a burn and eye-injury hazard.','Many meters flash LEAd or beep when the red lead is in a current jack and the dial isn\'t on amps. Treat it as a stop sign.','After any current test, move the red lead back to VΩ right away.']},
+ {id:'meter',t:'Meter setup checklist',b:['Dial on V~ (AC volts) for 24 V controls and 120/240 V power. The symbol is a V with a wavy line.','Not V⎓ (DC volts: a V with a straight line and dashes). On an AC circuit, DC mode reads about 0 V and makes a live circuit look dead.','Black lead in COM, red lead in VΩ. The mA and 10A jacks are only for current measured in series, like a flame-sensor microamp test.','Prove your meter: live, dead, live. Check a known live source, take your reading, then check the live source again.','Use a meter rated CAT III 600 V or better on HVAC equipment.','The one time you want V⎓ here: confirming a capacitor is discharged, because a charged capacitor holds DC.']},
+ {id:'loto',crit:true,t:'Lockout/tagout and verify dead',b:['Kill power at the disconnect or breaker, then lock and tag it so nobody turns it back on.','Verify dead with your meter at the part you will touch: L1–L2, L1–ground, L2–ground.','A non-contact tester is a quick check, not proof.','Furnace: the door switch kills the board when the door is off. Taping it closed makes the board live again.','Ohms, continuity and capacitance readings all need the power off.']},
+ {id:'capdis',crit:true,t:'Discharging a capacitor',b:['Discharge every time you touch, test or remove a capacitor, even if the power has been off for days.','Power off and verified dead first.','Use an insulated resistor tool across HERM–C, then FAN–C. A dual capacitor has two sections.','Verify with the meter on V⎓ (DC): about 0 V across each section. A charged capacitor holds DC.','Read µF with the wires off the terminals. Testing a charged capacitor can damage a cheap meter and always gives a false reading.','An HVAC run capacitor stores enough energy for a painful shock that can cause a fall. High-voltage capacitors (microwave ovens, some electronics) can be lethal.','A capacitor still wired to a motor usually bleeds down through the windings in seconds. A disconnected or open one can hold its charge much longer. Discharge instead of guessing.']},
+ {id:'trace',t:'Voltage tracing',b:['Start at a known good point: 24 V at the transformer secondary, or 240 V at the disconnect line side.','Keep the black lead on one reference: C for 24 V circuits, the opposite leg for 240 V.','Walk the red lead along the circuit one point at a time.','Where the voltage disappears, the break is between the last good point and the first bad one.','Across an open switch or fuse you read full voltage. Across a closed one, about 0 V.']},
+ {id:'vdrop',t:'Voltage drop under load',b:['A loose or burnt connection only shows up while current flows through it.','Measure across the connection (lug to wire end) with the system running.','A good connection drops well under 1 V. Several volts means heat, discoloration and eventual failure.','Compare voltage at the contactor line side with voltage at the compressor terminals to find where the loss is.']},
+ {id:'jumper',t:'Jumpering at the thermostat or board',b:['R to Y forces a cooling call; R to G forces the blower. It tests the equipment with the thermostat out of the circuit.','Never R to C. That is a dead short across the transformer.','Never jumper around a fuse or a safety (float switch, pressure switch) to make the system run. Find out why it opened.','Read the terminal letters before the clip touches. Remove every jumper before you leave.']},
+ {id:'shsc',t:'Superheat and subcooling',b:['Let the system run 10–15 minutes at steady state first.','Superheat = suction line temperature − suction saturation (dew point from the PT chart).','Subcooling = liquid saturation (bubble point) − liquid line temperature.','TXV systems: charge to the subcooling on the data plate. Fixed-orifice systems: charge by superheat.','Use the PT chart for the refrigerant on the data plate.']},
+ {id:'ice',t:'Iced coil',b:['Don\'t read the charge on an iced coil. The pressures mean nothing until it thaws.','Shut cooling off and run the blower (fan only) until the coil is fully thawed.','Then find the airflow cause: filter, blower, dirty coil. Low charge can freeze a coil too, but airflow is more common.']},
+ {id:'a2l',t:'A2L refrigerant (R-454B)',b:['Mildly flammable. Check the data plate and warning labels before you start.','No open flames or spark sources near a suspected leak. Ventilate the area.','Use A2L-rated recovery machines, vacuum pumps and leak detectors.','Never mix refrigerants or charge R-454B into an R-410A system, or the reverse.','Before brazing, the system must be fully recovered and purged.']},
+ {id:'ncv',t:'Non-contact voltage testers',b:['Good for a quick heads-up that a wire is live.','Most don\'t detect 24 V control voltage at all.','They can miss line voltage too: shielded cable, weak battery, bad angle.','Never treat "no beep" as proof of dead. Verify with your meter.']},
+ {id:'clamp',t:'Clamp meter basics',b:['Clamp around one conductor only.','Around a whole cable, the currents in the conductors cancel and you read about 0 A.','Compare running amps to the nameplate: RLA for the compressor, FLA for motors.','At startup a compressor briefly pulls close to LRA. A second or two of that is normal.']}
+];
+const NOTE_BY=Object.fromEntries(NOTES.map(n=>[n.id,n]));
 const KEY='hvac-sim-v1';
-let store={history:[],mode:'auto',tierIdx:0,since:0,callNo:1,hd:false};
+let store={history:[],mode:'auto',tierIdx:0,since:0,callNo:1,hd:false,tips:true};
 try{const raw=localStorage.getItem(KEY);if(raw)store={...store,...JSON.parse(raw)}}catch(e){}
 const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(store))}catch(e){}};
-const UI={mode:'V',zone:'house',comp:null,tab:'dispatch',last:null,msg:null,bad:false,cu:null,leads:[],place:null,flow:false};
+const UI={tool:'mm',jack:'VO',meterFuse:{mA:true,'10A':true},toolByZone:{},gauge:{low:null,high:null},pipe:{suct:null,liq:null},ncv:null,mode:'V',zone:'house',comp:null,tab:'dispatch',last:null,msg:null,bad:false,cu:null,leads:[],place:null,flow:false};
 const QS=[['when','When did this start?'],['recent','Any recent work, changes, or storms?'],['noise','Any unusual noises or smells?'],['water','Seen water anywhere?'],['tried','Have you tried or reset anything?']];
 
 function tierNow(){return store.mode==='auto'?store.tierIdx:Math.max(0,TIERS.findIndex(t=>t.id===store.mode))}
@@ -1247,7 +1380,7 @@ function newCall(seed){
   const s=seed!=null?seed>>>0:((Date.now()^Math.imul(store.callNo,2654435761))>>>0);
   ENGINE.generate(s,tierNow(),store);VIEW.cur=null;VIEW.key=null;
   G.callNo=store.callNo;
-  Object.assign(UI,{zone:'house',comp:null,tab:'dispatch',last:null,msg:null,bad:false,cu:null,leads:[],place:null,hl:null});const tst=$('#toast');if(tst)tst.hidden=true;
+  Object.assign(UI,{zone:'house',comp:null,tab:'dispatch',last:null,msg:null,bad:false,cu:null,leads:[],place:null,hl:null});resetTools();const tst=$('#toast');if(tst)tst.hidden=true;
   addLog(`Arrived on site. ${G.meta.wo}.`);
   closeOv();renderAll();
 }
@@ -1270,39 +1403,166 @@ function selectComp(id){
   const c=SYS().comps[id];if(!c)return;UI.comp=id;
   const first=!G.inspected.has(id);G.inspected.add(id);G.order.push('i:'+id);
   if(first)addLog(`Inspected ${c.n}.`);
+  if(id==='plate'&&G.st.ref.type==='R-454B')notePop('a2l');if((id==='coil'||id==='ports')&&SYS().derive(G.st).ref.iced)notePop('ice');
   UI.msg=null;renderScene();renderCard();renderTab();
 }
+/* ---------- tools ---------- */
+function resetTools(){const jr=makeRng(hashStr(G.seed+'jack'));Object.assign(UI,{tool:'mm',mode:'V',jack:jr.chance([0,.15,.25,.3][G.tierIdx])?'mA':'VO',meterFuse:{mA:true,'10A':true},toolByZone:{},gauge:{low:null,high:null},pipe:{suct:null,liq:null},ncv:null})}
+function setTool(id){const T=TOOL_BY[id];UI.tool=id;UI.mode=T.fns[0];UI.last=null;UI.leads=[];UI.place=null;UI.ncv=null}
+function selectTool(id){if(!TOOL_BY[id])return;setTool(id);UI.toolByZone[UI.zone]=id;renderMeter();if(UI.cu)renderScene();renderCard();
+  const c=document.querySelector(`.tchip[data-tool="${id}"]`),sc=$('#trayscroll');if(c&&sc){const l=c.offsetLeft-sc.offsetLeft;if(l<sc.scrollLeft||l+c.offsetWidth>sc.scrollLeft+sc.clientWidth)sc.scrollTo({left:l-8,behavior:'smooth'})}}
+function restoreTool(z){const id=UI.toolByZone[z];if(id&&id!==UI.tool)setTool(id)}
+const jackTrap=()=>UI.tool==='mm'&&UI.jack!=='VO';
+function classifyPair(cu,a,b,N){const na=N[a],nb=N[b];if(!na||!nb||na.f||nb.f)return{type:'none',v:0};const v=vDiff(na,nb),key=[a,b].sort().join('-');
+  if(cu.pairs&&cu.pairs[key])return{type:v<1?'none':cu.pairs[key],v};if(v<1)return{type:'none',v};
+  if(na.c==='hv'||nb.c==='hv')return{type:v>30?'hv':'meter',v};const H=cu.hot||{};return{type:H[a]==='SEC'||H[b]==='SEC'?'xfmr':'fuse',v}}
+function classifyPoint(p,s,d){if(!p.m.V)return{type:'none',v:0};const v=parseFloat(p.m.V(s,d).t);if(!isFinite(v)||v<1)return{type:'none',v:0};
+  if(p.ckt==='lv')return{type:p.sc||'fuse',v};return{type:v>30?'hv':'meter',v}}
+function ampJackEvent(c,where){
+  const s=G.st,jack=UI.jack,v=c.v;let sev='minor',title='',what='';
+  const loads={Y:'the contactor pulled in and the outdoor unit started',G:'the indoor blower started',W:'the furnace got a call for heat',FL:'the float switch was bypassed and the outdoor unit started',FU:'current flowed through your meter in place of the open fuse, and the control circuit came alive'};
+  if(jack==='mA'){UI.meterFuse.mA=false;
+    if(c.type==='hv'){sev='critical';title='Arc flash: mA jack across line voltage';what=`Bang. The meter's mA fuse blew across ${Math.round(v)} V. With a cheap or under-rated meter, this can rupture the meter in your hand.`}
+    else{title="Pop: your meter's mA fuse blew";what=(c.type in loads)?`Through the meter, ${loads[c.type]} for an instant, and the inrush blew the meter's small mA fuse.`:`The mA jack put a near short across ${fx(v,0)} V. The meter's small fuse blew before anything in the system did.`}}
+  else{
+    if(c.type==='hv'){sev='critical';UI.meterFuse['10A']=false;title='Arc flash: 10A jack across line voltage';what=`The 10A jack is nearly a dead short. Across ${Math.round(v)} V it arced at the probe tips and blew the meter's high-energy fuse. On a real job this is a burn and eye-injury event.`}
+    else if(c.type==='meter'){UI.meterFuse['10A']=false;title="Your meter's 10A fuse blew";what='You put the 10A jack across a high-current connection. Load current shared through the meter and blew its fuse.'}
+    else if(c.type==='fuse'){sev='major';if(s.indoor.fuseOK){s.indoor.fuseOK=false;induce('i_fuse','Board fuse blown by a meter short')}title='Spark: you blew the 3 A board fuse';what=`With the red lead in the 10A jack, the meter was a dead short across ${fx(v,0)} V. The 3 A board fuse opened to protect the transformer, so the thermostat and the whole control circuit are now dead.`}
+    else if(c.type==='xfmr'){sev='major';if(s.indoor.xfmrOK){s.indoor.xfmrOK=false;induce('i_xfmr','Transformer burned out by a meter short ahead of the fuse')}title='Smoke: you burned out the transformer';what='You shorted the transformer\'s 24 V secondary ahead of the board fuse, so nothing protected it. The transformer burned open.'}
+    else{title=c.type==='W'?'Heat call through your meter':'Equipment started through your meter';what=`The 10A jack connected the two terminals like a jumper: ${loads[c.type]}. It isn't a dead short because the load limits the current, but you just started equipment someone could be working on.`}}
+  if(sev==='critical')G.critical++;
+  G.events.push({sev,label:title+(where?` (${where})`:'')});
+  addLog(`TECH-CAUSED: ${title}${where?' at '+where:''}.`,true);
+  const ev=[];SYS().settle(s,ev);ev.forEach(e=>addLog(e,true));
+  UI.last={t:jack==='mA'||c.type==='hv'||c.type==='meter'?'FUSE':'---',u:'',pt:where||'',n:''};UI.leads=[];UI.place=null;
+  renderAll();
+  eventModal(sev,title,what,'In the mA or 10A jack, the meter has almost no resistance between its probes. Put across a voltage, it becomes the path for current instead of measuring it.','Before every voltage reading: dial on V~, red lead in VΩ. Treat a flashing LEAd alert as a stop sign. After any current test, move the red lead back right away.');
+  return true;
+}
+function eventModal(sev,title,what,why,pro){
+  if(globalThis.HZTEST)return;
+  const badge={minor:'Minor',major:'Damage',critical:'Critical safety event'}[sev];
+  showOv(`<div class="dlg crit" role="dialog" aria-modal="true" aria-labelledby="evh"><p class="small" style="margin:0;color:var(--hot);font-weight:700;letter-spacing:.1em;text-transform:uppercase">You caused a fault · ${badge}</p><h2 id="evh">${esc(title)}</h2><h3>What happened</h3><p style="margin:0">${esc(what)}</p><h3>Why</h3><p style="margin:0">${esc(why)}</p><h3>What a pro does</h3><p style="margin:0">${esc(pro)}</p>${G.induced.length?`<h3>Now broken because of you</h3><ul class="chk">${G.induced.map(x=>`<li><span class="n">✗</span><span>${esc(x.label)}</span></li>`).join('')}</ul>`:''}<div class="btnrow" style="margin-top:14px"><button class="btn primary" type="button" id="evGo">Continue the call (fix what broke)</button><button class="btn" type="button" id="evNew">Start a new call</button></div></div>`);
+  $('#evGo').onclick=closeOv;$('#evNew').onclick=abandonCall;
+}
+function abandonCall(){if(!G.done){G.done=true;store.history.push({fault:G.fault.id,tier:G.tierIdx,D:1,T:1,TS:1,o:2,rank:'Abandoned',date:new Date().toISOString().slice(0,10),herrings:G.herrings.map(h=>h.id),cust:G.meta.cust,seed:G.seed,layout:G.st.house.type});store.history=store.history.slice(-60);store.callNo++;store.since=(store.since||0)+1;save()}newCall()}
+function placeJumper(cu,a,b){
+  const S=SYS(),s=G.st,d=S.derive(s),N=cu.nodes(s,d);UI.leads=[];UI.place=null;
+  if(!cu.lvJ||[a,b].some(t=>N[t]&&N[t].c==='hv')){setMsg('The jumper wire is only for 24 V control terminals: thermostat, control board R C Y G W, or the float switch.',true);renderScene();renderCuCard();return}
+  const key=[a,b].sort().join('-'),H=cu.hot||{},com=cu.commons||[];let type=(cu.pairs||{})[key]||null,cond=null;
+  if(!type){if(H[a]&&com.includes(b)){type='short';cond=H[a]}else if(H[b]&&com.includes(a)){type='short';cond=H[b]}else type='none'}
+  s.indoor.jumpAt={cu:UI.cu,a,b,la:cu.terms[a][2],lb:cu.terms[b][2],type,cond};
+  const txt={Y:'R to Y: the cooling call is forced on, bypassing the thermostat.',G:'R to G: the indoor blower is forced on.',W:'R to W: a heat call. The heating sequence is not modeled in this version.',FL:'Across the float switch: the safety is bypassed. Never leave it like this.',FU:'Around the board fuse: the 24 V circuit has no overcurrent protection now.',short:'Hot to common: that is a dead short.',none:'No effect between those two points.'}[type];
+  if(type==='FU')G.violations.push('Jumpered around the board fuse');
+  addLog(`Jumper placed: ${cu.terms[a][2]} ↔ ${cu.terms[b][2]}. ${txt}`,['short','FU','FL'].includes(type));
+  const ev=[];S.settle(s,ev);ev.forEach(e=>addLog(e,true));
+  setMsg(txt+(ev.length?'\n'+ev.join('\n'):''),ev.length>0||type==='FU');
+  renderAll();
+  if(ev.length){G.events.push({sev:'major',label:`Jumper short: ${cu.terms[a][2]} ↔ ${cu.terms[b][2]}`});
+    eventModal('major',ev[0].startsWith('Smoke')?'Smoke: you burned out the transformer':'Spark: you blew the 3 A board fuse',ev.join(' '),'A jumper is a zero-resistance wire. Between a hot terminal (R) and common (C), it is a dead short across the transformer.','Only jumper R to Y (and R to G) to bypass the thermostat. Read the terminal letters before the clip touches, and remove the jumper before you leave.')}
+  else notePop('jumper');
+}
+function dischargeCap(which,label){
+  const S=SYS(),s=G.st,d=S.derive(s);
+  if(S.live(which==='B'?'in':'out',s,d)){G.violations.push(`Discharge tool on a live capacitor (${label})`);addLog(`SAFETY: discharge tool on a live capacitor (${label}).`,true);setMsg('SAFETY: the power is still on, so the capacitor recharges as fast as you drain it, and the tool can arc. Kill and verify power first.',true);notePop('loto');renderCard();renderTab();return}
+  if(which==='B')s.indoor.discharged=true;else{if(which==='H')s.outdoor.dH=true;else s.outdoor.dF=true;s.outdoor.discharged=!!(s.outdoor.dH&&s.outdoor.dF)}
+  const left=which==='B'||s.outdoor.discharged?'':(s.outdoor.dH?' Now do FAN–C.':' Now do HERM–C.');
+  G.didDischarge=true;addLog(`Discharged ${label}.${left}`);setMsg(`${label} discharged.${left}`);notePop('capdis');renderCard();renderTab();
+}
+const resDC=w=>15+65*mulberry32(hashStr(G.seed+'res'+w))();
+const capDone=(w,s)=>w==='B'?s.indoor.discharged:w==='H'?s.outdoor.dH:s.outdoor.dF;
+function ncvResult(on,label){UI.ncv=on;UI.last={t:on?'BEEP':'no beep',u:'',pt:label,n:on?'':'No beep does NOT prove a wire is dead. Most testers miss 24 V entirely, and can miss line voltage too. Verify with your meter.'};
+  if(logOnce('n:'+label,`[NCV] ${label}: ${on?'beep (live)':'no beep'}`,false,on?'1':'0'))G.testCount++;notePop('ncv');renderMeter();renderTab()}
+/* ---------- hazard self-test: every covered hazard is triggered on a fresh seeded call ---------- */
+const HZ_TESTS={
+ H1:()=>{hzCall(()=>true,1);hzTool('mm','R');const n=G.violations.length;probe('c_coil');return G.violations.length===n+1&&UI.last.t==='ERR'},
+ H2:()=>{hzCall(()=>true,1);hzTool('mm','C');probe('c_herm');return G.critical===1&&UI.last.t==='ERR'},
+ H3:()=>{hzCall(()=>true,1);hzOff();hzTool('mm','C');probe('c_herm');return /undischarged/.test(G.violations.join())},
+ H4:()=>{hzCall(()=>true,1);hzOff();G.st.outdoor.panelOn=false;hzCU('cap','cond');hzTool('mm','R');hzTap('HERM','C');return /charged capacitor/.test(G.violations.join())},
+ H5:()=>{hzCall(()=>true,1);hzOff();const uf=G.st.outdoor.hermUF;act('capRep');return /without discharging/.test(G.violations.join())&&G.st.outdoor.hermUF===uf},
+ H6:()=>{hzCall(()=>true,1);hzTool('disch');dischargeCap('H','HERM–C');return /live capacitor/.test(G.violations.join())&&!G.st.outdoor.dH},
+ H7:()=>{hzCall(()=>true,1);hzOff();G.st.outdoor.panelOn=false;hzCU('cap','cond');hzTool('mm','D');hzTap('HERM','C');const before=parseFloat(UI.last.t);dischargeCap('H','HERM–C');UI.leads=[];hzTap('HERM','C');return before>=10&&UI.last.t==='0.0'&&G.capVerified.has('H')&&G.dcMis===0},
+ H8:()=>{hzCall(()=>true,1);act('contRep');return /power ON/.test(G.violations.join())},
+ H9:()=>{hzCall(g=>g.st.stat.cWire&&g.st.indoor.fuseOK,1);G.st.stat.faceOff=true;hzCU('tstat','tstat');hzTool('mm','V');UI.jack='10A';hzTap('R','C');return !G.st.indoor.fuseOK&&G.induced.some(x=>x.id==='i_fuse')},
+ H10:()=>{hzCall(()=>true,1);hzCU('disc','cond');hzTool('mm','V');UI.jack='mA';hzTap('LL1','LL2');return G.critical===1&&!UI.meterFuse.mA},
+ H11:()=>{hzCall(g=>g.st.stat.cWire&&g.st.indoor.fuseOK,1);G.st.stat.set=90;G.st.stat.faceOff=true;SYS().settle(G.st,[]);hzCU('tstat','tstat');hzTool('mm','V');UI.jack='10A';hzTap('R','Y');return G.events.length===1&&G.events[0].sev==='minor'&&G.st.indoor.fuseOK},
+ H12:()=>{hzCall(g=>g.st.indoor.fuseOK&&g.st.indoor.xfmrOK,1);G.st.indoor.doorOn=false;G.st.indoor.doorHeld=true;hzCU('board','indoor');hzTool('mm','D');hzTap('R','C');return G.dcMis===1&&parseFloat(UI.last.t)<1},
+ H13:()=>{hzCall(g=>g.st.indoor.fuseOK&&g.st.indoor.xfmrOK,1);G.st.indoor.doorOn=false;G.st.indoor.doorHeld=true;hzCU('board','indoor');hzTool('jumper');hzTap('R','C');return !G.st.indoor.fuseOK},
+ H14:()=>{hzCall(g=>g.fault.id==='fuse_swap',0);G.st.indoor.doorOn=false;G.st.indoor.doorHeld=true;hzCU('board','indoor');hzTool('jumper');hzTap('F_IN','F_OUT');return /around the board fuse/.test(G.violations.join())},
+ H15:()=>{hzCall(g=>g.fault.id==='float_clog',0);hzCU('float','indoor');hzTool('jumper');hzTap('IN','OUT');return /float switch/.test(ENGINE.closeout(G.st).join())},
+ H16:()=>{hzCall(()=>true,1);G.st.indoor.doorOn=false;G.st.indoor.doorHeld=true;return ENGINE.closeout(G.st).some(x=>/taped/.test(x))},
+ H17:()=>{hzCall(g=>g.fault.id==='breaker_trip',0);act('acBkr');return G.resetNoCheck===true},
+ H18:()=>{hzCall(()=>true,1);G.st.stat.faceOff=true;hzCU('tstat','tstat');hzTool('ncv');hzTap('R');const low=UI.ncv;hzCU('disc','cond');hzTap('LL1');return low===false&&UI.ncv===true},
+ H19:()=>{hzCall(()=>true,1);G.st.outdoor.panelOn=false;hzCU('fan','cond');hzTool('clamp');hzTap('CAB');return UI.last.t==='0.1'}
+};
+function hzCall(pred,tier){for(let s=1;s<20000;s++){ENGINE.generate(s,tier,{history:[]});if(pred(G))break}G.callNo=0;resetTools();Object.assign(UI,{cu:null,zone:'house',comp:null,leads:[],place:null,msg:null})}
+function hzTool(id,mode){setTool(id);if(mode)UI.mode=mode}
+function hzCU(id,zone){UI.zone=zone;UI.cu=id;UI.leads=[];UI.place=null}
+function hzTap(a,b){tapTerm(a);if(b)tapTerm(b)}
+function hzOff(){G.st.power.discIn=false;SYS().settle(G.st,[])}
+function runHazardTests(){
+  const G0=G,U0=JSON.parse(JSON.stringify(UI));globalThis.HZTEST=true;
+  const res=HAZARDS.filter(x=>x.test).map(x=>{let ok=false,err='';try{ok=!!HZ_TESTS[x.test]()}catch(e){err=e.message}return{x,ok,err}});
+  globalThis.HZTEST=false;G=G0;Object.assign(UI,U0);renderAll();
+  const pass=res.filter(r=>r.ok).length;
+  showOv(`<div class="dlg" role="dialog" aria-modal="true" aria-labelledby="hzh"><h2 id="hzh">Hazard self-test</h2><p class="small muted" style="margin:0">Each covered hazard is triggered on a fresh practice call and checked. Your current call is untouched.</p>
+  <div class="event${pass===res.length?'':' bad'}"><b>${pass} of ${res.length} passed.</b></div>
+  <div class="tablewrap"><table class="hist"><thead><tr><th>Test</th><th>Hazard</th><th>Result</th></tr></thead><tbody>${res.map(r=>`<tr><td>${r.x.test}</td><td>${esc(r.x.t)}</td><td class="${r.ok?'y':'n'}">${r.ok?'PASS':'FAIL'+(r.err?': '+esc(r.err):'')}</td></tr>`).join('')}</tbody></table></div>
+  <div class="btnrow" style="margin-top:14px"><button class="btn" type="button" id="hzX">Done</button></div></div>`);$('#hzX').onclick=closeOv;
+  return res;
+}
+function notePop(id){if(globalThis.HZTEST||!G||G.tierIdx>1||store.tips===false||!NOTE_BY[id]||G.notesShown.has(id))return;G.notesShown.add(id);if($('#ov').innerHTML)G.noteQ.push(id);else showNote(id)}
+function showNote(id){const N=NOTE_BY[id];showOv(`<div class="dlg${N.crit?' crit':''}" role="dialog" aria-modal="true" aria-labelledby="nth"><p class="small" style="margin:0;color:var(--muted);font-weight:700;letter-spacing:.1em;text-transform:uppercase">Field note</p><h2 id="nth">${esc(N.t)}</h2><ul class="nlist">${N.b.map(x=>`<li>${esc(x)}</li>`).join('')}</ul><div class="btnrow" style="margin-top:14px"><button class="btn primary" type="button" id="ntOk">Got it</button><button class="btn" type="button" id="ntOff">Turn off field-note pop-ups</button></div></div>`);$('#ntOk').onclick=closeOv;$('#ntOff').onclick=()=>{store.tips=false;save();closeOv()}}
+function gaugeFace(){
+  const rad=x=>x*Math.PI/180;
+  const dial=(cx,v,max,col,lab)=>{const r=46,a=-225+270*clamp((v||0)/max,0,1);let t='';
+    for(let i=0;i<=10;i++){const aa=rad(-225+27*i),r2=r-(i%5?7:12);t+=`<line x1="${fx(cx+Math.cos(aa)*(r-2))}" y1="${fx(60+Math.sin(aa)*(r-2))}" x2="${fx(cx+Math.cos(aa)*r2)}" y2="${fx(60+Math.sin(aa)*r2)}" style="stroke:var(--ink);stroke-width:${i%5?1:1.8}"/>`}
+    return `<circle cx="${cx}" cy="60" r="${r+4}" style="fill:var(--panel2);stroke:${col};stroke-width:5"/>${t}<text x="${cx}" y="44" text-anchor="middle" style="font:700 9px var(--f-mono);fill:var(--muted)">${lab}</text><text x="${cx-26}" y="98" text-anchor="middle" style="font:600 8px var(--f-mono);fill:var(--muted)">0</text><text x="${cx+26}" y="98" text-anchor="middle" style="font:600 8px var(--f-mono);fill:var(--muted)">${max}</text>${v==null||!isFinite(v)?'':`<line x1="${cx}" y1="60" x2="${fx(cx+Math.cos(rad(a))*(r-9))}" y2="${fx(60+Math.sin(rad(a))*(r-9))}" style="stroke:${col};stroke-width:3;stroke-linecap:round"/>`}<circle cx="${cx}" cy="60" r="4" style="fill:var(--ink)"/><text x="${cx}" y="126" text-anchor="middle" style="font:600 13px var(--f-mono);fill:var(--ink)">${v==null||!isFinite(v)?'---':Math.round(v)} psig</text>`};
+  return `<svg class="gsvg" viewBox="0 0 300 132" role="img" aria-label="Manifold gauges">${dial(78,UI.gauge.low,500,'var(--cold)','LOW · SUCTION')}${dial(222,UI.gauge.high,800,'var(--hot)','HIGH · LIQUID')}</svg><div class="pt">${UI.last?esc(UI.last.pt):'Hook a hose to a service port'}</div>`;
+}
+function renderTray(){$('#trayscroll').innerHTML=TOOLS.map(t=>`<button class="tchip" type="button" data-tool="${t.id}" aria-pressed="${UI.tool===t.id}" title="${t.n}" aria-label="${t.n}"><svg viewBox="0 0 32 32" aria-hidden="true">${t.ic}</svg>${t.s}</button>`).join('')}
 function probe(pid){
-  const S=SYS(),p=S.points[pid],m=UI.mode,s=G.st,d=S.derive(s);
-  const fn=p.m[m];
-  if(!fn){UI.last={t:'— — —',u:'',pt:`${p.l} · ${MODE_N[m]}`,n:`No valid reading. ${MODE_N[m]} doesn't apply at this test point.`};if(logOnce('wm:'+pid+'@'+m,`${p.l} [${MODE_N[m]}]: wrong meter function.`,true))G.wrongMode++;renderMeter();renderTab();return}
-  if(p.dead&&p.dead[m]&&S.live(p.dead[m],s,d)){
-    const v=`${MODE_N[m]} on an energized circuit (${p.l})`;G.violations.push(v);
-    UI.last={t:'ERR',u:'',pt:`${p.l} · ${MODE_N[m]}`,n:'SAFETY: this circuit is energized. Ohms and capacitance readings need the power OFF (and verified dead). You can damage the meter or get hurt.'};
-    addLog('SAFETY: '+v,true);renderMeter();renderTab();return}
+  const S=SYS(),p=S.points[pid],m=UI.mode,s=G.st,d=S.derive(s),tl=TOOL_BY[UI.tool].n;
+  if(m==='N'){const v=p.m.V?parseFloat(p.m.V(s,d).t):0;return ncvResult(p.ckt==='hv'&&v>50,p.l)}
+  if(m==='X'){if(p.cap)return dischargeCap(p.cap==='indoor'?'B':p.capSec,p.l);setMsg('The discharge tool goes on capacitor terminals.',true);renderCard();return}
+  if(m==='J'){setMsg('Clip the jumper on in the thermostat, control-board or float-switch close-up: tap two terminals.');renderCard();return}
+  const base=m==='D'?'V':m==='K'?'R':m;let fn=p.m[base];
+  if(base==='T'&&p.tt&&p.tt!==(UI.tool==='pipe'?'pipe':'air'))fn=null;
+  if(!fn){const hint=G.tierIdx===0?` Wrong tool: this point needs ${needTool(p)}.`:'';UI.last={t:'— — —',u:'',pt:`${p.l} · ${tl}`,n:`No valid reading with the ${tl.toLowerCase()} (${MODE_N[m]}).${hint}`};if(logOnce('wm:'+pid+'@'+UI.tool+m,`${p.l} [${tl} · ${MODE_N[m]}]: wrong tool or function.`,true))G.wrongMode++;renderMeter();renderTab();return}
+  if(jackTrap()&&['V','D','R','K','C'].includes(m)){const c=classifyPoint(p,s,d);if(c.type!=='none')return ampJackEvent(c,p.l)}
+  if(p.dead&&p.dead[base]&&S.live(p.dead[base],s,d)){
+    const v=`${MODE_N[m]} on an energized circuit (${p.l})`;G.violations.push(v);if(p.dead[base]!=='lv')G.critical++;
+    UI.last={t:'ERR',u:'',pt:`${p.l} · ${MODE_N[m]}`,n:'SAFETY: this circuit is energized. Ohms, continuity and capacitance need the power OFF and verified dead. You can damage the meter or get hurt.'};
+    addLog('SAFETY: '+v,true);notePop('loto');renderMeter();renderTab();return}
   if(m==='C'&&p.cap&&!s[p.cap].discharged){
     const v=`Capacitance on an undischarged capacitor (${p.l})`;G.violations.push(v);
     UI.last={t:'ERR',u:'',pt:`${p.l} · ${MODE_N[m]}`,n:'SAFETY: discharge the capacitor before you put meter leads on it. A run cap can hold a charge after power is off.'};
-    addLog('SAFETY: '+v,true);renderMeter();renderTab();return}
-  const r=fn(s,d);
+    addLog('SAFETY: '+v,true);notePop('capdis');renderMeter();renderTab();return}
+  let r=fn(s,d);
+  if(m==='D'){const v=parseFloat(r.t),live=isFinite(v)&&v>=1;r={t:live?fx(.15+Math.abs(noise('dc'+pid,.3))):'0.0',u:'V DC',n:''};if(live){G.dcMis++;notePop('meter')}}
+  if(m==='K'){const v=parseFloat(r.t),open=r.t==='OL'||!isFinite(v)||v>40;r={t:open?'OL':r.t,u:open?'':'Ω',n:open?'No beep: no continuity.':'Beep: continuity.'}}
   UI.last={t:r.t,u:r.u,pt:`${p.l} · ${MODE_N[m]}`,n:r.n||'',multi:r.multi};
+  if(m==='P'){const v=parseFloat(r.t);if(pid==='c_suct')UI.gauge.low=v;if(pid==='c_liq')UI.gauge.high=v;notePop('shsc')}
+  if(m==='T'&&UI.tool==='pipe'){const v=parseFloat(r.t);if(pid==='c_suct')UI.pipe.suct=v;if(pid==='c_liq')UI.pipe.liq=v}
+  if(pid==='c_lugdrop')notePop('vdrop');if(m==='A')notePop('clamp');
   if(!logOnce('r:'+pid+'@'+m,`${p.l} [${MODE_N[m]}] → ${r.t} ${r.u}${r.n?' ('+r.n+')':''}`,false,r.t)){renderMeter();return}
-  G.tests.add(pid);G.tests.add(pid+'@'+m);G.testCount++;G.order.push(pid);
-  renderMeter();renderTab();maybeWhy(pid);
+  if(m==='D')G.tests.add(pid+'@D');else{G.tests.add(pid);G.tests.add(pid+'@'+m)}
+  G.testCount++;G.order.push(pid);
+  renderMeter();renderTab();if(m!=='D')maybeWhy(pid);
 }
 function act(aid){
   const S=SYS(),a=S.actions[aid],s=G.st,d=S.derive(s);
   if(a.dead&&S.live(a.dead,s,d)){const v=`${a.l(s,d)} with power ON`;G.violations.push(v);addLog('SAFETY: '+v,true);setMsg('SAFETY: kill and verify power before you replace or service that part. The work was not done.',true);renderCard();renderTab();return}
   if(a.cap&&!s[a.cap].discharged){const v=`${a.l(s,d)} without discharging the capacitor`;G.violations.push(v);addLog('SAFETY: '+v,true);setMsg('SAFETY: discharge the capacitor before you pull its wires.',true);renderCard();renderTab();return}
   const label=a.l(s,d);
-  if(a.need){const active=[G.fault.id,G.latent&&G.latent.id].filter(Boolean);if(!a.need.some(x=>active.includes(x))&&!a.cheap){G.unneeded.push(label);}}
+  if(a.need){const active=[G.fault.id,G.latent&&G.latent.id,...G.induced.map(x=>x.id)].filter(Boolean);if(!a.need.some(x=>active.includes(x))&&!a.cheap){G.unneeded.push(label);}}
   let msg=a.run(s,G);const ev=[];S.settle(s,ev);
   addLog(`${label}. ${msg}`);ev.forEach(e=>addLog(e,true));
   setMsg(msg+(ev.length?'\n'+ev.join('\n'):''),ev.length>0);
   renderAll(true);
 }
 function maybeWhy(pid){
-  const w=WHY[pid];if(!w||G.whyAsked.has(pid)||G.whyAsked.size>=3)return;
+  const w=WHY[pid];if(globalThis.HZTEST||!w||G.whyAsked.has(pid)||G.whyAsked.size>=3||$('#ov').innerHTML)return;
   if(mulberry32(hashStr(G.seed+'why'+pid))()>.55)return;
   G.whyAsked.add(pid);
   const opts=makeRng(hashStr(G.seed+pid)).shuffle([{t:w[1],ok:true},...w[2].map(t=>({t,ok:false}))]);
@@ -1321,8 +1581,8 @@ function goZone(z,room){
   if(z===UI.zone){if(z==='air'){UI.comp=null;renderAll()}return}
   const at=SYS().zoomFor(G.st,z,G.room),world=$('#world');
   const reduce=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if(UI.zone==='house'&&at&&world&&!reduce){const S=2.6;world.style.transition='transform .42s cubic-bezier(.4,.1,.2,1)';const vb=VIEW.base,cxv=vb[0]+vb[2]/2,cyv=vb[1]+vb[3]/2;world.style.transform=`translate(${cxv-at[0]*S}px,${cyv-at[1]*S}px) scale(${S})`;setTimeout(()=>{UI.zone=z;UI.comp=null;UI.msg=null;renderAll()},430)}
-  else{UI.zone=z;UI.comp=null;UI.msg=null;renderAll()}
+  if(UI.zone==='house'&&at&&world&&!reduce){const S=2.6;world.style.transition='transform .42s cubic-bezier(.4,.1,.2,1)';const vb=VIEW.base,cxv=vb[0]+vb[2]/2,cyv=vb[1]+vb[3]/2;world.style.transform=`translate(${cxv-at[0]*S}px,${cyv-at[1]*S}px) scale(${S})`;setTimeout(()=>{UI.zone=z;UI.comp=null;UI.msg=null;restoreTool(z);renderAll()},430)}
+  else{UI.zone=z;UI.comp=null;UI.msg=null;restoreTool(z);renderAll()}
 }
 
 /* ---------- render ---------- */
@@ -1366,25 +1626,34 @@ function renderQbar(){
   el.innerHTML=`${btns.length||cuId?'<span class="ql">Quick</span>':''}${cuId?`<button class="btn primary sm" type="button" data-cu="${cuId}">Open close-up</button>`:''}${btns.slice(0,5).map(([a,l])=>`<button class="btn sm" type="button" data-act="${a}">${esc(l)}</button>`).join('')}${msg?`<div class="qmsg${UI.bad?' bad':''}">${esc(msg)}</div>`:''}`;
 }
 function renderMeter(){
-  $('#modes').innerHTML=MODES.map(m=>`<button class="mode" type="button" data-mode="${m.k}" aria-pressed="${UI.mode===m.k}" title="${m.n}">${m.s}</button>`).join('');
-  $('#mmode').textContent=MODE_N[UI.mode];
-  const L=UI.last;
-  const r=$('#mread');r.className='read'+(L&&L.multi?' multi':'');
-  r.innerHTML=L?`${esc(L.t)}<small>${esc(L.u)}</small>`:'— — —';
-  $('#mpt').textContent=L?L.pt:'Select a function, then tap a test point';
+  renderTray();
+  const T=TOOL_BY[UI.tool],L=UI.last,mm=UI.tool==='mm';
+  $('#mtool').textContent=T.n;$('#mmode').textContent=MODE_N[UI.mode]||'';
+  const md=$('#modes');md.hidden=T.fns.length<2;md.innerHTML=T.fns.length<2?'':T.fns.map(k=>`<button class="mode" type="button" data-mode="${k}" aria-pressed="${UI.mode===k}" title="${MODE_N[k]}">${FN_S[k]}</button>`).join('');
+  const jk=$('#jacks');jk.hidden=!mm;jk.innerHTML=mm?`<span>Red lead</span>${['VO','mA','10A'].map(k=>`<button class="jack${k!=='VO'?' amp':''}" type="button" data-jack="${k}" aria-pressed="${UI.jack===k}">${k==='VO'?'VΩ':k}${k!=='VO'&&!UI.meterFuse[k]?' ✕':''}</button>`).join('')}`:'';
+  const f=$('#mface');let cls='lcdbox',html;
+  if(UI.tool==='gauges'){cls+=' face-gauge';html=gaugeFace()}
+  else if(UI.tool==='ncv'){cls+=' face-ncv';html=`<div style="display:flex;align-items:center;gap:14px"><div class="light${UI.ncv?' on':''}"></div><div style="min-width:0"><div class="read" style="font-size:24px">${UI.ncv==null?'— —':UI.ncv?'BEEP':'no beep'}</div><div class="pt">${L?esc(L.pt):'Hold the tip near a wire or terminal'}</div></div></div>`}
+  else if(UI.tool==='jumper'){cls+=' face-info';const J=G.st.indoor.jumpAt;html=`<div class="read" style="font-size:20px">${J?'Clipped on '+esc(J.la)+' ↔ '+esc(J.lb):'Jumper not placed'}</div><div class="pt">Use it in the thermostat, control-board or float-switch close-up: tap two terminals.</div>`}
+  else if(UI.tool==='disch'){cls+=' face-info';const O=G.st.outdoor;html=`<div class="read" style="font-size:20px">Discharge tool</div><div class="pt">Power off first. Condenser cap: HERM–C ${O.dH?'✓':'○'} · FAN–C ${O.dF?'✓':'○'} · Blower cap ${G.st.indoor.discharged?'✓':'○'}</div>`}
+  else if(UI.tool==='pipe'){const P=UI.pipe;html=`<div class="read multi">SUCT ${P.suct==null?'--.-':fx(P.suct)}° · LIQ ${P.liq==null?'--.-':fx(P.liq)}°</div><div class="pt">${L?esc(L.pt):'Clamp on the suction or liquid line'}</div>`}
+  else{const al=mm&&UI.jack!=='VO';html=`<div class="lcdtop"><div class="read${L&&L.multi?' multi':''}">${L?`${esc(L.t)}<small>${esc(L.u)}</small>`:'— — —'}</div>${al?'<span class="leadal" title="Red lead is in a current jack">LEAd</span>':''}</div><div class="pt">${L?esc(L.pt):UI.tool==='clamp'?'Clamp around one wire':UI.tool==='probe'?'Hold the probe in the air stream':'Pick a function, then tap a test point'}</div>`}
+  f.className=cls;f.innerHTML=html;
   const n=$('#mnote');n.hidden=!(L&&L.n);n.textContent=L&&L.n?L.n:'';
 }
 const CU_HOW={V:'Tap a terminal for the RED lead, then another for the BLACK lead. Any two points work: the meter shows whatever is really between them.',
-  R:'Tap the two points to measure across. Power must be off and verified dead.',C:'Tap the two capacitor terminals. Power off and the capacitor discharged first.',
-  A:'Tap the wire you want inside the clamp jaws.',T:'Tap the spot on the pipe where the clamp thermometer goes.',P:'Tap a service port to connect a gauge hose.'};
+  D:'Tap a terminal for the RED lead, then another for the BLACK lead.',
+  R:'Tap the two points to measure across. Power must be off and verified dead.',K:'Tap two points. The meter beeps if there is a continuous path. Power off first.',C:'Tap the two capacitor terminals. Power off and the capacitor discharged first.',
+  A:'Tap the wire you want inside the clamp jaws.',T:'Tap the spot where the thermometer goes.',P:'Tap a service port to connect a gauge hose.',
+  N:'Tap any terminal or wire. The tester beeps near line voltage.',J:'Tap two terminals to clip the jumper on.',X:'Tap a capacitor\'s two terminals to drain it (HERM–C, then FAN–C). Power off first.'};
 function renderCuCard(){
   const S=SYS(),cu=S.closeups[UI.cu],el=$('#cardComp'),s=G.st,d=S.derive(s);
   const acts=[];cu.comps.forEach(id=>(S.comps[id].acts||[]).forEach(a=>{const A=S.actions[a];if(A.show(s,d)&&!acts.some(x=>x[0]===a))acts.push([a,A])}));
   const tn=t=>cu.terms[t][2];
-  const leads=UI.leads.length&&['V','R','C'].includes(UI.mode)?`<div class="cuhead"><span class="leadchip"><i style="background:var(--lead-red)"></i>Red: ${esc(tn(UI.leads[0]))}</span>${UI.leads[1]?`<span class="leadchip"><i style="background:var(--lead-blk)"></i>Black: ${esc(tn(UI.leads[1]))}</span>`:'<span class="small muted">now tap the black lead\'s spot</span>'}<button class="btn sm" type="button" data-clear="1">Clear leads</button></div>`:'';
+  const leads=UI.leads.length&&['V','D','R','K','C','J','X'].includes(UI.mode)?`<div class="cuhead"><span class="leadchip"><i style="background:var(--lead-red)"></i>Red: ${esc(tn(UI.leads[0]))}</span>${UI.leads[1]?`<span class="leadchip"><i style="background:var(--lead-blk)"></i>Black: ${esc(tn(UI.leads[1]))}</span>`:'<span class="small muted">now tap the black lead\'s spot</span>'}<button class="btn sm" type="button" data-clear="1">Clear leads</button></div>`:'';
   el.innerHTML=`<h2>Close-up · ${esc(cu.n)}</h2><p class="small" style="margin:0 0 6px">${esc(cu.about)}</p>
   <div class="obs">${esc(cu.comps.map(id=>S.comps[id].ins(s,d,G)).join('\n\n'))}</div>
-  <div class="lab">How to measure · meter on ${esc(MODE_N[UI.mode])}</div><p class="small" style="margin:0">${esc(CU_HOW[UI.mode])}</p>${leads}
+  <div class="lab">How to use it · ${esc(TOOL_BY[UI.tool].n)} (${esc(MODE_N[UI.mode])})</div><p class="small" style="margin:0">${esc(CU_HOW[UI.mode])}</p>${leads}
   ${acts.length?`<div class="lab">Actions</div><div class="btnrow">${acts.map(([id,a])=>`<button class="btn sm" type="button" data-act="${id}">${esc(a.l(s,d))}</button>`).join('')}</div>`:''}
   ${UI.msg?`<div class="event${UI.bad?' bad':''}" style="white-space:pre-line">${esc(UI.msg)}</div>`:''}`;
 }
@@ -1402,7 +1671,9 @@ function renderCloseup(){
   const P=UI.place;
   if(P&&P.terms.length){
     const pt=t=>cu.terms[t];
-    if(['A','T','P'].includes(P.mode)){const [x,y]=pt(P.terms[0]);
+    if(P.mode==='N'){const [x,y]=pt(P.terms[0]);g+=`<circle cx="${x}" cy="${y}" r="22" fill="none" style="stroke:${UI.ncv?'#e53b2c':'var(--sline)'};stroke-width:5"/><path d="M${x+14} ${y-14} l26 -26" style="stroke:var(--accent);stroke-width:8;stroke-linecap:round"/>`}
+    else if(P.mode==='J'||P.mode==='X'){const col=P.mode==='J'?'var(--w-grn)':'var(--w-yel)';P.terms.forEach(t=>{const [x,y]=pt(t);g+=`<circle cx="${x}" cy="${y}" r="18" class="lead-halo"/><circle cx="${x}" cy="${y}" r="18" fill="none" style="stroke:${col};stroke-width:5"/>`})}
+    else if(['A','T','P'].includes(P.mode)){const [x,y]=pt(P.terms[0]);
       g+=P.mode==='A'?`<path d="M${x-22} ${y+6} A24 24 0 1 1 ${x+22} ${y+6}" fill="none" style="stroke:var(--accent);stroke-width:9;stroke-linecap:round"/><rect x="${x-14}" y="${y+16}" width="28" height="46" rx="6" class="k-acc st"/>`
         :P.mode==='P'?`<path d="M${x} ${y} C${x} ${y-60} ${x+70} ${y-70} ${x+90} ${y-110}" fill="none" style="stroke:var(--cold);stroke-width:7"/><circle cx="${x}" cy="${y}" r="16" fill="none" style="stroke:var(--cold);stroke-width:5"/>`
         :`<rect x="${x-20}" y="${y-14}" width="40" height="28" rx="6" fill="none" style="stroke:var(--warn);stroke-width:6"/><path d="M${x} ${y-14} V${y-60}" style="stroke:var(--warn);stroke-width:3"/>`;
@@ -1413,6 +1684,8 @@ function renderCloseup(){
       g+=`<circle cx="${x1}" cy="${y1}" r="18" class="lead-halo"/><circle cx="${x1}" cy="${y1}" r="18" class="lead-r"/><rect x="${x1+12}" y="${y1+10}" width="30" height="16" rx="3" style="fill:var(--lead-red)"/><text x="${x1+27}" y="${y1+22}" class="ltag" text-anchor="middle">RED</text>`;
     }
   }
+  const J=s.indoor.jumpAt;
+  if(J&&J.cu===UI.cu){const [x1,y1]=cu.terms[J.a],[x2,y2]=cu.terms[J.b];g+=`<path d="M${x1} ${y1} Q${(x1+x2)/2} ${Math.min(y1,y2)-80} ${x2} ${y2}" fill="none" style="stroke:var(--w-grn);stroke-width:5;stroke-linecap:round"/>${[[x1,y1],[x2,y2]].map(([x,y])=>`<rect x="${x-9}" y="${y-16}" width="18" height="20" rx="3" style="fill:var(--w-red);stroke:var(--sline)"/>`).join('')}`}
   return `<svg viewBox="0 0 600 400" role="img" aria-label="${esc(cu.n)} close-up">${g}</svg>`;
 }
 function openCu(id){
@@ -1424,19 +1697,32 @@ function openCu(id){
 }
 function cuMap(cu,m,a,b){return cu.map.find(x=>x[1]===m&&(b===undefined?(x[2]===a&&x[3]===undefined):((x[2]===a&&x[3]===b)||(x[2]===b&&x[3]===a))))}
 function tapTerm(t){
-  const S=SYS(),cu=S.closeups[UI.cu],tm=cu.terms[t],m=UI.mode,kind=tm[3];
-  if(['A','T','P'].includes(m)){
+  const S=SYS(),cu=S.closeups[UI.cu],tm=cu.terms[t],m=UI.mode,kind=tm[3],s=G.st,d=S.derive(s);
+  if(['A','T','P','N'].includes(m)){
     UI.place={terms:[t],mode:m};UI.leads=[];
+    if(m==='N'){const n=cu.nodes(s,d)[t];ncvResult(!!(n&&!n.f&&n.c==='hv'&&n.m>50),`${cu.n}: ${tm[2]}`);renderScene();renderCuCard();return}
+    if(m==='A'&&t==='CAB'){UI.last={t:'0.1',u:'A',pt:`${tm[2]} · ${MODE_N.A}`,n:G.tierIdx<=1?'Both conductors are inside the jaws. Their magnetic fields cancel, so the meter reads almost nothing. Clamp one wire.':''};
+      if(logOnce('cab:'+UI.cu,`[${cu.n}] ${tm[2]} [${MODE_N.A}] → 0.1 A`,false,'0.1'))G.testCount++;notePop('clamp');renderMeter();renderScene();renderCuCard();renderTab();return}
     const e=cuMap(cu,m,t);
-    if(e){probe(e[0])}else{G.testCount++;UI.last={t:'— — —',u:'',pt:`${tm[2]} · ${MODE_N[m]}`,n:kind==='v'?'That is a screw terminal. The clamp goes around a single wire, gauges go on service ports, and the pipe thermometer goes on the line.':`No useful ${MODE_N[m].toLowerCase()} reading there.`};if(!logOnce('nu:'+UI.cu+':'+t+'@'+m,`[${cu.n}] ${tm[2]} [${MODE_N[m]}]: nothing useful.`,true))G.testCount--;renderMeter()}
+    if(e){probe(e[0])}else{UI.last={t:'— — —',u:'',pt:`${tm[2]} · ${MODE_N[m]}`,n:kind==='v'?'That is a screw terminal. The clamp goes around a single wire, gauges go on service ports, and the pipe thermometer goes on the line.':`No useful ${MODE_N[m].toLowerCase()} reading there.`};if(logOnce('nu:'+UI.cu+':'+t+'@'+m,`[${cu.n}] ${tm[2]} [${MODE_N[m]}]: nothing useful.`,true))G.testCount++;renderMeter()}
     renderScene();renderCuCard();return}
-  if(kind!=='v'){UI.last={t:'— — —',u:'',pt:`${tm[2]} · ${MODE_N[m]}`,n:`Meter leads go on terminals. Use ${kind==='c'?'the amp clamp (A)':kind==='p'?'the gauges (PSI)':'the pipe-clamp thermometer (°F)'} here.`};renderMeter();return}
+  if(kind!=='v'){UI.last={t:'— — —',u:'',pt:`${tm[2]} · ${MODE_N[m]}`,n:`That spot takes ${kind==='c'?'the clamp meter':kind==='p'?'the manifold gauges':'the pipe-clamp thermometers'}.`};renderMeter();return}
   if(UI.leads.length===1&&UI.leads[0]===t)return;
   UI.leads=UI.leads.length>=2?[t]:[...UI.leads,t];UI.place={terms:UI.leads.slice(),mode:m};
   if(UI.leads.length<2){renderScene();renderCuCard();return}
   const [a,b]=UI.leads;
-  if(m==='V'){probeV(a,b);return}
-  const e=cuMap(cu,m,a,b);
+  if(m==='J')return placeJumper(cu,a,b);
+  if(m==='X'){const key=[a,b].sort().join('-');UI.leads=[];UI.place=null;if(cu.caps&&cu.caps[key])dischargeCap(cu.caps[key],`${cu.terms[a][2]}–${cu.terms[b][2]}`);else setMsg('Put the discharge tool across a capacitor: HERM–C, FAN–C, or the blower capacitor\'s two terminals.',true);renderMeter();renderScene();renderCuCard();return}
+  if(jackTrap()){const c=classifyPair(cu,a,b,cu.nodes(s,d));if(c.type!=='none')return ampJackEvent(c,`${cu.terms[a][2]} ↔ ${cu.terms[b][2]}`)}
+  if(m==='V'||m==='D'){probeV(a,b);return}
+  const capW=cu.caps&&cu.caps[[a,b].sort().join('-')];
+  if(capW&&(m==='R'||m==='K')){const live=S.live(capW==='B'?'in':'out',s,d),la=`${cu.terms[a][2]}–${cu.terms[b][2]}`;
+    if(live||!capDone(capW,s)){const v=`${MODE_N[m]} across a ${live?'live':'charged'} capacitor (${la})`;G.violations.push(v);if(live)G.critical++;
+      UI.last={t:'ERR',u:'',pt:`${la} · ${MODE_N[m]}`,n:live?'SAFETY: the circuit is energized. Kill and verify power first.':'SAFETY: a charged capacitor can damage the meter and give you a false reading. Discharge it first.'};
+      addLog('SAFETY: '+v,true);notePop(live?'loto':'capdis');renderMeter();renderTab();renderScene();renderCuCard();return}
+    UI.last={t:'OL',u:'',pt:`${la} · ${MODE_N[m]}`,n:'A capacitor blocks DC: the reading climbs, then settles at OL. Use µF to judge a capacitor.'};
+    if(logOnce('co:'+UI.cu+capW+m,`[${cu.n}] ${la} [${MODE_N[m]}] → OL`,false,'OL'))G.testCount++;UI.leads=[];renderMeter();renderTab();renderScene();renderCuCard();return}
+  const e=cuMap(cu,m==='K'?'R':m,a,b);
   if(e)probe(e[0]);
   else{UI.last={t:'— — —',u:'',pt:`${cu.terms[a][2]} ↔ ${cu.terms[b][2]} · ${MODE_N[m]}`,n:`No useful ${MODE_N[m].toLowerCase()} reading between those two points.`};if(logOnce('nu:'+UI.cu+':'+[a,b].sort().join('-')+'@'+m,`[${cu.n}] ${cu.terms[a][2]} ↔ ${cu.terms[b][2]} [${MODE_N[m]}]: nothing useful.`,true))G.testCount++;renderMeter()}
   renderScene();renderCuCard();
@@ -1453,29 +1739,31 @@ function probeV(a,b){
     const cls=[na.c,nb.c].filter(x=>x!=='gnd');
     if(cls.length===2&&cls[0]!==cls[1]&&v>=.05)n='The leads are on two different circuits (line voltage and the 24 V control circuit). The number is real, but it tells you nothing useful.';
   }
-  const e=cuMap(cu,'V',a,b);
-  UI.last={t,u:'V AC',pt:`Red ${la} · Black ${lb}`,n};
-  const fresh=logOnce('v:'+UI.cu+':'+[a,b].sort().join('-'),`[${cu.n}] Red ${la} · Black ${lb} → ${t} V AC${n?' (unstable or cross-circuit)':''}`,false,t);
-  if(fresh){G.testCount++;if(e){G.tests.add(e[0]);G.tests.add(e[0]+'@V');G.order.push(e[0])}else G.order.push('v:'+a+'-'+b)}
+  const e=cuMap(cu,'V',a,b),dc=UI.mode==='D',capW=cu.caps&&cu.caps[[a,b].sort().join('-')];
+  if(dc&&capW&&!S.live(capW==='B'?'in':'out',s,d)){const done=capDone(capW,s);t=done?'0.0':fx(resDC(capW));n=!done&&G.tierIdx<=1?'Stored charge, not line voltage. Discharge it, then check again for 0 V DC.':'';if(done)G.capVerified.add(capW)}
+  else if(dc){const v=parseFloat(t);if(v>=1&&!capW){G.dcMis++;notePop('meter')}t=v>=1?fx(.15+Math.abs(noise('dcv'+[a,b].sort().join(),.3))):'0.0';n=''}
+  UI.last={t,u:dc?'V DC':'V AC',pt:`Red ${la} · Black ${lb}`,n};
+  const fresh=logOnce('v'+(dc?'d':'')+':'+UI.cu+':'+[a,b].sort().join('-'),`[${cu.n}] Red ${la} · Black ${lb} → ${t} ${dc?'V DC':'V AC'}${n?' (unstable or cross-circuit)':''}`,false,t);
+  if(fresh){G.testCount++;if(e&&!dc){G.tests.add(e[0]);G.tests.add(e[0]+'@V');G.order.push(e[0])}else G.order.push('v:'+a+'-'+b);if(!dc)notePop('trace')}
   renderMeter();renderScene();renderCuCard();renderTab();
-  if(fresh&&e)maybeWhy(e[0]);
+  if(fresh&&e&&!dc)maybeWhy(e[0]);
 }
 function renderCard(){
   if(UI.cu)return renderCuCard();
   const S=SYS(),c=UI.comp&&S.comps[UI.comp],el=$('#cardComp'),s=G.st,d=S.derive(s);
   if(!c||!c.vis(s)){
-    el.innerHTML=`<h2>${UI.zone==='house'?'Walk the job':'Pick a part'}</h2><p class="small muted" style="margin:0 0 8px">${UI.zone==='house'?'Read the dispatch, talk to the customer, then tap equipment in the house to walk over to it.':'Tap a part in the picture (or the buttons under it) to inspect it, take readings, or work on it.'}</p><ul class="chk small"><li><span class="y">1</span><span>Verify the complaint before you test anything.</span></li><li><span class="y">2</span><span>Pick a meter function, then tap a test point.</span></li><li><span class="y">3</span><span>Kill power, verify dead, and discharge caps before Ω, µF or part swaps.</span></li><li><span class="y">4</span><span>Call it only when your readings prove it.</span></li></ul>${UI.msg?`<div class="event${UI.bad?' bad':''}">${esc(UI.msg)}</div>`:''}`;
+    el.innerHTML=`<h2>${UI.zone==='house'?'Walk the job':'Pick a part'}</h2><p class="small muted" style="margin:0 0 8px">${UI.zone==='house'?'Read the dispatch, talk to the customer, then tap equipment in the house to walk over to it.':'Tap a part in the picture (or the buttons under it) to inspect it, take readings, or work on it.'}</p><ul class="chk small"><li><span class="y">1</span><span>Verify the complaint before you test anything.</span></li><li><span class="y">2</span><span>Pick a tool from the tray, then tap a test point.</span></li><li><span class="y">3</span><span>Kill power, verify dead, and discharge caps before Ω, µF or part swaps.</span></li><li><span class="y">4</span><span>Call it only when your readings prove it.</span></li></ul>${UI.msg?`<div class="event${UI.bad?' bad':''}">${esc(UI.msg)}</div>`:''}`;
     return}
   const pts=(c.pts||[]).filter(p=>S.points[p]);const acts=(c.acts||[]).map(a=>[a,S.actions[a]]).filter(([,a])=>a.show(s,d));
   const cuId=S.cuOf&&S.cuOf[UI.comp];
   el.innerHTML=`<h2>${esc(c.n)}</h2><div class="obs">${esc(c.ins(s,d,G))}</div>
   ${cuId?`<button class="btn primary sm" type="button" data-cu="${cuId}" style="margin:2px 0 6px">Open close-up: ${esc(S.closeups[cuId].n)}</button><p class="small muted" style="margin:0">Probe any terminals yourself in the close-up. The quick list below is the shortcut.</p>`:''}
-  ${pts.length?`<div class="lab">Test points · meter on ${esc(MODE_N[UI.mode])}</div>${pts.map(p=>`<button class="probe" type="button" data-probe="${p}"><span class="dot"></span><span>${esc(S.points[p].l)}</span></button>`).join('')}`:''}
+  ${pts.length?`<div class="lab">Test points · ${esc(TOOL_BY[UI.tool].n)} (${esc(MODE_N[UI.mode])})</div>${pts.map(p=>`<button class="probe" type="button" data-probe="${p}"><span class="dot"></span><span>${esc(S.points[p].l)}</span></button>`).join('')}`:''}
   ${acts.length?`<div class="lab">Actions</div><div class="btnrow">${acts.map(([id,a])=>`<button class="btn sm" type="button" data-act="${id}">${esc(a.l(s,d))}</button>`).join('')}</div>`:''}
   ${UI.msg?`<div class="event${UI.bad?' bad':''}" style="white-space:pre-line">${esc(UI.msg)}</div>`:''}`;
 }
 function renderTabs(){
-  const t=[['dispatch','Dispatch'],['customer','Customer'],['log','Log'],['tools','Tools']];
+  const t=[['dispatch','Dispatch'],['customer','Customer'],['log','Log'],['tools','Tools'],['notes','Notes']];
   $('#tabs').innerHTML=t.map(([id,n])=>`<button class="tab" role="tab" type="button" data-tab="${id}" aria-selected="${UI.tab===id}">${n}${id==='log'?` (${G.log.length})`:''}</button>`).join('');
 }
 function renderTab(){
@@ -1487,6 +1775,8 @@ function renderTab(){
   }else if(UI.tab==='customer'){
     b.innerHTML=`<div class="quote">“${esc(G.complaint)}”</div><div class="lab">Ask</div><div class="btnrow">${QS.map(([k,q])=>`<button class="btn sm" type="button" data-ask="${k}"${G.asked[k]?' disabled':''}>${esc(q)}</button>`).join('')}</div>
     ${QS.filter(([k])=>G.asked[k]).map(([k,q])=>`<p class="qa"><b>${esc(q)}</b>“${esc(G.answers[k])}”</p>`).join('')}`;
+  }else if(UI.tab==='notes'){
+    b.innerHTML=`<p class="small muted" style="margin:0 0 4px">Field notes. Red titles are safety-critical.</p>${NOTES.map(n=>`<details class="notecard${n.crit?' crit':''}"><summary>${esc(n.t)}</summary><ul class="nlist">${n.b.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></details>`).join('')}<details class="notecard"><summary>Hazard coverage</summary><ul class="chk small" style="margin-bottom:10px">${HAZARDS.map(z=>`<li><span class="${z.status==='covered'?'y':'n'}">${({covered:'✓',partial:'◐',v9:'○',v10:'○',out:'–'})[z.status]}</span><span>${esc(z.t)} <span class="muted">· ${esc(({covered:'covered',partial:'partly covered',v9:'planned',v10:'planned',out:'out of scope'})[z.status])}</span></span></li>`).join('')}</ul></details>`;
   }else if(UI.tab==='log'){
     b.innerHTML=`<ol class="log">${G.log.slice().reverse().map(l=>`<li data-ln="${l.n}" class="${l.bad?'bad':''}${UI.hl===l.n?' hl':''}"><span class="n">${l.n}</span>${esc(l.t)}</li>`).join('')}</ol>`;
   }else{
@@ -1514,13 +1804,14 @@ function renderTab(){
 
 /* ---------- overlays ---------- */
 function showOv(html){$('#ov').innerHTML=`<div class="ov">${html}</div>`;const f=$('#ov').querySelector('button,input,select');f&&f.focus()}
-function closeOv(){$('#ov').innerHTML=''}
+function closeOv(){$('#ov').innerHTML='';if(G&&G.noteQ&&G.noteQ.length&&!G.done)showNote(G.noteQ.shift())}
 function openCall(){
   const fl=FAULTS.filter(f=>f.sys.includes(G.st.sys));
   const R=makeRng(hashStr(G.seed+'opts'));const diag=R.shuffle(fl);const reps=R.shuffle([...new Set(fl.map(f=>f.repair))]);
   showOv(`<div class="dlg" role="dialog" aria-modal="true" aria-labelledby="ch"><h2 id="ch">Call it</h2><p class="muted small" style="margin:0">Commit to a diagnosis. You'll be graded on whether your readings proved it.</p>
   <h3>Diagnosis</h3><label class="field"><select id="cDiag"><option value="">Choose…</option>${diag.map(f=>`<option value="${f.id}">${esc(f.label)}</option>`).join('')}</select></label>
   <h3>Repair</h3><label class="field"><select id="cRep"><option value="">Choose…</option>${reps.map(r=>`<option>${esc(r)}</option>`).join('')}</select></label>
+  ${G.tierIdx===0&&(ENGINE.closeout(G.st).length||G.induced.length)?`<div class="event bad"><b>Before you leave:</b> ${esc([...ENGINE.closeout(G.st),...G.induced.filter(x=>x.id==='i_fuse'?!G.st.indoor.fuseOK:!G.st.indoor.xfmrOK).map(x=>x.label+' (not repaired)')].join(' · '))}. These count against you if you submit now.</div>`:''}
   <h3>Other problems found (optional)</h3><div class="opts">${LATENT.filter(l=>l.sys.includes(G.st.sys)).map(l=>`<label><input type="checkbox" value="${l.id}"> <span>${esc(l.label)}</span></label>`).join('')}</div>
   <div class="btnrow" style="margin-top:14px"><button class="btn primary" type="button" id="cGo">Submit and debrief</button><button class="btn" type="button" id="cX">Keep troubleshooting</button></div><div id="cErr"></div></div>`);
   $('#cX').onclick=closeOv;
@@ -1543,7 +1834,9 @@ function debrief(sel){
     return `<li><span class="${g.keyHits[i]?'y':'n'}">${g.keyHits[i]?'✓':'✗'}</span><span><b>${esc(lbl)}</b><br><span class="muted">${esc(f.keyWhy[i]||'')}</span></span></li>`}).join('');
   const issues=[];
   G.violations.forEach(v=>issues.push(['n','Safety: '+v]));
-  if(G.wrongMode)issues.push(['n',`${G.wrongMode} reading${G.wrongMode>1?'s':''} taken with the wrong meter function.`]);
+  if(G.wrongMode)issues.push(['n',`${G.wrongMode} reading${G.wrongMode>1?'s':''} taken with the wrong tool or function.`]);
+  if(G.capVerified.size)issues.push(['y','Verified 0 V DC across the capacitor after discharging it.']);else if(G.didDischarge)issues.push(['n','Discharged a capacitor but never verified 0 V on V⎓ (DC) before touching it.']);
+  if(G.dcMis)issues.push(['n',`Read an AC circuit on V⎓ (DC) ${G.dcMis} time${G.dcMis>1?'s':''}. On DC, live AC reads about 0 V and looks dead.`]);
   G.unneeded.forEach(u=>issues.push(['n',`Unneeded part or repair: ${u}. On a real call that is a cost to the customer and a callback risk.`]));
   if(G.resetNoCheck)issues.push(['n','Reset a tripped breaker without first checking the compressor for a short to ground.']);
   if(G.ptWrongRef)issues.push(['n',`Used the wrong refrigerant's PT chart at least once. This system runs ${G.st.ref.type}; the data plate says so.`]);
@@ -1562,6 +1855,8 @@ function debrief(sel){
   <h3>What was wrong</h3><p style="margin:0 0 6px"><b>${esc(f.label)}.</b> ${esc(f.repair)}.</p><div class="chain">${chain}</div>
   <h3>Your call</h3><ul class="chk"><li><span class="${g.correct?'y':'n'}">${g.correct?'✓':'✗'}</span><span>Diagnosis: ${esc(yourDiag?yourDiag.label:'—')}${g.partial?' (related, but not the root problem)':''}</span></li><li><span class="${g.repairOK?'y':'n'}">${g.repairOK?'✓':'✗'}</span><span>Repair: ${esc(sel.repair)}</span></li><li><span class="${g.restored?'y':'n'}">${g.restored?'✓':'–'}</span><span>${g.restored?'System left running and cooling.':'System not restored in the sim (fine for refrigerant repairs, which are recorded on the work order).'}</span></li></ul>
   <h3>Proof readings</h3><ul class="chk">${keys}</ul>
+  ${G.events.length?`<h3>Tech-caused faults</h3><ul class="chk">${G.events.map(e=>`<li><span class="n">✗</span><span>${esc(e.label)} · ${e.sev==='critical'?'critical safety event (rating capped at Junior Tech)':e.sev==='major'?'damage, −2':'−1'}</span></li>`).join('')}${G.induced.map(x=>{const ok=x.id==='i_fuse'?G.st.indoor.fuseOK:G.st.indoor.xfmrOK;return `<li><span class="${ok?'y':'n'}">${ok?'✓':'✗'}</span><span>${esc(x.label)}: ${ok?'repaired before you left':'NOT repaired, −2'}</span></li>`}).join('')}</ul>`:''}
+  <h3>Job closeout</h3><ul class="chk">${g.closeout.length?g.closeout.map(c=>`<li><span class="n">✗</span><span>${esc(c)}</span></li>`).join(''):'<li><span class="y">✓</span><span>Panels back on, power restored, nothing left jumpered.</span></li>'}</ul>
   <h3>Critique</h3><ul class="chk">${issues.map(([c,t])=>`<li><span class="${c}">${c==='y'?'✓':'✗'}</span><span>${esc(t)}</span></li>`).join('')}</ul>
   <h3>How a senior tech runs this call</h3><ol class="exp">${f.expert.map(x=>`<li>${esc(x)}</li>`).join('')}</ol>
   <h3>Sequence of operation</h3><p class="small" style="margin:0 0 6px">${esc(GEN_SEQ)}</p><p class="small" style="margin:0"><b>Where it broke:</b> ${esc(f.seq)}</p>
@@ -1573,18 +1868,25 @@ function openStats(){
   showOv(`<div class="dlg" role="dialog" aria-modal="true" aria-labelledby="sh"><h2 id="sh">Record &amp; settings</h2>
   <div class="scores"><div class="score"><div class="k">Calls run</div><div class="v">${store.history.length}</div></div><div class="score"><div class="k">Avg diagnostic</div><div class="v">${avg('D')}</div></div><div class="score"><div class="k">Avg technical</div><div class="v">${avg('T')}</div></div><div class="score"><div class="k">Avg troubleshooting</div><div class="v">${avg('TS')}</div></div></div>
   <h3>Difficulty</h3><label class="field"><select id="sMode"><option value="auto"${store.mode==='auto'?' selected':''}>Auto — promote on a 3-call average of 8+ (now ${TIERS[store.tierIdx].n})</option>${TIERS.map(t=>`<option value="${t.id}"${store.mode===t.id?' selected':''}>${t.n} only</option>`).join('')}</select></label><p class="small muted">Applies from the next call.</p>
+  <h3>Field notes</h3><label class="field" style="flex-direction:row;align-items:center;gap:8px"><input type="checkbox" id="sTips"${store.tips!==false?' checked':''} style="width:auto"> Pop up field notes the first time they apply (Apprentice and Junior tiers)</label>
+  <h3>Safety coverage</h3><p class="small muted" style="margin:0 0 6px">Runs every covered hazard on practice calls and checks the sim reacts correctly.</p><button class="btn" type="button" id="sHz">Run hazard self-test</button>
   <h3>Replay a call</h3><div class="frow"><label class="field">Seed (hex, from the header)<input id="sSeed" placeholder="e.g. 3F2A91C"></label><label class="field">&nbsp;<button class="btn" type="button" id="sReplay">Load seed</button></label></div>
   <h3>Recent calls</h3><div class="tablewrap"><table class="hist"><thead><tr><th>Date</th><th>Problem</th><th>Tier</th><th>D</th><th>T</th><th>TS</th><th>Rating</th></tr></thead><tbody>${h.map(x=>`<tr><td>${x.date}</td><td>${esc((FAULT_BY[x.fault]||{label:x.fault}).label)}</td><td>${TIERS[x.tier].n}</td><td>${x.D}</td><td>${x.T}</td><td>${x.TS}</td><td>${esc(x.rank)}</td></tr>`).join('')||'<tr><td colspan="7" class="muted">No calls finished yet. Your record is saved in this browser only.</td></tr>'}</tbody></table></div>
   <div class="btnrow" style="margin-top:14px"><button class="btn" type="button" id="sClose">Done</button><button class="btn danger" type="button" id="sReset">Reset record</button></div></div>`);
   $('#sMode').onchange=e=>{store.mode=e.target.value;save();renderHeader()};
+  $('#sTips').onchange=e=>{store.tips=e.target.checked;save()};
   $('#sClose').onclick=closeOv;
+  $('#sHz').onclick=runHazardTests;
   $('#sReplay').onclick=()=>{const v=parseInt($('#sSeed').value.trim(),16);if(isFinite(v))newCall(v)};
   $('#sReset').onclick=e=>{const b=e.target;if(!b.dataset.arm){b.dataset.arm='1';b.textContent='Tap again to erase everything';return}store={history:[],mode:'auto',tierIdx:0,since:0,callNo:1};save();closeOv();newCall()};
 }
 
 /* ---------- events ---------- */
 document.addEventListener('click',e=>{
-  const t=e.target.closest('[data-zone],[data-go],[data-comp],[data-probe],[data-act],[data-mode],[data-tab],[data-ask],[data-term],[data-cu],[data-clear],[data-room],[data-showlog]');if(!t)return;
+  const t=e.target.closest('[data-zone],[data-go],[data-comp],[data-probe],[data-act],[data-mode],[data-tab],[data-ask],[data-term],[data-cu],[data-clear],[data-room],[data-showlog],[data-tool],[data-tnav],[data-jack]');if(!t)return;
+  if(t.dataset.tool)return selectTool(t.dataset.tool);
+  if(t.dataset.tnav){const i=TOOLS.findIndex(x=>x.id===UI.tool);return selectTool(TOOLS[(i+(+t.dataset.tnav)+TOOLS.length)%TOOLS.length].id)}
+  if(t.dataset.jack){UI.jack=t.dataset.jack;UI.leads=[];UI.place=null;if(UI.jack!=='VO')notePop('ampjack');renderMeter();if(UI.cu)renderScene();return}
   if(t.dataset.showlog){const n=+t.dataset.showlog;UI.tab='log';UI.hl=n;$('#toast').hidden=true;renderTab();const li=document.querySelector(`.log li[data-ln="${n}"]`);if(li){li.scrollIntoView({block:'nearest'});$('#tabs').scrollIntoView({block:'nearest',behavior:'smooth'})}setTimeout(()=>{if(UI.hl===n){UI.hl=null;if(UI.tab==='log')renderTab()}},4000);return}
   if(t.dataset.term)return tapTerm(t.dataset.term);
   if(t.dataset.cu)return openCu(t.dataset.cu);
@@ -1595,7 +1897,7 @@ document.addEventListener('click',e=>{
   if(t.dataset.comp)return selectComp(t.dataset.comp);
   if(t.dataset.probe)return probe(t.dataset.probe);
   if(t.dataset.act)return act(t.dataset.act);
-  if(t.dataset.mode){UI.mode=t.dataset.mode;UI.leads=[];if(UI.cu){UI.place=null;renderScene()}renderMeter();renderCard();return}
+  if(t.dataset.mode){if(!TOOL_BY[UI.tool].fns.includes(t.dataset.mode))return;UI.mode=t.dataset.mode;UI.leads=[];if(UI.cu){UI.place=null;renderScene()}renderMeter();renderCard();return}
   if(t.dataset.tab){UI.tab=t.dataset.tab;renderTab();return}
   if(t.dataset.ask){const k=t.dataset.ask;G.asked[k]=true;G.order.push('q:'+k);addLog(`Asked: ${QS.find(q=>q[0]===k)[1]}`);renderTab();return}
 });
