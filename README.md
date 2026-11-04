@@ -18,6 +18,7 @@ It runs as one HTML file with no server, no account and no tracking. Your scores
 | | |
 |---|---|
 | **Job site** | A cutaway house you walk through: thermostat, furnace and coil, breaker panel, condenser, registers. |
+| **House layouts** | 4 house types (ranch, ranch with basement, two-story colonial, Cape Cod) with 2–3 rooms, ceiling or floor registers, and the condenser on either side. Switch rooms in the Registers view. |
 | **Close-up views** | Detailed views of 11 parts (contactor, capacitor, compressor terminals, control board, etc.). Tap any two terminals for the red and black leads. |
 | **Modeled voltages** | Every terminal has a modeled voltage, so any lead placement gives a consistent reading, including ghost voltage on floating conductors and warnings when the leads span two circuits. |
 | **Real tools** | Multimeter (V AC, Ω, µF), amp clamp, probe and pipe-clamp thermometer, refrigerant gauges, PT chart, superheat and subcooling worksheet. |
@@ -100,10 +101,11 @@ manifest.webmanifest  install settings (name, icons, colors)
 icons/                app icons
 ```
 
-**Updating:** after replacing `index.html`, change `VERSION` in `sw.js` (e.g. `hvac-sim-v3` → `hvac-sim-v4`) so installed copies pick up the new build.
+**Updating:** after replacing `index.html`, change `VERSION` in `sw.js` (e.g. `hvac-sim-v4` → `hvac-sim-v5`) so installed copies pick up the new build.
 
 ## Changelog
 
+- **v4** Randomized house layouts (4 types, 2–3 rooms, mirrored sides), per-room registers, layout-aware airflow and airflow view. Note: replay seeds from v3 or earlier generate different calls.
 - **v3** Quick-action bar under the scene, pulsing panel markers, airflow that matches what's running, hidden airflow view, iOS animation fix.
 - **v2** Close-up views with free meter-lead probing, separate pole and winding readings, installable offline app.
 - **v1** Core game: randomized calls, physics model, safety gating, graded debriefs, auto difficulty.
