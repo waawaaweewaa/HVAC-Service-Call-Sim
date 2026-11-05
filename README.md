@@ -30,7 +30,7 @@ It runs as one HTML file with no server, no account and no tracking. Your scores
 | **Randomized calls** | 16 faults across 4 difficulty tiers. Customer complaints vary, red herrings appear, and the same fault never comes up twice in a row. |
 | **Graded debriefs** | Diagnostic, Technical Accuracy, and Troubleshooting scores. Shows which proof readings you took, a critique, how a senior tech would run the call, and the sequence of operation. |
 | **Auto difficulty** | Apprentice → Junior Tech → Service Tech → Senior Tech, based on your recent scores. |
-| **HD mode** | One tap switches flat colors to textured surfaces. Terminals and labels stay high-contrast for learning. |
+| **HD mode** | One tap adds realistic lighting, shadows, brushed metal and textures to every scene and close-up. Terminals and labels stay high-contrast for learning. |
 | **Landscape split** | Turn your phone sideways: house on the left, meter and work order on the right. |
 | **Field wear** | Oil stains at leaks, scorch marks, melted insulation, rust and fin corrosion by equipment age, sweating suction lines. Clues show up on some calls only, and some are decoys. |
 | **Live airflow** | Duct and condenser airflow reflects what is actually running. A hidden airflow view shows air temperature and volume through the whole system. |
@@ -130,7 +130,7 @@ Generated from the hazard register in `index.html`. Every **Covered** hazard has
 ## Roadmap
 
 - [ ] Review by a working HVAC technician
-- [x] HD mode: realistic textures in the job site and close-up views
+- [x] HD mode: realistic lighting, shadows and textures in every scene and close-up
 - [x] Landscape split view on phones
 - [x] Version label in the app header
 - [ ] Heat pumps (reversing valve, defrost)
@@ -148,10 +148,20 @@ manifest.webmanifest  install settings (name, icons, colors)
 icons/                app icons
 ```
 
-**Updating:** after replacing `index.html`, change `VERSION` in `sw.js` (e.g. `hvac-sim-v8` → `hvac-sim-v9`) and the version tag in the `index.html` title so installed copies pick up the new build.
+**Updating:** after replacing `index.html`, change `VERSION` in `sw.js` (e.g. `hvac-sim-v8.10` → `hvac-sim-v9`) and the version tag in the `index.html` title so installed copies pick up the new build.
 
 ## Changelog
 
+- **v8.10** HD+ becomes HD. The HD button is on/off again, and HD now applies one light source, cast shadows, metal sheen, wire gloss, brushed-metal and fin textures and fine grain to every scene and close-up, in light and dark mode. Lighting is assigned by material, so new scenes get it automatically. Dark mode uses softer highlights. Fixed overlapping labels on the blower, fan, board and panel close-ups.
+- **v8.9** HD+ prototype (tap HD twice): one light source, contact shadows, ambient occlusion, metal sheen, wire gloss and generated grain on the condenser scene and contactor close-up. Shows a frame-rate readout. Other scenes use regular HD for now.
+- **v8.8** Close-up hint is now icon-only: selecting a part pops up a magnifier that fades after 5 seconds. Tap the part again (or the magnifier) within that time to open its close-up. No permanent badges or text.
+- **v8.7** Parts with a close-up show a small gray magnifier badge. Tap the part to pop up a subtle Open close-up bubble (white, outlined), kept visually separate from the glowing yellow panel controls.
+- **v8.6** Panel controls are quieter: only the glowing yellow dot shows. Tap the dot, or the panel itself, to pop up the Remove / Reinstall label, then tap the label to confirm.
+- **v8.5** Louvered panels cover the condenser coil, with their own pulsing Remove / Reinstall control (separate from the electrical service panel, as on real units). Through the slats you only see slivers of the coil, though heavy dirt still shows. The coil close-up and coil cleaning need the louvers off, and leaving them off is flagged at closeout.
+- **v8.4** Condenser coil redrawn to stand apart from the cabinet: blue-gray aluminum fins, copper tube rows and a wire guard, framed by painted cabinet posts and service panel.
+- **v8.3** Condenser coil close-up (fins, return bends, dirt and cottonwood, bent fins, corrosion) with air-in and air-out temperatures: normal rise is about 15–25°F, a dirty coil runs higher, low charge runs lower. Double-tap (or double-click) any part to jump straight to its close-up.
+- **v8.2** The pulsing yellow markers are now the controls: tap the dot or its label to remove the thermostat faceplate, blower door or condenser service panel, and a Reinstall button appears once it's off.
+- **v8.1** Interactive thermostat: setpoint − / +, mode (COOL / OFF) and fan (AUTO / ON) on the thermostat and in the quick bar. It only calls for cooling when room temperature is above the setpoint, fan ON runs the blower alone, and a dead thermostat ignores button presses.
 - **v8** Hazard register with 19 automated in-app safety tests; capacitor stored-charge model (leftover DC until discharged, verify on V⎓, no Ω across a charged cap); tool tray with eight separate tools; multimeter jacks, DC setting and LEAd alert; tech-caused faults with Continue / New call and repair tracking; free jumper wire and capacitor discharge tool; job-closeout check; Field notes tab with first-time pop-ups.
 - **v7** Field wear and damage pack: new fault (loose / burnt connection at contactor T1, found by measuring voltage drop under load), oil stains at refrigerant leaks, scorch marks on shorts and burnt contacts, age-based rust and fin corrosion, sweating suction line. Visual clues appear on only some calls, and some are decoys (old repaired-leak oil, harmless heat tint), so readings still decide the diagnosis.
 - **v6** Tighter default framing (house and equipment fill the scene; whole house fits the left half in landscape). Scene-only zoom: pinch, double-tap empty scenery, drag to pan, Reset zoom button; double-tap no longer zooms the whole page. Repeat readings are no longer re-logged: an identical reading shows an "Already logged · #n" notice with a View log shortcut, and doesn't count against efficiency. Readings that change after you change something still log.

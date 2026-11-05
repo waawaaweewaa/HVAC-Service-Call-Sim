@@ -21,6 +21,7 @@
   --bg:#e8ecef;--panel:#ffffff;--panel2:#f3f5f7;--ink:#16202a;--muted:#5a6773;--line:#cfd6dc;--sline:#56616b;
   --accent:#f2b705;--accent-ink:#1d1704;--copper:#b5652a;--cold:#2a78b5;--hot:#c4432b;--ok:#2c8a55;--warn:#a87300;
   --sky:#dce8f0;--grass:#a9c48f;--wall:#efe4cd;--wall2:#e2d3b3;--roof:#6d5245;--attic:#eadcbb;--metal:#d3d9de;--metal2:#a3aeb7;--dark:#2a3239;
+  --fin:#a7bccb;--finline:#6f8797;--cab:#d9d1bd;
   --duct:#bcd7ea;--pcb:#3f7a52;--lcd:#c3d4a8;--lcd-ink:#1b2416;--frost:#ffffff;--water:#5aa3d6;--dirt:#8a6a45;--filter:#f4f1e6;
   --f-display:"Barlow Condensed","Arial Narrow",Arial,sans-serif;
   --f-body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
@@ -32,11 +33,13 @@
   --bg:#11161b;--panel:#1a2128;--panel2:#212a32;--ink:#e4eaef;--muted:#93a0ab;--line:#2d3842;--sline:#9aa6b0;
   --accent:#f2b705;--accent-ink:#1d1704;--copper:#d0844a;--cold:#5aa6dd;--hot:#e2654d;--ok:#4fbf80;--warn:#e0a52a;
   --sky:#1d2a35;--grass:#2f4127;--wall:#3a3428;--wall2:#2f2a20;--roof:#4a362d;--attic:#3b3325;--metal:#6f7a83;--metal2:#4f5a63;--dark:#0d1114;
+  --fin:#4d6576;--finline:#2c3d48;--cab:#5f5a4c;
   --duct:#3d5c72;--pcb:#2f5e3e;--lcd:#9fb685;--lcd-ink:#121a0e;--frost:#e8f4ff;--water:#3d86bd;--dirt:#7a5c3a;--filter:#cfc9b6;color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#11161b;--panel:#1a2128;--panel2:#212a32;--ink:#e4eaef;--muted:#93a0ab;--line:#2d3842;--sline:#9aa6b0;
   --accent:#f2b705;--accent-ink:#1d1704;--copper:#d0844a;--cold:#5aa6dd;--hot:#e2654d;--ok:#4fbf80;--warn:#e0a52a;
   --sky:#1d2a35;--grass:#2f4127;--wall:#3a3428;--wall2:#2f2a20;--roof:#4a362d;--attic:#3b3325;--metal:#6f7a83;--metal2:#4f5a63;--dark:#0d1114;
+  --fin:#4d6576;--finline:#2c3d48;--cab:#5f5a4c;
   --duct:#3d5c72;--pcb:#2f5e3e;--lcd:#9fb685;--lcd-ink:#121a0e;--frost:#e8f4ff;--water:#3d86bd;--dirt:#7a5c3a;--filter:#cfc9b6;color-scheme:dark}
 *{box-sizing:border-box}
 body{background:var(--bg);color:var(--ink);font:15px/1.5 var(--f-body);margin:0}
@@ -190,6 +193,8 @@ table.hist th,table.hist td{text-align:left;padding:6px;border-bottom:1px solid 
 .frostline{fill:none;stroke:var(--frost);stroke-width:3;stroke-dasharray:2 3;stroke-linecap:round}
 .wire{fill:none;stroke-width:2.4;stroke-linecap:round}
 .fin{stroke:var(--metal2);stroke-width:1}
+.k-fin{fill:var(--fin)}.k-cab{fill:var(--cab)}
+.fin2{stroke:var(--finline);stroke-width:1.1}.ctube{stroke:var(--copper);stroke-width:2.2;opacity:.6}.guard{stroke:var(--dark);stroke-width:1.3;opacity:.38;fill:none}
 .lbl{font:600 10.5px var(--f-display);letter-spacing:.1em;fill:var(--ink);text-transform:uppercase}
 .lbl2{font:600 13px var(--f-display);letter-spacing:.1em;fill:var(--ink);text-transform:uppercase}
 .tiny{font:500 9px var(--f-mono);fill:var(--ink)}
@@ -214,6 +219,24 @@ table.hist th,table.hist td{text-align:left;padding:6px;border-bottom:1px solid 
 .cmp .hit{fill:transparent;stroke:transparent;stroke-width:2.2}
 .cmp:hover .hit,.cmp:focus .hit{stroke:var(--accent);stroke-dasharray:6 3}
 .cmp.sel .hit{stroke:var(--accent);stroke-dasharray:none;stroke-width:3}
+.tbtn{cursor:pointer;outline:none}
+.lens{fill:none;stroke:var(--muted);stroke-width:1.5;stroke-linecap:round}
+.cubtn{cursor:pointer;outline:none}
+.cubtn .ring{fill:var(--panel);stroke:var(--ink);stroke-width:1.6}
+.cubtn .lens2{fill:none;stroke:var(--ink);stroke-width:2;stroke-linecap:round}
+.cubtn:hover .ring,.cubtn:focus .ring{stroke:var(--accent);stroke-width:2.5}
+.cupill{cursor:pointer;outline:none}
+.cupill .bg{fill:var(--panel);stroke:var(--sline);stroke-width:1.3}
+.cupill .lens{stroke:var(--ink);stroke-width:2.2}
+.cupill:hover .bg,.cupill:focus .bg{stroke:var(--ink);stroke-width:2.2}
+.pchip{cursor:pointer;outline:none}
+.pdot{cursor:pointer;outline:none}.pdot:focus circle[fill="transparent"],.pdot:hover circle[fill="transparent"]{stroke:var(--accent);stroke-width:2.5}
+.pchip rect{fill:var(--accent);stroke:var(--accent-ink);stroke-width:1.5}
+.pchip text{font:700 12px var(--f-display);letter-spacing:.04em;text-transform:uppercase;fill:var(--accent-ink)}
+.pchip.still rect{fill:var(--panel);stroke:var(--sline)}.pchip.still text{fill:var(--ink)}
+.pchip:hover rect,.pchip:focus rect{stroke:var(--ink);stroke-width:3}
+.tbtn:hover rect,.tbtn:hover circle,.tbtn:focus rect,.tbtn:focus circle{stroke:var(--accent);stroke-width:3}
+.tbtn:active rect,.tbtn:active circle{fill:var(--accent)}
 .wr{fill:none;stroke-linecap:round;stroke-linejoin:round}
 .tsm{font:600 12px var(--f-display);letter-spacing:.06em;fill:var(--ink);text-transform:uppercase;paint-order:stroke;stroke:var(--panel);stroke-width:3px}
 .tsm.inv{fill:#eef2f4;stroke:none}
@@ -274,10 +297,10 @@ table.hist th,table.hist td{text-align:left;padding:6px;border-bottom:1px solid 
 <body>
 <div class="wrap">
   <header class="top">
-    <div class="brand"><h1><b>HVAC</b> Service Call Sim<sup class="ver" title="Version">v8</sup></h1><span class="meta" id="hmeta"></span></div>
+    <div class="brand"><h1><b>HVAC</b> Service Call Sim<sup class="ver" title="Version">v8.10</sup></h1><span class="meta" id="hmeta"></span></div>
     <span class="chip tier" id="htier"></span>
     <span class="spacer"></span>
-    <button class="btn sm" id="bHD" type="button" aria-pressed="false" title="Realistic textures">HD</button>
+    <button class="btn sm" id="bHD" type="button" aria-pressed="false" title="Realistic lighting and textures">HD</button>
     <button class="btn sm" id="bStats" type="button">Record &amp; settings</button>
     <button class="btn sm" id="bNew" type="button">New call</button>
   </header>
@@ -429,11 +452,11 @@ SYSTEMS['split-ac']={
     return{sys:'split-ac',
       env:{amb:R.int(83,95),room:R.int(77,81),stain:false},
       power:{furnBkr:true,furnSw:true,condBkr:'on',discIn:true},
-      stat:{mode:'cool',set:R.int(68,72),cWire:R.chance(.65),batt:true,faceOff:false,icon:false},
+      stat:{mode:'cool',fan:'auto',set:R.int(68,72),cWire:R.chance(.65),batt:true,faceOff:false,icon:false},
       indoor:{doorOn:true,doorHeld:false,xfmrOK:true,xfmrSmell:false,fuseOK:true,fuseVisible:false,bCapRated:bRated,bCapUF:t(bRated),bulge:false,
         filter:'clean',drainClogged:false,drainSlow:false,jumper:false,discharged:false,blowerFLA:+R.range(3.4,5.6).toFixed(1)},
       outdoor:{panelOn:true,coilOK:true,pitted:false,pittedCosmetic:false,hermRated,fanRated,hermUF:t(hermRated),fanUF:t(fanRated),bulge:false,
-        coil:'clean',discharged:false,compHot:false,rla,lra:Math.round(rla*5.1),fanFLA,tons,yShort:false,ants:false,bentFins:false,rattle:false,lugBurnt:false,lugVisible:false,lugTint:false,yScorch:false,pitScorch:false,rust:age>=14?2:age>=10?(R.chance(.7)?1:0):0,
+        coil:'clean',discharged:false,compHot:false,rla,lra:Math.round(rla*5.1),fanFLA,tons,yShort:false,ants:false,bentFins:false,rattle:false,louversOn:true,lugBurnt:false,lugVisible:false,lugTint:false,yScorch:false,pitScorch:false,rust:age>=14?2:age>=10?(R.chance(.7)?1:0):0,
         mocp:Math.max(15,Math.ceil((rla*2.25+fanFLA)/5)*5)},
       ref:{type:ref,charge:'ok',oilAt:null,oilOld:false,targetSC:R.pick([9,10,11,12]),factory:+(tons*2.4+R.range(.6,1.4)).toFixed(1)},
       equip:{brand:R.pick(BRANDS),year:2026-age,age,serial:(R.int(1e5,9e5)).toString(36).toUpperCase()},
@@ -459,7 +482,8 @@ SYSTEMS['split-ac']={
     d.T=d.pulled&&!O.pitted?d.discLoad:0;
     d.comp=!d.T?'off':(O.hermUF/O.hermRated<.8?'hum':'run');
     d.fan=!d.T?'off':(O.fanUF/O.fanRated<.6?'hum':'run');
-    d.blowerV=(d.callY||(jt==='G'&&d.R>0))&&d.boardPwr?120:0;
+    d.fanOn=d.statOn&&T.fan==='on';d.gOn=d.R>0&&(d.callY||d.fanOn||jt==='G');
+    d.blowerV=d.gOn&&d.boardPwr?120:0;
     d.blower=!d.blowerV?'off':(I.bCapUF/I.bCapRated<.6?'hum':'run');
     const amb=E.amb,room=E.room,rf=s.ref.type;let sS,SH,sC,SC,dT,ampF=.78,iced=false;
     if(d.comp==='run'){
@@ -521,8 +545,8 @@ Field tip — confirming refrigerant: (1) this data plate; (2) A2L units such as
   },
   comps:{
     tstat:{z:'tstat',n:'Thermostat',vis:s=>!s.stat.faceOff,
-      ins:(s,d)=>d.statOn?`Display: ${s.env.room}°F room · COOL · SET ${s.stat.set}°F${d.statCall?' · "COOL ON" lit':''}${s.stat.icon?'\nA "CHANGE FILTER" reminder icon is showing.':''}`:'Display is completely blank. Buttons do nothing.',
-      acts:['statFace','statCool','statBatt']},
+      ins:(s,d)=>d.statOn?`Display: ${s.env.room}°F room · ${s.stat.mode==='cool'?'COOL':'OFF'} · SET ${s.stat.set}°F · FAN ${s.stat.fan==='on'?'ON':'AUTO'}${d.statCall?' · "COOL ON" lit':''}${s.stat.icon?'\nA "CHANGE FILTER" reminder icon is showing.':''}\nThe thermostat calls for cooling only when room temperature is above the setpoint.`:'Display is completely blank. Buttons do nothing.',
+      acts:['statDown','statUp','statMode','statFan','statFace','statBatt']},
     tstat_t:{z:'tstat',n:'Thermostat terminals',vis:s=>s.stat.faceOff,
       ins:s=>s.stat.cWire?'Sub-base wiring: R, C, Y, G, W landed. C wire present, so the thermostat runs on 24 V from the furnace.':'Sub-base wiring: R, Y, G, W. No C wire. Battery compartment holds 2× AA.',
       pts:['t_rc','t_ry','t_yc'],acts:['statFace','statBatt','jumpOff']},
@@ -578,7 +602,7 @@ Field tip — confirming refrigerant: (1) this data plate; (2) A2L units such as
       ins:(s,d)=>(d.fan==='run'?'Fan spinning.':d.fan==='hum'?'Fan motor humming, blade not turning. Push a blade with a stick and it spins up.':'Fan not running.')+(s.outdoor.rattle?'\nTop grille rattles: one loose screw.':'')+(s.outdoor.ants?'\nAnts trailing across the top grille.':'')+`\nMotor FLA ${s.outdoor.fanFLA} A.`,
       pts:['c_fan_a']},
     ccoil:{z:'cond',n:'Condenser coil',vis:()=>true,
-      ins:s=>({clean:'Coil fins clean; you can see light through them.',dusty:'Light layer of dirt and lint on the coil face.',dirty:'Coil face matted with cottonwood fluff and dirt. No light through it.'})[s.outdoor.coil]+(s.outdoor.bentFins?'\nOne corner has bent fins (under 10% of the face). Cosmetic.':'')+(s.outdoor.rust===2?'\nBottom rows of fins are corroded and flaking. Most of the face still passes air.':'')+(s.outdoor.rust?`\nSurface rust on the base pan and cabinet corners (unit is ${s.equip.age} years old).`:''),acts:['coilClean']},
+      ins:s=>s.outdoor.louversOn?'Louver panels are on. You can only see the coil in slivers between the slats.'+({clean:'',dusty:' The fins look a little dusty through the gaps.',dirty:' Even through the slats, the fins look matted with dirt and cottonwood.'})[s.outdoor.coil]+(s.outdoor.rust?' Rust is showing on the base pan.':'')+'\nRemove the louver panels for a full look, or to clean the coil.':({clean:'Coil fins clean; you can see light through them.',dusty:'Light layer of dirt and lint on the coil face.',dirty:'Coil face matted with cottonwood fluff and dirt. No light through it.'})[s.outdoor.coil]+(s.outdoor.bentFins?'\nOne corner has bent fins (under 10% of the face). Cosmetic.':'')+(s.outdoor.rust===2?'\nBottom rows of fins are corroded and flaking. Most of the face still passes air.':'')+(s.outdoor.rust?`\nSurface rust on the base pan and cabinet corners (unit is ${s.equip.age} years old).`:''),pts:['c_cin','c_cout'],acts:['louvers','coilClean']},
     ports:{z:'cond',n:'Service valves',vis:()=>true,
       ins:(s,d)=>(d.ref.run?(d.ref.iced?'Suction line frosted all the way to the service valve.':d.ref.sweat?'Suction line cold and sweating, liquid line warm.':'Suction line only slightly cool and dry, not sweating. Liquid line warm.'):'Both lines near outdoor temperature.')
         +(s.ref.oilAt==='valve'?(s.ref.oilOld?'\nDry, dusty oil residue caked around the suction valve flare nut. It does not feel wet.':'\nWet, shiny oil film with dirt stuck to it around the suction valve flare nut.'):'')+'\nPSI = gauge pressure · °F = pipe-clamp line temperature.',pts:['c_suct','c_liq']},
@@ -597,7 +621,7 @@ Field tip — confirming refrigerant: (1) this data plate; (2) A2L units such as
     f_line:{c:'cab',l:'Line voltage at furnace junction box (L1 ↔ N)',m:{V:(s,d)=>rv('f_line',d.lineIn,'V AC',.8)}},
     f_rc:{c:'board',l:'Board R ↔ C',m:{V:(s,d)=>rv('f_rc',d.R,'V AC')}},
     f_yc:{c:'board',l:'Board Y ↔ C',m:{V:(s,d)=>rv('f_yc',d.callY?d.R:0,'V AC')}},
-    f_gc:{c:'board',l:'Board G ↔ C',m:{V:(s,d)=>rv('f_gc',d.callY?d.R:0,'V AC')}},
+    f_gc:{c:'board',l:'Board G ↔ C',m:{V:(s,d)=>rv('f_gc',d.gOn?d.R:0,'V AC')}},
     f_fuse:{c:'fuse',l:'Across the board fuse',dead:{R:'in'},m:{V:(s,d)=>rv('f_fuse',d.sec>0&&!s.indoor.fuseOK?d.sec:0,'V AC'),R:s=>s.indoor.fuseOK?{t:'0.1',u:'Ω'}:{t:'OL',u:'Ω',n:'Open.'}}},
     f_xp:{c:'xfmr',l:'Transformer primary (120 V side)',dead:{R:'in'},m:{V:(s,d)=>rv('f_xp',d.boardPwr?120:0,'V AC',.8),R:s=>s.indoor.xfmrOK?rv('f_xpR',32.5,'Ω',.6):{t:'OL',u:'Ω'}}},
     f_xs:{c:'xfmr',l:'Transformer secondary (24 V side)',dead:{R:'in'},m:{V:(s,d)=>rv('f_xs',d.sec,'V AC'),R:()=>rv('f_xsR',1.2,'Ω',.1)}},
@@ -626,13 +650,21 @@ Field tip — confirming refrigerant: (1) this data plate; (2) A2L units such as
     c_ywire:{c:'lvwire',l:'Y wire ↔ cabinet ground (wire lifted)',dead:{R:'lv'},m:{R:s=>s.outdoor.yShort?{t:'0.4',u:'Ω',n:'Dead short to ground.'}:{t:'OL',u:'Ω'}}},
     c_suct:{c:'ports',l:'Suction line (large, insulated)',m:{P:(s,d)=>rv('c_suct',d.ref.suctP,'psig',.8,0),T:(s,d)=>rv('c_suctT',d.ref.suctT,'°F',.4)}},
     c_liq:{c:'ports',l:'Liquid line (small)',m:{P:(s,d)=>rv('c_liq',d.ref.liqP,'psig',1.5,0),T:(s,d)=>rv('c_liqT',d.ref.liqT,'°F',.4)}},
+    c_cin:{c:'ccoil',l:'Air entering the condenser coil',m:{T:s=>rv('c_cin',s.env.amb,'°F',.3)}},
+    c_cout:{c:'ccoil',l:'Air leaving the condenser fan (top)',m:{T:(s,d)=>{const O=s.outdoor;
+      if(d.fan!=='run')return{...rv('c_cout',s.env.amb+6,'°F',.4),n:'The fan isn\'t moving air. You are reading warm air sitting over the coil.'};
+      if(d.comp!=='run')return rv('c_cout',s.env.amb+1,'°F',.3);
+      return rv('c_cout',s.env.amb+(O.coil==='dirty'?27:O.coil==='dusty'?21:s.ref.charge==='over'?22:s.ref.charge==='low'?12:18),'°F',.4)}}},
     c_amb:{c:'amb',l:'Outdoor ambient',m:{T:s=>rv('c_amb',s.env.amb,'°F',.3)}},
     r_sup:{c:'sup',l:'Supply air at register',m:{T:(s,d)=>d.supplyT==null?{...rv('r_sup',s.env.room,'°F',.3),n:'No airflow. You are reading room air.'}:rv('r_sup',d.supplyT,'°F',.3)}},
     r_ret:{c:'ret',l:'Return air at grille',m:{T:s=>rv('r_ret',s.env.room,'°F',.3)}}
   },
   actions:{
     statFace:{l:s=>s.stat.faceOff?'Reinstall faceplate':'Remove faceplate (stays wired)',show:()=>true,run:s=>{s.stat.faceOff=!s.stat.faceOff;return s.stat.faceOff?'Faceplate off. Terminals exposed.':'Faceplate back on.'}},
-    statCool:{l:()=>'Set COOL · 65°F',show:(s,d)=>d.statOn,run:s=>{s.stat.set=65;s.stat.mode='cool';return 'Setpoint 65°F. The thermostat should be calling for cooling now.'}},
+    statDown:{l:()=>'Setpoint −',show:(s,d)=>d.statOn&&!s.stat.faceOff,quiet:true,run:s=>tstatSet(s,'set',-1)},
+    statUp:{l:()=>'Setpoint +',show:(s,d)=>d.statOn&&!s.stat.faceOff,quiet:true,run:s=>tstatSet(s,'set',1)},
+    statMode:{l:s=>`Mode: ${s.stat.mode==='cool'?'COOL':'OFF'}`,show:(s,d)=>d.statOn&&!s.stat.faceOff,quiet:true,run:s=>tstatSet(s,'mode')},
+    statFan:{l:s=>`Fan: ${s.stat.fan==='on'?'ON':'AUTO'}`,show:(s,d)=>d.statOn&&!s.stat.faceOff,quiet:true,run:s=>tstatSet(s,'fan')},
     statBatt:{l:()=>'Replace AA batteries',show:s=>!s.stat.cWire,need:['stat_batt'],cheap:true,run:s=>{s.stat.batt=true;return 'Fresh batteries in.'}},
     door:{l:s=>s.indoor.doorOn?'Remove blower door':'Reinstall blower door',show:()=>true,run:s=>{s.indoor.doorOn=!s.indoor.doorOn;if(s.indoor.doorOn)s.indoor.doorHeld=false;return s.indoor.doorOn?'Door back on; door switch closed.':'Door off. The door switch opened: board and blower are de-energized.'}},
     doorHold:{l:s=>s.indoor.doorHeld?'Release door switch':'Tape door switch closed',show:s=>!s.indoor.doorOn,run:s=>{s.indoor.doorHeld=!s.indoor.doorHeld;return s.indoor.doorHeld?'Door switch taped closed. Board is LIVE with the door off. Watch your hands.':'Door switch released. Board de-energized.'}},
@@ -653,7 +685,8 @@ Field tip — confirming refrigerant: (1) this data plate; (2) A2L units such as
     contRep:{l:()=>'Replace contactor',show:()=>true,dead:'out',need:['coil_open','contactor_pitted','l_contacts','lug_burnt'],run:s=>{s.outdoor.coilOK=true;s.outdoor.pitted=false;s.outdoor.pittedCosmetic=false;return 'New 30 A contactor installed.'}},
     capDis:{l:()=>'Discharge capacitor',show:()=>true,dead:'out',run:s=>{s.outdoor.discharged=true;return 'Capacitor discharged (HERM–C and FAN–C).'}},
     capRep:{l:()=>'Replace dual capacitor',show:()=>true,dead:'out',cap:'outdoor',need:['cap_fan','cap_herm','l_fancap'],run:s=>{const O=s.outdoor;O.hermUF=O.hermRated;O.fanUF=O.fanRated;O.bulge=false;O.compHot=false;return `New ${O.hermRated}/${O.fanRated} µF capacitor installed. The compressor shell was cooled with a hose so its overload could reset.`}},
-    coilClean:{l:()=>'Clean condenser coil',show:()=>true,dead:'out',need:['coil_dirty','l_coildust'],run:s=>{s.outdoor.coil='clean';return 'Coil cleaned and rinsed from the inside out.'}},
+    louvers:{l:s=>s.outdoor.louversOn?'Remove louver panels':'Reinstall louver panels',show:()=>true,run:s=>{s.outdoor.louversOn=!s.outdoor.louversOn;return s.outdoor.louversOn?'Louver panels back on.':'Louver panels off. The whole coil face is exposed.'}},
+    coilClean:{l:()=>'Clean condenser coil',show:()=>true,req:s=>s.outdoor.louversOn?'Remove the louver panels first.':null,dead:'out',need:['coil_dirty','l_coildust'],run:s=>{s.outdoor.coil='clean';return 'Coil cleaned and rinsed from the inside out.'}},
     lugRep:{l:()=>'Cut back and re-terminate T1 wire',show:()=>true,dead:'out',need:['lug_burnt'],run:s=>{s.outdoor.lugBurnt=false;s.outdoor.lugVisible=false;return 'Wire cut back to clean copper, new terminal installed, lug torqued.'}},
     wireRep:{l:()=>'Repair wire and add grommet',show:()=>true,need:['fuse_chafe'],run:s=>{s.outdoor.yShort=false;return 'Damaged section spliced, cable rerouted through a grommet.'}}
   }
@@ -661,11 +694,21 @@ Field tip — confirming refrigerant: (1) this data plate; (2) A2L units such as
 
 /* ---------- scene art (system-specific) ---------- */
 const HIT=(x,y,w,h)=>`<rect class="hit" x="${x}" y="${y}" width="${w}" height="${h}" rx="5"/>`;
-function CMP(id,sel,inner,box){const c=SYS().comps[id];return `<g class="cmp${sel===id?' sel':''}" data-comp="${id}" tabindex="0" role="button" aria-label="${c.n}">${inner}${HIT(...box)}</g>`}
+/* A part on a zone scene. Parts with an open close-up get a small magnifier badge; selecting one queues a subtle "Open close-up" bubble. */
+/* A part on a zone scene. When a part with a reachable close-up is selected, a magnifier pops up for 5 s;
+   tapping it, or the part again, opens the close-up. */
+function CMP(id,sel,inner,box){const S=SYS(),c=S.comps[id],cuId=S.cuOf&&S.cuOf[id],cu=cuId&&S.closeups[cuId],ok=!!cu&&!(cu.req&&cu.req(G.st));const badge='';
+  if(ok&&sel===id&&globalThis._cuHint&&globalThis._cuHint.comp===id){const [x,y,w]=box,cx=Math.max(20,Math.min(580,x+w-4)),cy=Math.max(20,Math.min(380,y+4)),left=Math.max(0,(5000-(Date.now()-globalThis._cuHint.t))/1000-.6);
+    globalThis._cuPill=`<g class="cupill" data-cu="${cuId}" tabindex="0" role="button" aria-label="Open close-up: ${cu.n}"><circle class="bg" cx="${cx}" cy="${cy}" r="16"/><circle class="lens" cx="${cx-2}" cy="${cy-2}" r="5.5"/><line class="lens" x1="${cx+2.2}" y1="${cy+2.2}" x2="${cx+7.5}" y2="${cy+7.5}"/>${RM?'':`<animate attributeName="opacity" from="0" to="1" dur=".15s" fill="freeze"/><animate attributeName="opacity" begin="${left.toFixed(2)}s" dur=".6s" from="1" to="0" fill="freeze"/>`}</g>`}
+  return `<g class="cmp${sel===id?' sel':''}" data-comp="${id}" tabindex="0" role="button" aria-label="${c.n}">${inner}${HIT(...box)}${badge}</g>`}
 const RM=typeof matchMedia!=='undefined'&&matchMedia('(prefers-reduced-motion: reduce)').matches;
 /* SMIL animations: WebKit starts these reliably on SVG injected via innerHTML */
 const FLOW=(p,cls,dur)=>`<path d="${p}" class="${cls}">${RM?'':`<animate attributeName="stroke-dashoffset" from="0" to="-20" dur="${fx(dur,2)}s" repeatCount="indefinite"/>`}</path>`;
 const SPINA=dur=>RM?'':`<animateTransform attributeName="transform" type="rotate" from="0" to="360" dur="${dur}s" repeatCount="indefinite"/>`;
+/* Panel controls drawn in the scene: a pulsing dot plus a labeled button. live=false gives a plain "Reinstall" button. */
+const PCHIP=(x,y,act,label,[bx,by,bw],live=true)=>{const open=globalThis.UICONF===act;
+  const dot=`<g class="pdot${live?'':' still'}" data-confirm="${act}" tabindex="0" role="button" aria-label="${label}" aria-expanded="${open}"><circle cx="${x}" cy="${y}" r="22" fill="transparent"/>${live?PULSE(x,y):`<circle cx="${x}" cy="${y}" r="8" class="k-panel st"/>`}</g>`;
+  return dot+(open?`<g class="pchip${live?'':' still'}" data-act="${act}" tabindex="0" role="button" aria-label="${label}"><rect x="${bx}" y="${by}" width="${bw}" height="28" rx="14"/><text x="${bx+bw/2}" y="${by+18.5}" text-anchor="middle">${label}</text></g>`:'')};
 const PULSE=(x,y)=>`<g pointer-events="none"><circle cx="${x}" cy="${y}" r="8" class="k-acc st"/><circle cx="${x}" cy="${y}" r="8" fill="none" style="stroke:var(--accent);stroke-width:3">${RM?'':'<animate attributeName="r" values="8;20;8" dur="1.8s" repeatCount="indefinite"/><animate attributeName="opacity" values="1;0;1" dur="1.8s" repeatCount="indefinite"/>'}</circle></g>`;
 const AIRF=(s,d)=>d.blower!=='run'?0:d.ref.iced||s.indoor.filter==='clogged'?.35:s.indoor.filter==='dirty'?.75:1;
 const BLADES='<path d="M0 0 L36 -9 L36 9Z M0 0 L-36 9 L-36 -9Z M0 0 L-9 -36 L9 -36Z M0 0 L9 36 L-9 36Z" class="k-dark"/>';
@@ -699,7 +742,7 @@ SYSTEMS['split-ac'].overview=function(s,d,flow){
   a+=`<rect x="${px}" y="${py}" width="28" height="46" rx="2" class="k-metal2 st"/>${[8,16,24].map(o=>`<line x1="${px+6}" y1="${py+o}" x2="${px+22}" y2="${py+o}" class="leader"/>`).join('')}`;
   a+=`<rect x="${g.tstat.x}" y="${g.tstat.y}" width="22" height="28" rx="4" class="k-panel st"/><rect x="${g.tstat.x+4}" y="${g.tstat.y+5}" width="14" height="9" class="${d.statOn?'k-lcd':'k-dark'}"/>`;
   const {gx,gy}=g.ret;a+=`<rect x="${gx-22}" y="${gy-16}" width="44" height="32" class="k-metal st"/>${[-8,0,8].map(o=>`<line x1="${gx-18}" y1="${gy+o}" x2="${gx+18}" y2="${gy+o}" class="leader"/>`).join('')}`;
-  a+=`<rect x="${cx-10}" y="${cy+62}" width="108" height="8" class="k-metal2"/><rect x="${cx}" y="${cy}" width="88" height="62" class="k-metal st"/>${Array.from({length:10},(_,i)=>`<line x1="${cx+6+i*8}" y1="${cy+6}" x2="${cx+6+i*8}" y2="${cy+60}" class="fin"/>`).join('')}`;
+  a+=`<rect x="${cx-10}" y="${cy+62}" width="108" height="8" class="k-metal2"/><rect x="${cx}" y="${cy}" width="88" height="62" class="k-fin st"/>${Array.from({length:20},(_,i)=>`<line x1="${cx+7+i*3.9}" y1="${cy+4}" x2="${cx+7+i*3.9}" y2="${cy+60}" class="fin2"/>`).join('')}${[16,30,44].map(o=>`<line x1="${cx+5}" y1="${cy+o}" x2="${cx+83}" y2="${cy+o}" class="ctube"/>`).join('')}<rect x="${cx}" y="${cy}" width="6" height="62" class="k-cab st"/><rect x="${cx+82}" y="${cy}" width="6" height="62" class="k-cab st"/>${s.outdoor.louversOn?Array.from({length:8},(_,i)=>`<rect x="${cx+6}" y="${cy+3+i*7.4}" width="76" height="4.6" class="k-cab"/>`).join(''):''}`;
   a+=`<ellipse cx="${cx+44}" cy="${cy}" rx="44" ry="7" class="k-dark"/><g transform="translate(${cx+44} ${cy}) scale(1 .16)"><g>${BLADES}${d.fan==='run'?SPINA(.45):''}</g></g>`;
   a+=`<rect x="${dx}" y="${dy}" width="14" height="30" rx="2" class="k-metal2 st"/>`;
   if(globalThis.HDON)a+=`<rect x="${cx+10}" y="${cy+16}" width="22" height="14" rx="1" class="k-panel st"/>`;
@@ -739,13 +782,19 @@ SYSTEMS['split-ac'].scene=function(z,s,d,sel){
   if(z==='tstat'){
     let g=`<rect width="600" height="400" class="k-wall2"/>`;
     if(!s.stat.faceOff){
-      const lcd=d.statOn?`<rect x="228" y="100" width="144" height="86" rx="6" class="k-lcd"/><text x="300" y="158" class="lcdbig" text-anchor="middle">${s.env.room}°</text><text x="238" y="118" class="lcdsm">COOL</text><text x="362" y="118" class="lcdsm" text-anchor="end">SET ${s.stat.set}°</text>${d.statCall?'<text x="238" y="178" class="lcdsm">COOL ON</text>':''}${s.stat.icon?'<text x="362" y="178" class="lcdsm" text-anchor="end">FILTER</text>':''}`:`<rect x="228" y="100" width="144" height="86" rx="6" class="k-dark"/>`;
-      g+=CMP('tstat',sel,`<rect x="198" y="70" width="204" height="250" rx="24" class="k-panel st"/>${lcd}<circle cx="262" cy="252" r="17" class="k-metal st"/><circle cx="338" cy="252" r="17" class="k-metal st"/><text x="262" y="257" class="lbl2" text-anchor="middle">−</text><text x="338" y="257" class="lbl2" text-anchor="middle">+</text>`,[192,64,216,262]);g+=PULSE(386,84);
+      const T=s.stat,lcd=d.statOn?`<rect x="228" y="96" width="144" height="92" rx="6" class="k-lcd"/><text x="300" y="156" class="lcdbig" text-anchor="middle">${s.env.room}°</text><text x="238" y="114" class="lcdsm">${T.mode==='cool'?'COOL':'OFF'}</text><text x="362" y="114" class="lcdsm" text-anchor="end">SET ${T.set}°</text>${d.statCall?'<text x="238" y="180" class="lcdsm">COOL ON</text>':''}<text x="362" y="180" class="lcdsm" text-anchor="end">${T.fan==='on'?'FAN ON':s.stat.icon?'FILTER':''}</text>`:`<rect x="228" y="96" width="144" height="92" rx="6" class="k-dark"/>`;
+      g+=CMP('tstat',sel,`<rect x="198" y="70" width="204" height="250" rx="24" class="k-panel st"/>${lcd}`,[192,64,216,262]);
+      const TB=(act,lab,inner)=>`<g class="tbtn" data-act="${act}" tabindex="0" role="button" aria-label="${lab}">${inner}</g>`;
+      g+=TB('statMode','Thermostat mode',`<rect x="228" y="198" width="66" height="26" rx="13" class="k-metal st"/><text x="261" y="216" class="tsm" text-anchor="middle">MODE</text>`);
+      g+=TB('statFan','Thermostat fan',`<rect x="306" y="198" width="66" height="26" rx="13" class="k-metal st"/><text x="339" y="216" class="tsm" text-anchor="middle">FAN</text>`);
+      g+=TB('statDown','Setpoint down',`<circle cx="262" cy="266" r="22" class="k-metal st"/><text x="262" y="273" class="lbl2" style="font-size:22px" text-anchor="middle">−</text>`);
+      g+=TB('statUp','Setpoint up',`<circle cx="338" cy="266" r="22" class="k-metal st"/><text x="338" y="273" class="lbl2" style="font-size:22px" text-anchor="middle">+</text>`);
+      g+=PCHIP(386,84,'statFace','Remove faceplate',[404,70,152]);
     }else{
       const ws=[['R','var(--hot)',true],['C','var(--cold)',s.stat.cWire],['Y','var(--accent)',true],['G','var(--ok)',true],['W','var(--metal)',true]];
       const term=ws.map((w,i)=>`<circle cx="${240+i*30}" cy="180" r="9" class="k-metal2 st"/><text x="${240+i*30}" y="208" class="lbl2" text-anchor="middle">${w[0]}</text>${w[2]?`<path d="M${240+i*30} 180 V${300+i*4} H${300}" class="wire" style="stroke:${w[1]}"/>`:''}`).join('');
       g+=CMP('tstat_t',sel,`<rect x="210" y="90" width="180" height="210" rx="10" class="k-metal st"/><rect x="290" y="300" width="22" height="70" class="k-metal2"/>${term}${s.stat.cWire?'':'<rect x="236" y="110" width="128" height="34" rx="4" class="k-dark"/><text x="300" y="132" class="tiny" text-anchor="middle" style="fill:#fff">2× AA</text>'}`,[204,84,192,226]);
-      g+=CMP('tstat',sel,`<rect x="440" y="250" width="110" height="130" rx="14" class="k-panel st" opacity=".9"/><text x="495" y="320" class="lbl" text-anchor="middle">Faceplate</text>`,[434,244,122,142]);
+      g+=CMP('tstat',sel,`<rect x="440" y="250" width="110" height="130" rx="14" class="k-panel st" opacity=".9"/><text x="495" y="320" class="lbl" text-anchor="middle">Faceplate</text>`,[434,244,122,142]);g+=PCHIP(548,252,'statFace','Reinstall faceplate',[416,210,170],false);
     }
     g+=`<text x="40" y="380" class="lbl2">Living room · ${s.env.room}°F</text>`;
     return svg(g,'Thermostat close-up');
@@ -761,9 +810,9 @@ SYSTEMS['split-ac'].scene=function(z,s,d,sel){
     let cab=`<rect x="150" y="120" width="300" height="272" class="k-metal st"/><rect x="164" y="132" width="272" height="94" rx="3" class="k-metal2 st" opacity=".55"/><text x="300" y="184" class="lbl" text-anchor="middle">Burner compartment</text>`;
     if(I.doorOn){
       cab+=`<rect x="164" y="236" width="272" height="148" rx="3" class="k-metal st"/>${Array.from({length:6},(_,i)=>`<line x1="190" y1="${252+i*10}" x2="260" y2="${252+i*10}" class="leader"/>`).join('')}<circle cx="380" cy="262" r="9" style="fill:${led}" class="st"/><text x="380" y="288" class="lbl" text-anchor="middle">LED</text><text x="300" y="370" class="lbl" text-anchor="middle">Blower door</text>`;
-      g+=CMP('cab',sel,cab,[144,114,312,284]);g+=PULSE(424,372);
+      g+=CMP('cab',sel,cab,[144,114,312,284]);g+=PCHIP(424,372,'door','Remove blower door',[434,358,162]);
     }else{
-      g+=CMP('cab',sel,cab+`<rect x="160" y="232" width="280" height="156" class="k-dark"/><rect x="160" y="370" width="16" height="12" class="${I.doorHeld?'k-acc':'k-metal2'}"/><text x="168" y="364" class="tiny" text-anchor="middle" style="fill:#fff">DS</text>`,[144,114,312,118]);
+      g+=CMP('cab',sel,cab+`<rect x="160" y="232" width="280" height="156" class="k-dark"/><rect x="160" y="370" width="16" height="12" class="${I.doorHeld?'k-acc':'k-metal2'}"/><text x="168" y="364" class="tiny" text-anchor="middle" style="fill:#fff">DS</text>`,[144,114,312,118]);g+=PCHIP(424,372,'door','Reinstall door',[446,358,140],false);
       g+=CMP('board',sel,`<rect x="176" y="242" width="118" height="58" rx="3" class="k-pcb st"/><circle cx="186" cy="252" r="4" style="fill:${led}"/>${['R','C','Y','G','W'].map((t,i)=>`<rect x="${190+i*20}" y="282" width="14" height="12" class="k-metal"/><text x="${197+i*20}" y="278" class="tiny" text-anchor="middle" style="fill:#fff">${t}</text>`).join('')}${I.jumper?'<path d="M197 288 q20 -16 40 0 q10 -10 20 0" fill="none" style="stroke:var(--hot);stroke-width:2"/>':''}`,[172,238,96,66]);
       g+=CMP('fuse',sel,`<rect x="270" y="248" width="20" height="10" rx="1" style="fill:${I.fuseOK||!I.fuseVisible?'#e3c56a':'#7a6a40'}" class="st"/>`,[264,242,32,22]);
       g+=CMP('xfmr',sel,`<rect x="306" y="244" width="44" height="40" rx="2" class="k-metal2 st"/><rect x="314" y="252" width="28" height="24" class="k-copper" opacity=".7"/>`,[300,238,56,52]);
@@ -771,7 +820,7 @@ SYSTEMS['split-ac'].scene=function(z,s,d,sel){
       g+=CMP('bcap',sel,`<rect x="370" y="306" width="30" height="58" rx="8" class="k-metal st"/><text x="385" y="340" class="tiny" text-anchor="middle">${I.bCapRated}µF</text>${I.bulge?'<path d="M372 308 q13 -10 26 0" class="k-metal st"/>':''}`,[364,296,42,74]);
     }
     if(d.blower==='run'){const af=AIRF(s,d),c=d.comp==='run'&&d.dT>8?'air':'air warm';g+=FLOW('M120 396 V252','air warm'+(af<.5?' weak':''),1.2/af)+[270,300,330].map(x=>FLOW(`M${x} 26 V2`,c+(af<.5?' weak':''),.9/af)).join('')}
-    g+=`<text x="590" y="386" class="lbl2" text-anchor="end">${LAYOUTS[s.house.type].furnLoc}</text>`;
+    g+=`<text x="590" y="24" class="lbl2" text-anchor="end">${LAYOUTS[s.house.type].furnLoc}</text>`;
     return svg(g,'Furnace and indoor coil close-up');
   }
   if(z==='panel'){
@@ -785,18 +834,19 @@ SYSTEMS['split-ac'].scene=function(z,s,d,sel){
     return svg(g,'Breaker panel');
   }
   if(z==='cond'){
-    const run=d.fan==='run';
-    const fins=Array.from({length:36},(_,i)=>`<line x1="${152+i*8}" y1="128" x2="${152+i*8}" y2="350" class="fin"/>`).join('');
+    const run=d.fan==='run';let PC='',PL='';
+    const fins=Array.from({length:70},(_,i)=>`<line x1="${154+i*3.9}" y1="116" x2="${154+i*3.9}" y2="350" class="fin2"/>`).join('')+Array.from({length:13},(_,i)=>`<line x1="152" y1="${124+i*18}" x2="428" y2="${124+i*18}" class="ctube"/>`).join('')+Array.from({length:12},(_,i)=>`<line x1="${152+i*24}" y1="114" x2="${152+i*24}" y2="350" class="guard"/>`).join('')+Array.from({length:10},(_,i)=>`<line x1="152" y1="${126+i*24}" x2="428" y2="${126+i*24}" class="guard"/>`).join('');
     let g=`<rect width="600" height="400" class="k-sky"/><rect y="356" width="600" height="44" class="k-grass"/><rect x="500" y="0" width="100" height="400" class="k-wall st"/>`;
     g+=CMP('amb',sel,`<circle cx="62" cy="54" r="22" class="k-acc"/>${Array.from({length:8},(_,i)=>`<line x1="62" y1="22" x2="62" y2="14" transform="rotate(${i*45} 62 54)" style="stroke:var(--accent);stroke-width:3"/>`).join('')}<text x="62" y="102" class="lbl" text-anchor="middle">${s.env.amb}°F out</text>`,[30,8,64,104]);
     g+=`<rect x="118" y="350" width="344" height="14" class="k-metal2 st"/>${O.rust?`<rect x="118" y="350" width="344" height="14" style="fill:var(--rust);opacity:${O.rust===2?.65:.4}"/>`:''}`;
-    g+=CMP('ccoil',sel,`<rect x="140" y="112" width="300" height="240" class="k-metal st"/>${fins}${O.coil==='dirty'?'<rect x="144" y="128" width="292" height="222" class="k-dirt" opacity=".75"/>':O.coil==='dusty'?'<rect x="144" y="128" width="292" height="222" class="k-dirt" opacity=".3"/>':''}${O.bentFins?'<path d="M150 300 l20 8 l-12 10 l18 6 l-6 14" fill="none" style="stroke:var(--sline);stroke-width:2"/>':''}${O.rust===2?'<rect x="144" y="322" width="150" height="28" style="fill:#e8e2d4;opacity:.45"/>':''}${O.rust?`<rect x="140" y="336" width="300" height="16" style="fill:var(--rust);opacity:${O.rust===2?.45:.25}"/><path d="M180 352 q4 -10 0 -20 M410 352 q-3 -8 1 -16" style="stroke:var(--rust);stroke-width:4;opacity:.5;fill:none"/>`:''}`,[140,128,150,224]);
+    g+=CMP('ccoil',sel,`<rect x="140" y="112" width="300" height="240" class="k-fin st"/>${fins}<rect x="140" y="112" width="12" height="240" class="k-cab st"/><rect x="428" y="112" width="12" height="240" class="k-cab st"/>${O.coil==='dirty'?'<rect x="144" y="128" width="292" height="222" class="k-dirt" opacity=".75"/>':O.coil==='dusty'?'<rect x="144" y="128" width="292" height="222" class="k-dirt" opacity=".3"/>':''}${O.bentFins?'<path d="M150 300 l20 8 l-12 10 l18 6 l-6 14" fill="none" style="stroke:var(--sline);stroke-width:2"/>':''}${O.rust===2?'<rect x="144" y="322" width="150" height="28" style="fill:#e8e2d4;opacity:.45"/>':''}${O.rust?`<rect x="140" y="336" width="300" height="16" style="fill:var(--rust);opacity:${O.rust===2?.45:.25}"/><path d="M180 352 q4 -10 0 -20 M410 352 q-3 -8 1 -16" style="stroke:var(--rust);stroke-width:4;opacity:.5;fill:none"/>`:''}${O.louversOn?Array.from({length:22},(_,i)=>`<rect x="152" y="${114+i*11}" width="276" height="7.5" class="k-cab"/><line x1="152" y1="${121.5+i*11}" x2="428" y2="${121.5+i*11}" style="stroke:var(--sline);stroke-width:.8;opacity:.6"/>`).join(''):''}<text x="226" y="${O.louversOn?206:200}" class="tsm" text-anchor="middle">${O.louversOn?'Louvered coil':'Condenser coil'}</text>`,[140,128,150,224]);
+    PL=O.louversOn?PCHIP(146,130,'louvers','Remove louver panels',[160,117,170]):PCHIP(146,130,'louvers','Reinstall louvers',[160,117,150],false);
     g+=CMP('fan',sel,`<rect x="134" y="98" width="312" height="16" rx="3" class="k-dark"/><ellipse cx="290" cy="98" rx="140" ry="18" class="k-metal2 st"/><g transform="translate(290 98) scale(3.4 .42)"><g class="${d.fan==='hum'?'buzz':''}">${BLADES}${run?SPINA(.45):''}</g></g><circle cx="290" cy="98" r="4" class="k-dark"/>${O.ants?Array.from({length:9},(_,i)=>`<circle cx="${200+i*15}" cy="${92+(i%3)*4}" r="1.6" class="k-dark"/>`).join(''):''}`,[146,76,288,40]);
     g+=CMP('plate',sel,`<rect x="160" y="290" width="92" height="48" rx="2" class="k-panel st"/><line x1="168" y1="302" x2="244" y2="302" class="leader"/><line x1="168" y1="312" x2="236" y2="312" class="leader"/><line x1="168" y1="322" x2="240" y2="322" class="leader"/>${s.ref.type==='R-454B'?'<rect x="226" y="326" width="20" height="9" class="k-hot"/>':''}<text x="206" y="284" class="lbl" text-anchor="middle">Data plate</text>`,[154,272,104,72]);
     if(O.panelOn){
-      g+=CMP('cpanel',sel,`<rect x="300" y="140" width="140" height="190" rx="3" class="k-metal st"/><circle cx="310" cy="150" r="3" class="k-metal2"/><circle cx="430" cy="150" r="3" class="k-metal2"/><circle cx="310" cy="320" r="3" class="k-metal2"/><circle cx="430" cy="320" r="3" class="k-metal2"/><text x="370" y="240" class="lbl" text-anchor="middle">Service panel</text>`,[296,136,148,198]);g+=PULSE(430,322);
+      g+=CMP('cpanel',sel,`<rect x="300" y="140" width="140" height="190" rx="3" class="k-cab st"/><circle cx="310" cy="150" r="3" class="k-metal2"/><circle cx="430" cy="150" r="3" class="k-metal2"/><circle cx="310" cy="320" r="3" class="k-metal2"/><circle cx="430" cy="320" r="3" class="k-metal2"/><text x="370" y="240" class="lbl" text-anchor="middle">Service panel</text>`,[296,136,148,198]);PC=PCHIP(430,322,'cpanel','Remove service panel',[240,334,182]);
     }else{
-      g+=CMP('cpanel',sel,`<rect x="300" y="140" width="140" height="190" class="k-dark"/><rect x="454" y="40" width="40" height="52" rx="2" class="k-metal st" opacity=".9"/><text x="474" y="34" class="tiny" text-anchor="middle">PANEL</text>`,[448,30,52,66]);
+      g+=CMP('cpanel',sel,`<rect x="300" y="140" width="140" height="190" class="k-dark"/><rect x="454" y="40" width="40" height="52" rx="2" class="k-cab st" opacity=".95"/><text x="474" y="34" class="tiny" text-anchor="middle">PANEL</text>`,[448,30,52,66]);PC=PCHIP(494,42,'cpanel','Reinstall panel',[310,42,140],false);
       g+=CMP('contactor',sel,`<rect x="310" y="150" width="54" height="66" rx="3" class="k-metal2 st"/><rect x="326" y="${d.pulled?170:160}" width="22" height="20" class="k-acc st"${d.pulled&&O.pitted?' style="animation:buzz .08s linear infinite"':''}/><text x="337" y="210" class="tiny" text-anchor="middle" style="fill:#fff">L1 L2</text>${O.pitted||O.pittedCosmetic?'<circle cx="318" cy="200" r="3" class="k-dark"/>':''}${O.lugBurnt&&O.lugVisible?'<circle cx="320" cy="212" r="6" style="fill:var(--scorch);opacity:.85"/>':''}`,[306,146,62,74]);
       g+=CMP('cap',sel,`<rect x="378" y="150" width="50" height="86" rx="10" class="k-metal st"/>${O.bulge?'<path d="M380 152 q23 -14 46 0" class="k-metal st"/>':''}<text x="403" y="176" class="tiny" text-anchor="middle">H F C</text><text x="403" y="206" class="tiny" text-anchor="middle">${O.hermRated}/${O.fanRated}</text>`,[372,138,62,102]);
       g+=CMP('comp',sel,`<ellipse cx="370" cy="290" rx="58" ry="34" class="k-metal2 st"/><circle cx="350" cy="282" r="12" class="k-metal st"/>${O.compHot?'<ellipse cx="370" cy="290" rx="58" ry="34" fill="none" style="stroke:var(--hot);stroke-width:3;opacity:.7"/>':''}`,[306,250,128,78]);
@@ -806,6 +856,7 @@ SYSTEMS['split-ac'].scene=function(z,s,d,sel){
     g+=CMP('lvwire',sel,`<path d="M500 236 C480 236 470 250 440 250" class="wire" style="stroke:var(--panel);stroke-width:3"/>${O.yShort&&O.yScorch?'<ellipse cx="442" cy="250" rx="8" ry="5" style="fill:var(--scorch);opacity:.6"/>':''}${O.yShort?'<circle cx="442" cy="250" r="3" class="k-copper"/>':''}<text x="470" y="270" class="tiny" text-anchor="middle">T-stat wire</text>`,[436,226,66,50]);
     g+=CMP('ports',sel,`<rect x="440" y="300" width="22" height="16" class="k-copper"/><rect x="440" y="322" width="18" height="12" class="k-copper"/><path d="M462 308 H500" class="ls-s"/><path d="M458 328 H500" class="ls-l"/>${d.ref.iced?'<path d="M462 308 H500" class="frostline"/>':''}${d.ref.sweat?[468,478,488,496].map((x,i)=>`<ellipse cx="${x}" cy="${314+(i%2)*3}" rx="1.6" ry="2.4" style="fill:var(--sweat)"/>`).join(''):''}${s.ref.oilAt==='valve'?`<ellipse cx="451" cy="318" rx="13" ry="6" style="fill:var(--oil);opacity:${s.ref.oilOld?.35:.75}"/>`:''}<text x="476" y="350" class="tiny" text-anchor="middle">valves</text>`,[436,292,66,64]);
     if(run)g+=[230,290,350].map(x=>FLOW(`M${x} 74 q-10 -16 0 -32 q10 -16 0 -32`,'air '+(d.comp==='run'?'hot':'warm'),1.1)).join('');
+    g+=PL+PC;
     return svg(g,'Condenser close-up');
   }
   if(z==='air'){
@@ -832,7 +883,7 @@ SYSTEMS['split-ac'].scene=function(z,s,d,sel){
    (magnitude, phase, circuit 'hv' | 'lv' | 'gnd'), or {f:id} for a floating conductor.
    map[] ties terminal pairs to the preset test points so grading still credits them.
    ===================================================================== */
-SYSTEMS['split-ac'].quick={tstat:['statFace','statCool','statBatt','jumpOff'],indoor:['door','doorHold','furnSw','jumpOff'],cond:['cpanel','disc'],panel:['acBkr','furnBkr'],air:[]};
+SYSTEMS['split-ac'].quick={tstat:['statDown','statUp','statMode','statFan','statFace','statBatt','jumpOff'],indoor:['door','doorHold','furnSw','jumpOff'],cond:['cpanel','louvers','disc'],panel:['acBkr','furnBkr'],air:[]};
 /* Easter egg: particle view of the air paths, driven by the same physics as everything else */
 SYSTEMS['split-ac'].flowView=function(s,d,g){
   const af=AIRF(s,d),cool=d.comp==='run'&&d.dT>8,weak=d.comp==='run'&&!cool,[cx,cy]=g.L.cond;
@@ -859,7 +910,7 @@ const PH=(m,ph=0,c='hv')=>({m,ph,c});const FL=id=>({f:id});
 const rad=x=>x*Math.PI/180;
 const padd=(b,m,ph)=>{if(b.f)return b;const x=b.m*Math.cos(rad(b.ph))+m*Math.cos(rad(ph)),y=b.m*Math.sin(rad(b.ph))+m*Math.sin(rad(ph));return PH(Math.hypot(x,y),Math.atan2(y,x)*180/Math.PI,b.c)};
 const vDiff=(a,b)=>Math.hypot(a.m*Math.cos(rad(a.ph))-b.m*Math.cos(rad(b.ph)),a.m*Math.sin(rad(a.ph))-b.m*Math.sin(rad(b.ph)));
-const WR=(p,col,w=6)=>`<path d="${p}" class="wr" style="stroke:var(--w-${col});stroke-width:${w}"/>`;
+const WR=(p,col,w=6)=>`<path d="${p}" class="wr" style="stroke:var(--w-${col});stroke-width:${w}"/>`+(globalThis.HDON?`<path d="${p}" class="wr" style="stroke:#fff;stroke-opacity:.32;stroke-width:${Math.max(1,w*.24)};transform:translate(-${(w*.17).toFixed(1)}px,-${(w*.17).toFixed(1)}px)"/>`:'');
 const TX=(x,y,t,a='middle',cls='tsm')=>`<text x="${x}" y="${y}" class="${cls}" text-anchor="${a}">${t}</text>`;
 const GN=()=>PH(0,0,'gnd');
 SYSTEMS['split-ac'].hv=function(s,d){
@@ -872,12 +923,12 @@ SYSTEMS['split-ac'].hv=function(s,d){
   if(d.fan==='run')FAN=padd(W1,281,110);else if(d.fan==='hum')FAN=T2;
   return{L1,L2,T1,T2,W1,HERM,FAN,CC:W1};
 };
-SYSTEMS['split-ac'].cuOf={tstat_t:'tstat',board:'board',fuse:'board',xfmr:'board',blower:'blower',bcap:'blower',float:'float',brk_f:'panel',brk_ac:'panel',disc:'disc',contactor:'contactor',lvwire:'contactor',cap:'cap',comp:'comp',fan:'fan',ports:'ports'};
+SYSTEMS['split-ac'].cuOf={ccoil:'ccoil',tstat_t:'tstat',board:'board',fuse:'board',xfmr:'board',blower:'blower',bcap:'blower',float:'float',brk_f:'panel',brk_ac:'panel',disc:'disc',contactor:'contactor',lvwire:'contactor',cap:'cap',comp:'comp',fan:'fan',ports:'ports'};
 SYSTEMS['split-ac'].closeups={
   tstat:{n:'Thermostat sub-base',z:'tstat',comps:['tstat_t'],req:s=>s.stat.faceOff?null:'Remove the thermostat faceplate first.',
     about:'R is the 24 V hot from the transformer. C is the common (return) side. The thermostat connects R to Y for cooling and R to G for the fan.',
     terms:{R:[150,180,'R','v','t'],C:[225,180,'C','v','t'],Y:[300,180,'Y','v','t'],G:[375,180,'G','v','t'],W:[450,180,'W','v','t']},
-    nodes(s,d){const lv=v=>PH(v,0,'lv'),path=!d.floatOpen&&s.outdoor.coilOK;return{R:lv(d.R),C:s.stat.cWire?lv(0):FL('cscrew'),Y:d.statCall?lv(d.R):(path?lv(0):FL('y')),G:lv(d.statCall?d.R:0),W:lv(0)}},
+    nodes(s,d){const lv=v=>PH(v,0,'lv'),path=!d.floatOpen&&s.outdoor.coilOK;return{R:lv(d.R),C:s.stat.cWire?lv(0):FL('cscrew'),Y:d.statCall?lv(d.R):(path?lv(0):FL('y')),G:lv(d.statCall||d.fanOn?d.R:0),W:lv(0)}},
     map:[['t_rc','V','R','C'],['t_ry','V','R','Y'],['t_yc','V','Y','C']],
     draw(s){const cols=['red',s.stat.cWire?'blu':null,'yel','grn','wht'];
       return `<rect width="600" height="400" class="k-wall2"/><rect x="90" y="70" width="420" height="270" rx="18" class="k-metal st"/><ellipse cx="300" cy="300" rx="70" ry="22" class="k-dark"/>
@@ -890,11 +941,11 @@ SYSTEMS['split-ac'].closeups={
       F_IN:[262,185,'Fuse in','v','t'],F_OUT:[338,185,'Fuse out','v','t'],R:[200,320,'R','v','b'],C:[250,320,'C','v','b'],Y:[300,320,'Y','v','b'],G:[350,320,'G','v','b'],W:[400,320,'W','v','b'],
       XP1:[500,98,'Pri hot','v','l'],XP2:[560,98,'Pri com','v','t'],XS1:[500,282,'Sec 24 V','v','l'],XS2:[560,282,'Sec C','v','b'],GND:[565,372,'Chassis','v','l']},
     nodes(s,d){const L=v=>PH(v,0,'hv'),lv=v=>PH(v,0,'lv'),line=L(d.boardPwr?120:0);
-      return{DS_IN:L(d.lineIn),DS_OUT:line,LINE:line,XFMR:line,XP1:line,NEUT:GN(),XP2:GN(),COOL:L(d.blowerV),XS1:lv(d.sec),F_IN:lv(d.sec),XS2:lv(0),C:lv(0),F_OUT:lv(d.R),R:lv(d.R),Y:lv(d.callY?d.R:0),G:lv(d.callY?d.R:0),W:lv(0),GND:GN()}},
+      return{DS_IN:L(d.lineIn),DS_OUT:line,LINE:line,XFMR:line,XP1:line,NEUT:GN(),XP2:GN(),COOL:L(d.blowerV),XS1:lv(d.sec),F_IN:lv(d.sec),XS2:lv(0),C:lv(0),F_OUT:lv(d.R),R:lv(d.R),Y:lv(d.callY?d.R:0),G:lv(d.gOn?d.R:0),W:lv(0),GND:GN()}},
     map:[['f_line','V','DS_IN','NEUT'],['f_xp','V','XP1','XP2'],['f_xp','V','XFMR','NEUT'],['f_xp','R','XP1','XP2'],['f_xs','V','XS1','XS2'],['f_xs','R','XS1','XS2'],['f_fuse','V','F_IN','F_OUT'],['f_fuse','R','F_IN','F_OUT'],['f_rc','V','R','C'],['f_yc','V','Y','C'],['f_gc','V','G','C']],
     draw(s,d){const I=s.indoor,led=d.R>0?'var(--ok)':'var(--dark)';
       return `<rect width="600" height="400" class="k-dark"/>
-      <rect x="36" y="262" width="102" height="72" rx="6" class="k-metal2 st"/><rect x="74" y="244" width="26" height="20" class="${I.doorHeld||I.doorOn?'k-acc':'k-metal'} st"/>${TX(87,352,'Door sw · '+(I.doorOn?'closed':I.doorHeld?'taped':'open'),'middle','tsm inv')}
+      <rect x="36" y="262" width="102" height="72" rx="6" class="k-metal2 st"/><rect x="74" y="244" width="26" height="20" class="${I.doorHeld||I.doorOn?'k-acc':'k-metal'} st"/>${TX(68,390,'Door sw · '+(I.doorOn?'closed':I.doorHeld?'taped':'open'),'start','tsm inv')}
       ${WR('M62 300 V390','blk',4)}${WR('M112 300 C112 200 150 120 190 80','blk',4)}
       <rect x="150" y="40" width="300" height="320" rx="6" class="k-pcb st"/>
       <rect x="170" y="110" width="80" height="44" rx="3" class="k-dark"/>${TX(210,137,'BLOWER RELAY','middle','tsm inv')}
@@ -905,7 +956,7 @@ SYSTEMS['split-ac'].closeups={
       ${I.jumper?'<path d="M200 320 C220 280 280 280 300 320 M200 320 C230 270 330 270 350 320" fill="none" style="stroke:var(--hot);stroke-width:3"/>':''}`}},
   blower:{n:'Blower motor & capacitor',z:'indoor',comps:['blower','bcap','cab'],req:s=>s.indoor.doorOn?'Remove the blower door first.':null,
     about:'The COOL speed lead brings 120 V from the board; the white lead is the neutral return. The run capacitor connects across the motor\'s two windings.',
-    terms:{SPD:[360,120,'COOL lead','v','t'],NEU:[360,212,'Common (white)','v','b'],CAP1:[470,92,'Cap A','v','t'],CAP2:[530,92,'Cap B','v','t'],ML:[268,120,'Motor lead','c','b'],GND:[565,372,'Chassis','v','l']},
+    terms:{SPD:[360,120,'COOL lead','v','t'],NEU:[360,212,'Common (white)','v','b'],CAP1:[470,92,'Cap A','v','t'],CAP2:[530,92,'Cap B','v','t'],ML:[268,120,'Motor lead','c','l'],GND:[565,372,'Chassis','v','l']},
     nodes(s,d){const spd=PH(d.blowerV,0,'hv');return{SPD:spd,NEU:GN(),CAP1:spd,CAP2:d.blower==='run'?padd(spd,165,120):d.blower==='hum'?PH(0):spd,ML:spd,GND:GN()}},
     map:[['f_bm','V','SPD','NEU'],['f_bm','A','ML'],['f_bcap','C','CAP1','CAP2']],
     draw(s,d){const I=s.indoor;return `<rect width="600" height="400" class="k-dark"/>
@@ -926,7 +977,7 @@ SYSTEMS['split-ac'].closeups={
       <rect x="260" y="136" width="80" height="110" rx="6" class="k-panel st"/><rect x="276" y="${d.floatOpen?200:236}" width="48" height="34" rx="4" class="k-acc st"/>${TX(300,370,d.floatOpen?'float lifted':'float down')}`}},
   panel:{n:'Breaker panel (dead-front off)',z:'panel',comps:['brk_ac','brk_f'],
     about:'The two bus bars carry L1 and L2 from the utility (240 V between them, 120 V from either to neutral). A breaker\'s load lug is what it feeds downstream.',
-    terms:{BUS1:[250,42,'Main L1','v','r'],BUS2:[350,42,'Main L2','v','l'],AC1:[452,104,'A/C lug 1','v','r'],AC2:[452,152,'A/C lug 2','v','r'],FURN:[150,258,'Furnace lug','v','l'],NEUT:[60,330,'Neutral bar','v','r'],GND:[540,330,'Ground bar','v','l']},
+    terms:{BUS1:[250,42,'Main L1','v','l'],BUS2:[350,42,'Main L2','v','r'],AC1:[452,104,'A/C lug 1','v','r'],AC2:[452,152,'A/C lug 2','v','r'],FURN:[150,258,'Furnace lug','v','l'],NEUT:[60,330,'Neutral bar','v','r'],GND:[540,330,'Ground bar','v','l']},
     nodes(s,d){const on=s.power.condBkr==='on';return{BUS1:PH(120.5),BUS2:PH(120.5,180),AC1:on?PH(120.5):PH(0),AC2:on?PH(120.5,180):PH(0),FURN:s.power.furnBkr?PH(120.4):PH(0),NEUT:GN(),GND:GN()}},
     map:[['p_ac','V','AC1','AC2'],['p_furn','V','FURN','NEUT']],
     draw(s){const st=s.power.condBkr,hx=st==='on'?352:st==='tripped'?378:404;
@@ -961,7 +1012,7 @@ SYSTEMS['split-ac'].closeups={
       ${O.pitted&&O.pitScorch?'<ellipse cx="270" cy="246" rx="26" ry="11" style="fill:var(--scorch);opacity:.6"/>':''}${O.pitted?'<circle cx="262" cy="244" r="7" class="k-hot"/><circle cx="276" cy="248" r="5" class="k-hot"/>':O.pittedCosmetic?'<circle cx="264" cy="246" r="4" class="k-hot" opacity=".7"/>':''}
       ${O.lugBurnt&&O.lugVisible?`<circle cx="230" cy="308" r="24" style="fill:var(--scorch);opacity:.7"/><path d="M230 330 V350" style="stroke:var(--scorch);stroke-width:14;stroke-linecap:round"/><circle cx="222" cy="340" r="6" style="fill:var(--scorch)"/><circle cx="239" cy="347" r="5" style="fill:var(--scorch)"/>${TX(214,396,'melted insulation','end')}`:''}
       ${O.lugTint?'<circle cx="370" cy="308" r="22" style="fill:var(--rust);opacity:.35"/>':''}
-      ${TX(300,50,'24 VAC coil · 30 FLA')}${globalThis.HDON?`<rect x="196" y="300" width="64" height="26" rx="2" class="k-panel st"/>${TX(228,318,'2P · 30A')}`:''}`}},
+      ${TX(300,50,'24 VAC coil · 30 FLA')}${globalThis.HDON?`<rect x="268" y="296" width="64" height="24" rx="2" class="k-panel st"/>${TX(300,313,'2P · 30A')}`:''}`}},
   cap:{n:'Dual run capacitor',z:'cond',comps:['cap','disc'],req:s=>s.outdoor.panelOn?'Remove the service panel first.':null,
     about:'C is shared. HERM goes to the compressor start winding (S). FAN goes to the fan motor start lead. Running, the voltage across a run cap is normally higher than line voltage.',
     terms:{HERM:[210,150,'HERM','v','t'],C:[300,205,'C','v','b'],FAN:[390,150,'FAN','v','t'],GND:[560,372,'Ground','v','l']},
@@ -991,7 +1042,23 @@ SYSTEMS['split-ac'].closeups={
     draw(s,d){return `<rect width="600" height="400" class="k-metal2"/><ellipse cx="300" cy="62" rx="110" ry="52" class="k-metal st"/>${TX(300,66,d.fan==='hum'?'motor humming':'PSC fan motor')}
       ${WR('M260 100 C220 150 200 200 200 262','blk')}${WR('M300 112 V262','pur')}${WR('M340 100 C380 150 400 200 400 262','brn')}
       <rect x="150" y="236" width="300" height="52" rx="6" class="k-dark"/>
-      ${WR('M200 288 V400','blk',4)}${WR('M300 288 V400','pur',4)}${WR('M400 288 V400','brn',4)}${TX(200,330,'to T2','end')}${TX(310,360,'to cap C','start')}${TX(410,330,'to cap FAN','start')}`}},
+      ${WR('M200 288 V400','blk',4)}${WR('M300 288 V400','pur',4)}${WR('M400 288 V400','brn',4)}${TX(200,330,'to T2','end')}${TX(310,330,'to cap C','start')}${TX(410,330,'to cap FAN','start')}`}},
+  ccoil:{n:'Condenser coil',z:'cond',comps:['ccoil'],req:s=>s.outdoor.louversOn?'Remove the louver panels first.':null,
+    about:'The coil wraps around the cabinet. The fan pulls outdoor air in through the fins and blows it out the top. Clean fins let light through; dirt and cottonwood block airflow and drive head pressure up. Air leaving the top is normally about 15–25°F warmer than the air going in.',
+    terms:{IN:[300,312,'Air entering coil','t','b'],OUT:[300,26,'Air leaving fan','t','r']},
+    nodes(){return{}},
+    map:[['c_cin','T','IN'],['c_cout','T','OUT']],
+    draw(s,d){const O=s.outdoor,fins=Array.from({length:101},(_,i)=>`<line x1="${70+i*4}" y1="58" x2="${70+i*4}" y2="358" class="fin2"/>`).join('')+Array.from({length:12},(_,i)=>`<line x1="66" y1="${76+i*24}" x2="474" y2="${76+i*24}" class="ctube"/>`).join('')+Array.from({length:13},(_,i)=>`<line x1="${66+i*34}" y1="56" x2="${66+i*34}" y2="358" class="guard"/>`).join('')+Array.from({length:9},(_,i)=>`<line x1="66" y1="${64+i*34}" x2="474" y2="${64+i*34}" class="guard"/>`).join(''),bends=Array.from({length:12},(_,i)=>`<rect x="476" y="${70+i*24}" width="30" height="12" rx="6" class="k-copper st"/>`).join('');
+      const blobs=n=>Array.from({length:n},(_,i)=>`<ellipse cx="${90+((i*97)%370)}" cy="${80+((i*53)%260)}" rx="${10+(i%4)*5}" ry="${6+(i%3)*3}" style="fill:#f4f0e6;opacity:.75"/>`).join('');
+      const run=d.fan==='run';
+      return `<rect width="600" height="400" class="k-sky"/><rect y="372" width="600" height="28" class="k-grass"/>
+      <rect x="64" y="56" width="412" height="306" class="k-fin st"/>${fins}<rect x="56" y="56" width="10" height="306" class="k-cab st"/><rect x="474" y="56" width="8" height="306" class="k-cab st"/>${bends}
+      ${O.coil==='dirty'?`<rect x="66" y="60" width="408" height="298" class="k-dirt" opacity=".78"/>${blobs(22)}`:O.coil==='dusty'?`<rect x="66" y="60" width="408" height="298" class="k-dirt" opacity=".3"/>${blobs(6)}`:''}
+      ${O.bentFins?'<path d="M76 290 l18 10 l-14 10 l20 8 l-10 14 l18 6" fill="none" style="stroke:var(--sline);stroke-width:3"/><rect x="72" y="284" width="64" height="66" fill="none" style="stroke:var(--sline);stroke-dasharray:4 4"/>':''}
+      ${O.rust===2?'<rect x="66" y="320" width="408" height="38" style="fill:#e8e2d4;opacity:.55"/>':''}${O.rust?'<rect x="58" y="358" width="424" height="12" style="fill:var(--rust);opacity:.55"/>':'<rect x="58" y="358" width="424" height="12" class="k-metal2 st"/>'}
+      <rect x="64" y="40" width="412" height="16" rx="3" class="k-dark"/>
+      ${run?[150,270,390].map(x=>FLOW(`M${x} 36 q-8 -12 0 -24 q8 -12 0 -24`,'air '+(d.comp==='run'?'hot':'warm'),1.1)).join('')+[120,240,360].map(y=>FLOW(`M596 ${y} H${run?520:560}`,'air warm',1)).join(''):''}
+      ${TX(562,206,run?'air in':'no airflow','middle')}${TX(504,62,'return bends','middle')}`}},
   ports:{n:'Service valves',z:'cond',comps:['ports'],
     about:'Large insulated line = suction (vapor). Small bare line = liquid. Gauges go on the Schrader ports; the pipe-clamp thermometer goes on clean copper about 6 in from the valve.',
     terms:{SP:[200,130,'Suction port','p','t'],ST:[100,240,'Suction line','t','b'],LP:[420,236,'Liquid port','p','t'],LT:[530,320,'Liquid line','t','b']},
@@ -1013,14 +1080,20 @@ SYSTEMS['split-ac'].closeups={
   ['t_rc','t_ry','t_yc','f_rc','f_yc','f_gc','f_fuse','f_xs','f_float','c_coil'].forEach(k=>P[k].ckt='lv');
   Object.values(P).forEach(p=>{if(p.m.V&&!p.ckt)p.ckt='hv'});
   Object.assign(P.t_ry,{sc:'Y'});Object.assign(P.f_fuse,{sc:'FU'});Object.assign(P.f_float,{sc:'FL'});Object.assign(P.f_xs,{sc:'xfmr'});
-  ['c_suct','c_liq'].forEach(k=>P[k].tt='pipe');['c_amb','r_sup','r_ret'].forEach(k=>P[k].tt='air');
+  ['c_suct','c_liq'].forEach(k=>P[k].tt='pipe');['c_amb','r_sup','r_ret','c_cin','c_cout'].forEach(k=>P[k].tt='air');
   P.c_herm.capSec='H';P.c_fan.capSec='F';
   Object.assign(C.tstat,{lvJ:true,pairs:{'R-Y':'Y','G-R':'G','R-W':'W'},hot:{R:'R',Y:'Y',G:'Y',W:'W'},commons:['C']});
   Object.assign(C.board,{lvJ:true,pairs:{'R-Y':'Y','G-R':'G','R-W':'W','F_IN-F_OUT':'FU'},hot:{R:'R',F_OUT:'R',XS1:'SEC',F_IN:'SEC',Y:'Y',G:'Y',W:'W'},commons:['C','XS2','GND']});
   Object.assign(C.float,{lvJ:true,pairs:{'IN-OUT':'FL'},hot:{IN:'Y',OUT:'YOUT'},commons:['GND']});
   C.cap.caps={'C-HERM':'H','C-FAN':'F'};C.blower.caps={'CAP1-CAP2':'B'};
-  C.blower.terms.CAB=[300,166,'Whole cord','c','t'];C.fan.terms.CAB=[300,350,'Whole cable','c','r'];
+  C.blower.terms.CAB=[300,166,'Whole cord','c','t'];C.fan.terms.CAB=[300,385,'Whole cable','c','r'];
 })();
+function tstatSet(s,what,k){
+  const S=SYSTEMS['split-ac'];if(!S.derive(s).statOn)return 'The display stays blank. Nothing happens.';const T=s.stat;
+  if(what==='set')T.set=clamp(T.set+k,60,85);else if(what==='mode')T.mode=T.mode==='cool'?'off':'cool';else T.fan=T.fan==='on'?'auto':'on';
+  const d=S.derive(s);
+  return `${T.mode==='cool'?'COOL':'OFF'} · set ${T.set}°F · room ${s.env.room}°F · fan ${T.fan==='on'?'ON':'AUTO'}. `+(T.mode==='off'?'System off: no cooling call.':d.statCall?'Calling for cooling.':'Not calling: the setpoint is at or above room temperature.')+(T.fan==='on'&&!d.statCall?' Blower runs on fan-only.':'');
+}
 function induce(id,label){if(G&&G.induced&&!G.induced.some(x=>x.id===id))G.induced.push({id,label})}
 
 /* =====================================================================
@@ -1247,6 +1320,7 @@ const WHY={
  f_float:['Why check across the float switch?','An open safety in the Y circuit drops the full 24 V across itself and blocks the call',['It measures condensate flow','It shows blower amps']],
  c_ywire:['Why check the Y wire to ground at the condenser?','A Y conductor touching the cabinet shorts the 24 V circuit and blows the board fuse on every call',['To test the capacitor','To measure line voltage']],
  c_lugdrop:['Why measure across a connection while the system runs?','Current through a loose, burnt joint creates a voltage drop. With no current flowing, a bad joint reads 0 V and looks fine',['It measures the capacitor','It checks the thermostat call']],
+ c_cout:['Why measure air in and out of the condenser?','The temperature rise across the coil shows how much heat it is rejecting and whether airflow through it is restricted',['It measures refrigerant charge directly','It checks fan motor voltage']],
  c_dload:['Why check the disconnect load side?','It confirms 240 V gets past the disconnect to the contactor',['It identifies the refrigerant','It measures µF']]
 };
 
@@ -1282,7 +1356,7 @@ const ENGINE={
   closeout(s){const o=[],I=s.indoor,O=s.outdoor,P=s.power;
     if(!I.doorOn)o.push('Blower door left off');if(I.doorHeld)o.push('Door switch left taped closed');
     if(I.jumper)o.push('Board jumper (R → Y, G) left in place');if(I.jumpAt)o.push(I.jumpAt.type==='FL'?'Jumper left bypassing the float switch (water damage risk)':I.jumpAt.type==='FU'?'Jumper left bypassing the board fuse (fire risk)':'Jumper wire left in place');
-    if(!O.panelOn)o.push('Condenser service panel left off');if(!P.discIn)o.push('Disconnect left pulled');
+    if(!O.panelOn)o.push('Condenser service panel left off');if(!O.louversOn)o.push('Condenser louver panels left off');if(!P.discIn)o.push('Disconnect left pulled');
     if(P.condBkr!=='on')o.push('AC breaker left '+(P.condBkr==='tripped'?'tripped':'off'));if(!P.furnBkr||!P.furnSw)o.push('Furnace power left off');
     if(s.stat.faceOff)o.push('Thermostat faceplate left off');return o},
   grade(sel){
@@ -1378,12 +1452,13 @@ const QS=[['when','When did this start?'],['recent','Any recent work, changes, o
 function tierNow(){return store.mode==='auto'?store.tierIdx:Math.max(0,TIERS.findIndex(t=>t.id===store.mode))}
 function newCall(seed){
   const s=seed!=null?seed>>>0:((Date.now()^Math.imul(store.callNo,2654435761))>>>0);
-  ENGINE.generate(s,tierNow(),store);VIEW.cur=null;VIEW.key=null;
+  ENGINE.generate(s,tierNow(),store);VIEW.cur=null;VIEW.key=null;clearTimeout(UI.statT);G.statSig=`${G.st.stat.mode}|${G.st.stat.set}|${G.st.stat.fan}`;
   G.callNo=store.callNo;
-  Object.assign(UI,{zone:'house',comp:null,tab:'dispatch',last:null,msg:null,bad:false,cu:null,leads:[],place:null,hl:null});resetTools();const tst=$('#toast');if(tst)tst.hidden=true;
+  Object.assign(UI,{zone:'house',comp:null,tab:'dispatch',last:null,msg:null,bad:false,cu:null,leads:[],place:null,hl:null,confirm:null});resetTools();const tst=$('#toast');if(tst)tst.hidden=true;
   addLog(`Arrived on site. ${G.meta.wo}.`);
   closeOv();renderAll();
 }
+function queueStatLog(){clearTimeout(UI.statT);UI.statT=setTimeout(()=>{const T=G.st.stat,sig=`${T.mode}|${T.set}|${T.fan}`;if(G.statSig!==sig){G.statSig=sig;addLog(`Thermostat set: ${T.mode==='cool'?'COOL':'OFF'} · ${T.set}°F · fan ${T.fan==='on'?'ON':'AUTO'}.`);UI.tab==='log'?renderTab():renderTabs()}},1200)}
 function addLog(t,bad){G.log.push({n:G.log.length+1,t,bad:!!bad})}
 /* Log a reading once. Same key + same result = no new entry; show which entry already has it. */
 function logOnce(key,text,bad,sig){
@@ -1399,8 +1474,12 @@ function showDup(n){
 function setMsg(t,bad){UI.msg=t;UI.bad=!!bad}
 
 /* ---------- interactions ---------- */
+const PANEL_OF={cpanel:s=>'cpanel',ccoil:s=>s.outdoor.louversOn?'louvers':null,cab:s=>s.indoor.doorOn?'door':null,tstat:s=>'statFace'};
 function selectComp(id){
-  const c=SYS().comps[id];if(!c)return;UI.comp=id;
+  const c=SYS().comps[id];if(!c)return;const S=SYS(),cuId=S.cuOf[id],cu=cuId&&S.closeups[cuId],reach=!!cu&&!(cu.req&&cu.req(G.st));
+  if(reach&&UI.cuHint&&UI.cuHint.comp===id&&Date.now()-UI.cuHint.t<5000){UI.cuHint=null;return openCu(cuId)}
+  UI.comp=id;UI.confirm=PANEL_OF[id]?PANEL_OF[id](G.st):null;
+  if(reach&&!UI.confirm){const t=Date.now();UI.cuHint={comp:id,t};setTimeout(()=>{if(UI.cuHint&&UI.cuHint.t===t){UI.cuHint=null;if(!UI.cu)renderScene()}},5000)}else UI.cuHint=null;
   const first=!G.inspected.has(id);G.inspected.add(id);G.order.push('i:'+id);
   if(first)addLog(`Inspected ${c.n}.`);
   if(id==='plate'&&G.st.ref.type==='R-454B')notePop('a2l');if((id==='coil'||id==='ports')&&SYS().derive(G.st).ref.iced)notePop('ice');
@@ -1551,9 +1630,12 @@ function probe(pid){
   renderMeter();renderTab();if(m!=='D')maybeWhy(pid);
 }
 function act(aid){
+  UI.confirm=null;
   const S=SYS(),a=S.actions[aid],s=G.st,d=S.derive(s);
+  if(a.req){const m=a.req(s);if(m){setMsg(m,true);renderCard();renderQbar();return}}
   if(a.dead&&S.live(a.dead,s,d)){const v=`${a.l(s,d)} with power ON`;G.violations.push(v);addLog('SAFETY: '+v,true);setMsg('SAFETY: kill and verify power before you replace or service that part. The work was not done.',true);renderCard();renderTab();return}
   if(a.cap&&!s[a.cap].discharged){const v=`${a.l(s,d)} without discharging the capacitor`;G.violations.push(v);addLog('SAFETY: '+v,true);setMsg('SAFETY: discharge the capacitor before you pull its wires.',true);renderCard();renderTab();return}
+  if(a.quiet){const msg=a.run(s,G),ev=[];S.settle(s,ev);ev.forEach(e=>addLog(e,true));setMsg(msg,ev.length>0);queueStatLog();renderAll(true);return}
   const label=a.l(s,d);
   if(a.need){const active=[G.fault.id,G.latent&&G.latent.id,...G.induced.map(x=>x.id)].filter(Boolean);if(!a.need.some(x=>active.includes(x))&&!a.cheap){G.unneeded.push(label);}}
   let msg=a.run(s,G);const ev=[];S.settle(s,ev);
@@ -1575,6 +1657,7 @@ function maybeWhy(pid){
 
 /* ---------- zoom ---------- */
 function goZone(z,room){
+  UI.confirm=null;UI.cuHint=null;
   if(VIEW.cur){VIEW.cur=null;setVB()}
   if(room!=null&&room!=='')G.room=+room;
   if(UI.cu){UI.cu=null;UI.leads=[];UI.place=null;if(z===UI.zone){UI.msg=null;renderAll();return}}
@@ -1591,22 +1674,85 @@ function renderHeader(){
   $('#hmeta').textContent=`Call #${G.callNo} · ${G.meta.wo} · seed ${G.seed.toString(16).toUpperCase()}`;
   $('#htier').textContent=TIERS[G.tierIdx].n+(store.mode==='auto'?' · auto':'');
 }
-function hdInject(){if(!store.hd)return;const sv=$('#scene svg');if(sv)sv.insertAdjacentHTML('afterbegin',HD_DEFS)}
-function setHD(on){store.hd=!!on;globalThis.HDON=store.hd;document.documentElement.classList.toggle('hd',store.hd);const b=$('#bHD');if(b)b.setAttribute('aria-pressed',String(store.hd))}
+
+/* ---------- HD+ prototype: one light source (top-left sun), contact shadows, ambient occlusion, sheen, generated grain ---------- */
+const TEX={};let texBusy=null;
+function makeTex(kind){const n=128,c=document.createElement('canvas');c.width=c.height=n;const x=c.getContext('2d'),im=x.createImageData(n,n);let s=kind.length*7919+13;
+  const rnd=()=>{s=(s*1103515245+12345)&0x7fffffff;return(s>>16)/32768};const col=kind==='brushV'?new Float32Array(n).map(()=>rnd()):kind==='brushH'?new Float32Array(n).map(()=>rnd()):null;
+  for(let y=0;y<n;y++)for(let xx=0;xx<n;xx++){const i=(y*n+xx)*4;let v;
+    if(kind==='brushV')v=col[xx]*.7+rnd()*.3;else if(kind==='brushH')v=col[y]*.7+rnd()*.3;else if(kind==='concrete')v=.5+.35*Math.sin(xx*.21+Math.sin(y*.17)*2)*Math.cos(y*.13)+rnd()*.35;else v=rnd();
+    const g=Math.round(clamp(v,0,1)*255);im.data[i]=im.data[i+1]=im.data[i+2]=g;im.data[i+3]=kind==='grain'?20:46}
+  x.putImageData(im,0,0);return new Promise(r=>c.toBlob(b=>r(URL.createObjectURL(b))))}
+function ensureTextures(){if(TEX.ready)return Promise.resolve();if(texBusy)return texBusy;const t=performance.now();
+  texBusy=Promise.all(['grain','brushV','brushH','concrete'].map(k=>makeTex(k).then(u=>TEX[k]=u))).then(()=>{TEX.ready=true;TEX.ms=+(performance.now()-t).toFixed(1)});return texBusy}
+function hdpDefs(){const P=(id,u)=>u?`<pattern id="${id}" width="128" height="128" patternUnits="userSpaceOnUse"><image href="${u}" width="128" height="128"/></pattern>`:'';
+  return `<defs>${P('txGrain',TEX.grain)}${P('txBrushV',TEX.brushV)}${P('txBrushH',TEX.brushH)}${P('txConcrete',TEX.concrete)}
+  <linearGradient id="hpLight" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".22"/><stop offset=".45" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".24"/></linearGradient>
+  <linearGradient id="hpSheen" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".3"/><stop offset=".35" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".14"/></linearGradient>
+  <linearGradient id="hpAOtop" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#000" stop-opacity=".38"/><stop offset="1" stop-color="#000" stop-opacity="0"/></linearGradient>
+  <linearGradient id="hpAObot" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".32"/></linearGradient>
+  <linearGradient id="hpSide" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".26"/></linearGradient>
+  <linearGradient id="hpCavity" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#000" stop-opacity=".45"/><stop offset=".25" stop-color="#000" stop-opacity="0"/><stop offset=".8" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".35"/></linearGradient>
+  <radialGradient id="hpShadow"><stop offset="0" stop-color="#000" stop-opacity=".45"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient>
+  <radialGradient id="hpSun"><stop offset="0" stop-color="#ffd46b" stop-opacity=".55"/><stop offset="1" stop-color="#ffd46b" stop-opacity="0"/></radialGradient></defs>`}
+const HDP_OVL={
+  cond(s,d){const O=s.outdoor;let g=`<circle cx="62" cy="54" r="70" fill="url(#hpSun)"/>
+    <ellipse cx="300" cy="368" rx="215" ry="13" fill="url(#hpShadow)"/>
+    <rect x="118" y="350" width="344" height="14" fill="url(#txConcrete)" opacity=".7"/><rect x="118" y="350" width="344" height="1.6" fill="#fff" opacity=".4"/>
+    <rect x="140" y="114" width="300" height="18" fill="url(#hpAOtop)"/><rect x="140" y="332" width="300" height="20" fill="url(#hpAObot)"/>
+    <rect x="404" y="112" width="36" height="240" fill="url(#hpSide)"/>
+    <rect x="134" y="98" width="312" height="1.8" fill="#fff" opacity=".35"/><ellipse cx="236" cy="93" rx="64" ry="5" fill="#fff" opacity=".22"/>
+    <path d="M518 200V120H580" fill="none" stroke="#fff" stroke-opacity=".5" stroke-width="1.5"/>
+    <rect x="440" y="302" width="22" height="3" fill="#fff" opacity=".45"/><rect x="440" y="324" width="18" height="2" fill="#fff" opacity=".45"/>`;
+    if(O.panelOn)g+=`<path d="M300 330V140H440" fill="none" stroke="#fff" stroke-opacity=".55" stroke-width="2"/><path d="M300 330H440V140" fill="none" stroke="#000" stroke-opacity=".28" stroke-width="2"/>${[[310,150],[430,150],[310,320],[430,320]].map(([x,y])=>`<circle cx="${x-.8}" cy="${y-.8}" r="1.2" fill="#fff" opacity=".8"/>`).join('')}`;
+    else g+=`<rect x="300" y="140" width="140" height="190" fill="url(#hpCavity)"/><rect x="384" y="153" width="7" height="78" rx="3.5" fill="#fff" opacity=".35"/><ellipse cx="350" cy="276" rx="24" ry="7" fill="#fff" opacity=".28"/><rect x="312" y="152" width="50" height="3" fill="#fff" opacity=".4"/>`;
+    return g},
+  indoor(s,d){return `<ellipse cx="300" cy="394" rx="190" ry="8" fill="url(#hpShadow)"/><rect x="150" y="120" width="300" height="16" fill="url(#hpAOtop)"/>${s.indoor.doorOn?'':'<rect x="160" y="232" width="280" height="156" fill="url(#hpCavity)"/>'}`},
+  contactor(s,d){return `<path d="M172 340V68q0-10 10-10H418" fill="none" stroke="#fff" stroke-opacity=".55" stroke-width="2"/><path d="M182 342H418q10 0 10-10V68" fill="none" stroke="#000" stroke-opacity=".25" stroke-width="2"/>
+    <rect x="248" y="150" width="104" height="20" fill="url(#hpAOtop)"/><rect x="248" y="234" width="104" height="20" fill="url(#hpAObot)"/>
+    <rect x="266" y="${d.pulled?191:163}" width="68" height="4" rx="2" fill="#fff" opacity=".5"/>`},
+  comp(s,d){return `<ellipse cx="250" cy="300" rx="90" ry="22" fill="#fff" opacity=".18"/><rect x="180" y="70" width="240" height="18" fill="url(#hpAOtop)"/>`}
+};
+/* Generic lighting pass: every metal / painted / copper / fin surface gets the same top-left light,
+   a soft cast shadow (large bodies only) and grain. Works on any scene, including ones added later. */
+const MAT={'k-metal':'L','k-metal2':'L','k-cab':'L','k-panel':'L','k-dark':'D','k-fin':'F','k-copper':'C'};
+const isDark=()=>{const t=document.documentElement.getAttribute('data-theme');return t?t==='dark':!!(window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches)};
+function hdLight(sv){const k=isDark()?.5:1;
+  const els=[...sv.querySelectorAll('rect,circle,ellipse,path,polygon')].filter(e=>[...e.classList].some(k=>MAT[k])&&!e.closest('.term,.pdot,.pchip,.cupill,.hot,.hdp-ovl,defs,pattern')&&!e.parentNode.querySelector(':scope>animateTransform,:scope>animate'));
+  for(const e of els){const kind=MAT[[...e.classList].find(k=>MAT[k])];let bb;try{bb=e.getBBox()}catch(_){continue}const area=bb.width*bb.height;if(area<60)continue;
+    const mk=(style)=>{const c=e.cloneNode(false);c.removeAttribute('class');c.removeAttribute('tabindex');c.setAttribute('style',style);c.setAttribute('pointer-events','none');return c};
+    if(kind==='L'&&area>2500&&area<150000){const sh=mk('fill:#000;stroke:none;opacity:.17');sh.setAttribute('transform','translate(6 7) '+(e.getAttribute('transform')||''));e.parentNode.insertBefore(sh,e)}
+    let last=e;
+    if(TEX.ready&&(kind==='F'||(kind==='L'&&area>6000))){const t=mk(`fill:url(#${kind==='F'?'txBrushV':'txBrushH'});stroke:none;opacity:${(kind==='F'?.45:.3)*k}`);last.after(t);last=t}
+    const l=mk(`fill:url(#${kind==='C'?'hpSheen':'hpLight'});stroke:none;opacity:${(kind==='D'?.6:1)*k}`);last.after(l);
+  }
+}
+function hdInject(){if(!store.hd)return;const sv=$('#scene svg');if(!sv)return;
+  const vb=(sv.getAttribute('viewBox')||'0 0 600 400').split(/[\s,]+/).map(Number);
+  sv.insertAdjacentHTML('afterbegin',HD_DEFS+hdpDefs()+`<defs><linearGradient id="hpScene" gradientUnits="userSpaceOnUse" x1="${vb[0]}" y1="${vb[1]}" x2="${vb[0]+vb[2]}" y2="${vb[1]+vb[3]}"><stop offset="0" stop-color="#fff" stop-opacity=".1"/><stop offset=".5" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".14"/></linearGradient></defs>`);
+  hdLight(sv);
+  const key=UI.cu||(UI.zone!=='house'?UI.zone:null),f=key&&HDP_OVL[key],d=SYS().derive(G.st);
+  const ovl=`<g class="hdp-ovl" pointer-events="none">${f?f(G.st,d):''}<rect x="${vb[0]-400}" y="${vb[1]-300}" width="${vb[2]+800}" height="${vb[3]+600}" fill="url(#hpScene)"/>${TEX.ready?`<rect x="${vb[0]-400}" y="${vb[1]-300}" width="${vb[2]+800}" height="${vb[3]+600}" fill="url(#txGrain)" opacity="${isDark()?.35:.55}"/>`:''}</g>`;
+  const anchor=sv.querySelector('.term,.pdot,.pchip,.cupill,.hot,.air,.duct-flow');anchor?anchor.parentNode===sv||anchor.closest('#world')?anchor.insertAdjacentHTML('beforebegin',ovl):sv.insertAdjacentHTML('beforeend',ovl):sv.insertAdjacentHTML('beforeend',ovl)}
+const hdLevel=()=>store.hd?1:0;
+function setHD(lv){store.hd=lv?1:0;const L=hdLevel();globalThis.HDON=L>=1;globalThis.HDLVL=L;document.documentElement.classList.toggle('hd',L>=1);const b=$('#bHD');if(b){b.setAttribute('aria-pressed',String(L>=1));b.textContent='HD'}
+  if(L&&!TEX.ready)ensureTextures().then(()=>{if(hdLevel())renderScene()})}
 function renderScene(){
+  globalThis.UICONF=UI.confirm;
   const S=SYS(),d=S.derive(G.st),z=UI.zone,zn=S.zones.find(x=>x.id===z).n;
   if(UI.cu){const cu=S.closeups[UI.cu],m=cu.req&&cu.req(G.st);if(m){UI.cu=null;UI.leads=[];UI.place=null;setMsg('Close-up closed: '+m,true)}}
   $('#zones').innerHTML=S.zones.map(x=>`<button class="zc" type="button" data-go="${x.id}" aria-current="${x.id===z&&!UI.cu}">${x.n}</button>`).join('');
   if(UI.cu){const cu=S.closeups[UI.cu];
     $('#scene').innerHTML=renderCloseup();hdInject();$('#where').textContent=`${zn} › ${cu.n}`;
-    $('#bBack').hidden=false;$('#bBack').textContent='← '+zn;$('#sceneHint').textContent='Tap terminals to place your leads';
+    $('#bBack').hidden=false;$('#bBack').textContent='← '+zn;$('#sceneHint').textContent=Object.values(cu.terms).some(t=>t[3]==='v')?'Tap terminals to place your leads':'Tap a spot to measure';
     $('#complist').innerHTML='';$('#complist').hidden=true;$('#bFlow').hidden=true;renderQbar();applyView();return}
   $('#bBack').textContent='← House';
-  $('#scene').innerHTML=z==='house'?S.overview(G.st,d,UI.flow):S.scene(z,G.st,d,UI.comp);hdInject();
+  globalThis._cuPill='';globalThis._cuHint=UI.cuHint&&Date.now()-UI.cuHint.t<5000?UI.cuHint:null;let sv=z==='house'?S.overview(G.st,d,UI.flow):S.scene(z,G.st,d,UI.comp);if(globalThis._cuPill&&!UI.confirm)sv=sv.replace(/<\/svg>$/,globalThis._cuPill+'</svg>');
+  $('#scene').innerHTML=sv;hdInject();
   const bf=$('#bFlow');bf.hidden=z!=='house';bf.setAttribute('aria-pressed',String(UI.flow));
   $('#where').textContent=z==='air'?`${zn} · ${S.geom(G.st).rooms[G.room||0].name}`:zn;
   $('#bBack').hidden=z==='house';
-  $('#sceneHint').textContent=(z==='house'?'Tap equipment to walk over':'Tap a part to inspect it')+' · double-tap to zoom';
+  $('#sceneHint').textContent=z==='house'?'Tap equipment to walk over · double-tap to zoom':'Tap a part to inspect · double-tap it for a close-up';
   const list=z==='house'?[]:Object.entries(S.comps).filter(([id,c])=>c.z===z&&c.vis(G.st));
   $('#complist').innerHTML=list.map(([id,c])=>`<button type="button" data-comp="${id}" aria-pressed="${UI.comp===id}">${c.n}</button>`).join('');
   $('#complist').hidden=!list.length;
@@ -1623,7 +1769,7 @@ function renderQbar(){
     el.hidden=false;el.innerHTML=`<span class="ql">Airflow view</span>${sw('var(--warmair)','Room / return')}${sw('var(--cold)','Cooled supply')}${sw('var(--hot)','Condenser heat')}<div class="qmsg">${S.flowStatus(s,d).map(esc).join(' · ')}. Faster dots = more airflow.</div>`;return}
   if(!btns.length&&!cuId&&!msg){el.hidden=true;el.innerHTML='';return}
   el.hidden=false;
-  el.innerHTML=`${btns.length||cuId?'<span class="ql">Quick</span>':''}${cuId?`<button class="btn primary sm" type="button" data-cu="${cuId}">Open close-up</button>`:''}${btns.slice(0,5).map(([a,l])=>`<button class="btn sm" type="button" data-act="${a}">${esc(l)}</button>`).join('')}${msg?`<div class="qmsg${UI.bad?' bad':''}">${esc(msg)}</div>`:''}`;
+  el.innerHTML=`${btns.length||cuId?'<span class="ql">Quick</span>':''}${cuId?`<button class="btn primary sm" type="button" data-cu="${cuId}">Open close-up</button>`:''}${btns.slice(0,6).map(([a,l])=>`<button class="btn sm" type="button" data-act="${a}">${esc(l)}</button>`).join('')}${msg?`<div class="qmsg${UI.bad?' bad':''}">${esc(msg)}</div>`:''}`;
 }
 function renderMeter(){
   renderTray();
@@ -1689,6 +1835,7 @@ function renderCloseup(){
   return `<svg viewBox="0 0 600 400" role="img" aria-label="${esc(cu.n)} close-up">${g}</svg>`;
 }
 function openCu(id){
+  UI.confirm=null;UI.cuHint=null;
   const S=SYS(),cu=S.closeups[id],m=cu.req&&cu.req(G.st);
   if(m){setMsg(m,true);renderCard();return}
   UI.cu=id;UI.leads=[];UI.place=null;UI.msg=null;
@@ -1883,7 +2030,8 @@ function openStats(){
 
 /* ---------- events ---------- */
 document.addEventListener('click',e=>{
-  const t=e.target.closest('[data-zone],[data-go],[data-comp],[data-probe],[data-act],[data-mode],[data-tab],[data-ask],[data-term],[data-cu],[data-clear],[data-room],[data-showlog],[data-tool],[data-tnav],[data-jack]');if(!t)return;
+  const t=e.target.closest('[data-zone],[data-go],[data-comp],[data-probe],[data-act],[data-mode],[data-tab],[data-ask],[data-term],[data-cu],[data-clear],[data-room],[data-showlog],[data-tool],[data-tnav],[data-jack],[data-confirm]');if(!t)return;
+  if(t.dataset.confirm){UI.confirm=UI.confirm===t.dataset.confirm?null:t.dataset.confirm;renderScene();const pill=document.querySelector('#scene .pchip');if(pill&&e.detail===0)pill.focus();return}
   if(t.dataset.tool)return selectTool(t.dataset.tool);
   if(t.dataset.tnav){const i=TOOLS.findIndex(x=>x.id===UI.tool);return selectTool(TOOLS[(i+(+t.dataset.tnav)+TOOLS.length)%TOOLS.length].id)}
   if(t.dataset.jack){UI.jack=t.dataset.jack;UI.leads=[];UI.place=null;if(UI.jack!=='VO')notePop('ampjack');renderMeter();if(UI.cu)renderScene();return}
@@ -1894,7 +2042,7 @@ document.addEventListener('click',e=>{
   if(t.dataset.zone)return goZone(t.dataset.zone,t.dataset.room);
   if(t.dataset.room!=null){G.room=+t.dataset.room;UI.comp=null;UI.msg=null;renderAll();return}
   if(t.dataset.go)return goZone(t.dataset.go);
-  if(t.dataset.comp)return selectComp(t.dataset.comp);
+  if(t.dataset.comp){if(e.detail===2&&!UI.cu&&SYS().cuOf[t.dataset.comp])return openCu(SYS().cuOf[t.dataset.comp]);return selectComp(t.dataset.comp)}
   if(t.dataset.probe)return probe(t.dataset.probe);
   if(t.dataset.act)return act(t.dataset.act);
   if(t.dataset.mode){if(!TOOL_BY[UI.tool].fns.includes(t.dataset.mode))return;UI.mode=t.dataset.mode;UI.leads=[];if(UI.cu){UI.place=null;renderScene()}renderMeter();renderCard();return}
@@ -1902,7 +2050,7 @@ document.addEventListener('click',e=>{
   if(t.dataset.ask){const k=t.dataset.ask;G.asked[k]=true;G.order.push('q:'+k);addLog(`Asked: ${QS.find(q=>q[0]===k)[1]}`);renderTab();return}
 });
 document.addEventListener('keydown',e=>{
-  if((e.key==='Enter'||e.key===' ')&&e.target.matches('g[data-zone],g[data-comp],g[data-term]')){e.preventDefault();e.target.dispatchEvent(new MouseEvent('click',{bubbles:true}))}
+  if((e.key==='Enter'||e.key===' ')&&e.target.matches('g[data-zone],g[data-comp],g[data-term],g[data-act],g[data-confirm],g[data-cu]')){e.preventDefault();e.target.dispatchEvent(new MouseEvent('click',{bubbles:true}))}
   if(e.key==='Escape'&&$('#ov').innerHTML&&!$('#whyGo'))closeOv();
 });
 $('#bBack').onclick=()=>{if(UI.cu){UI.cu=null;UI.leads=[];UI.place=null;UI.msg=null;renderAll();return}UI.zone='house';UI.comp=null;UI.msg=null;renderAll()};
@@ -1920,9 +2068,10 @@ function clampVB(x,y,w,hh){const b=VIEW.base;w=clamp(w,b[2]/4,b[2]);hh=w*b[3]/b[
 function zoomAround(px,py,factor,from){const c=from||VIEW.cur||VIEW.base,w=c[2]/factor,k=w/c[2];
   const v=clampVB(px-(px-c[0])*k,py-(py-c[1])*k,w,c[3]*k);VIEW.cur=v[2]>=VIEW.base[2]-.5?null:v;setVB()}
 function toSvg(cx,cy){const sv=sceneSvg(),m=sv.getScreenCTM();if(!m)return{x:0,y:0};const pt=sv.createSVGPoint();pt.x=cx;pt.y=cy;return pt.matrixTransform(m.inverse())}
+function dblPart(t){const c=t.closest&&t.closest('[data-comp]');if(!c||UI.cu)return;const id=SYS().cuOf[c.dataset.comp];if(id)openCu(id)}
 (function(){
   const sc=$('#scene'),P=new Map();let pinch=null,drag=null,moved=false,lastTap=null,raf=0,lastPT='mouse';
-  const interactive=t=>t.closest('[data-zone],[data-comp],[data-term],button,a');
+  const interactive=t=>t.closest('[data-zone],[data-comp],[data-term],[data-act],[data-confirm],[data-cu],button,a');
   const sched=fn=>{cancelAnimationFrame(raf);raf=requestAnimationFrame(fn)};
   sc.addEventListener('pointerdown',e=>{lastPT=e.pointerType;if(e.pointerType==='mouse'&&e.button!==0)return;if(!sceneSvg())return;
     P.set(e.pointerId,{x:e.clientX,y:e.clientY});if(P.size===1)moved=false;
@@ -1939,18 +2088,18 @@ function toSvg(cx,cy){const sv=sceneSvg(),m=sv.getScreenCTM();if(!m)return{x:0,y
     if(P.size<2)pinch=null;
     if(P.size===1){const [id,p]=[...P.entries()][0];drag={x:p.x,y:p.y,vb:(VIEW.cur||VIEW.base).slice(),id}}
     if(P.size===0){drag=null;
-      if(e.type==='pointerup'&&e.pointerType!=='mouse'&&!moved&&!interactive(e.target)){const now=Date.now();
-        if(lastTap&&now-lastTap.t<320&&Math.hypot(e.clientX-lastTap.x,e.clientY-lastTap.y)<34){const p=toSvg(e.clientX,e.clientY);VIEW.cur?(VIEW.cur=null,setVB()):zoomAround(p.x,p.y,2.2);lastTap=null}
+      if(e.type==='pointerup'&&e.pointerType!=='mouse'&&!moved){const now=Date.now(),it=interactive(e.target);
+        if(lastTap&&now-lastTap.t<320&&Math.hypot(e.clientX-lastTap.x,e.clientY-lastTap.y)<34){if(it)dblPart(e.target);else{const p=toSvg(e.clientX,e.clientY);VIEW.cur?(VIEW.cur=null,setVB()):zoomAround(p.x,p.y,2.2)}lastTap=null}
         else lastTap={t:now,x:e.clientX,y:e.clientY}}}};
   sc.addEventListener('pointerup',end);sc.addEventListener('pointercancel',end);
   sc.addEventListener('click',e=>{if(moved){e.stopPropagation();e.preventDefault();moved=false}},true);
-  sc.addEventListener('dblclick',e=>{if(lastPT!=='mouse'||interactive(e.target))return;const p=toSvg(e.clientX,e.clientY);VIEW.cur?(VIEW.cur=null,setVB()):zoomAround(p.x,p.y,2.2)});
+  sc.addEventListener('dblclick',e=>{if(lastPT!=='mouse')return;if(interactive(e.target)){dblPart(e.target);return}const p=toSvg(e.clientX,e.clientY);VIEW.cur?(VIEW.cur=null,setVB()):zoomAround(p.x,p.y,2.2)});
   sc.addEventListener('wheel',e=>{if(!e.ctrlKey&&!VIEW.cur)return;e.preventDefault();const p=toSvg(e.clientX,e.clientY);zoomAround(p.x,p.y,Math.exp(-e.deltaY*(e.ctrlKey?.01:.0025)))},{passive:false});
   ['gesturestart','gesturechange'].forEach(t=>sc.addEventListener(t,e=>e.preventDefault(),{passive:false}));
   $('#bView').onclick=()=>{VIEW.cur=null;setVB()};
 })();
 $('#bStats').onclick=openStats;
-$('#bHD').onclick=()=>{setHD(!store.hd);save();renderScene()};
+$('#bHD').onclick=()=>{setHD(hdLevel()?0:1);save();renderScene()};
 setHD(store.hd);
 const setHdr=()=>document.documentElement.style.setProperty('--hdr',$('header.top').offsetHeight+'px');
 addEventListener('resize',setHdr);addEventListener('orientationchange',()=>setTimeout(setHdr,250));setHdr();
