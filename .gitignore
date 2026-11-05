@@ -1,0 +1,4 @@
+dev/tests/engine*.js
+dev/tests/ui.js
+dev/.shots/
+__pycache__/

@@ -148,6 +148,9 @@ manifest.webmanifest  install settings (name, icons, colors)
 icons/                app icons
 ```
 
+## Developing
+Edit `dev/hvac-sim.html` (source), run `python3 dev/build.py` to rebuild `index.html`, then run the tests in `dev/tests/`. `CLAUDE.md` has the full workflow and architecture notes.
+
 **Updating:** after replacing `index.html`, change `VERSION` in `sw.js` (e.g. `hvac-sim-v8.10` → `hvac-sim-v9`) and the version tag in the `index.html` title so installed copies pick up the new build.
 
 ## Changelog
