@@ -1,7 +1,7 @@
 # HVAC Service Call Sim — project notes for Claude Code
 
 Point-and-click HVAC service-call training sim (residential split A/C). An offline PWA on GitHub Pages:
-https://waawaaweewaa.github.io/HVAC-Service-Call-Sim/ . Owner: Marco (product owner, QA). Current version: **v8.10**.
+https://waawaaweewaa.github.io/HVAC-Service-Call-Sim/ . Owner: the repo owner (product owner, QA). Current version: **v8.10**.
 
 ## Files
 | Path | What it is |
@@ -11,11 +11,12 @@ https://waawaaweewaa.github.io/HVAC-Service-Call-Sim/ . Owner: Marco (product ow
 | `index.html` | Built output, deployed. |
 | `sw.js` | Service worker. The cache name in `VERSION` must be bumped every release. |
 | `manifest.webmanifest`, `icons/` | PWA metadata. |
+| `DECISIONS.md` | Why past decisions were made. **Read before proposing to change anything established.** When the owner makes a new decision, add an entry. |
 | `README.md` | Public readme: features, hazard coverage table, roadmap, changelog (newest first). |
 | `dev/tests/` | Regression tests (see below). |
 
 ## Workflow for every change
-1. Before building anything, give Marco 3–5 failure modes (a "Red Team" pass) and a confidence assessment, then wait for approval.
+1. Before building anything, give the owner 3–5 failure modes (a "Red Team" pass) and a confidence assessment, then wait for approval.
 2. Edit `dev/hvac-sim.html`. Prefer small, exact replacements.
 3. `python3 dev/build.py`, then `node --check dev/tests/engine.js && node --check dev/tests/ui.js`.
 4. Run the tests (all must pass):
@@ -26,14 +27,14 @@ https://waawaaweewaa.github.io/HVAC-Service-Call-Sim/ . Owner: Marco (product ow
    - `python3 hdall.py` → screenshots of every scene and close-up, light and dark, HD on, saved to `dev/.shots/`. **Look at them.** Click hit tests must all pass.
    - `python3 perf.py` (optional) → render time and fps at 1×/4×/6× CPU throttle
    - Python tests need `pip install playwright && playwright install chromium`.
-5. Release (only when Marco says so):
+5. Release (only when the owner says so):
    - bump `<sup class="ver">` in the source
    - bump `VERSION` in `sw.js`
    - add a README changelog entry
    - rebuild
    - suggest a conventional commit message (`feat: … (v8.11)`)
 
-Marco uploads to GitHub himself unless he asks you to commit or push.
+The owner uploads to GitHub manually unless they ask you to commit or push.
 
 ## Architecture (in `dev/hvac-sim.html`)
 - **Engine:**
@@ -68,10 +69,10 @@ Marco uploads to GitHub himself unless he asks you to commit or push.
 - Labels must not overlap; check the screenshots.
 - No network at runtime (offline PWA). Fonts are cached by the service worker.
 - Educational accuracy matters more than visuals. Flag anything technically wrong about HVAC plainly.
-- Marco's style: direct, concise, tables. No filler. Flag errors plainly.
+- Communication: direct, concise, tables. No filler. Flag errors plainly.
 
 ## Open decision
-Mislabeled breaker for v9:
+Mislabeled breaker for v9 (see DECISIONS.md D25):
 - **A:** rare, paired with verify-dead
 - **B:** field note plus a tutorial call
 
